@@ -18,10 +18,51 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+const PERFIS = {
+  "gestor@faceeonline.ac.mz": ["ALL"],
+  "administrativo@faceeonline.ac.mz": ["CREDENCIAL", "ESTATISTICAS"],
+  "parecertecnico@faceeonline.ac.mz": ["PARECER", "ESTATISTICAS"],
+  "supervisor@faceeonline.ac.mz": ["ATRIBUIR_SUPERVISOR", "ESTATISTICAS"],
+};
+
+const MAPA_BOTOES = {
+  btnGestaoGeral: "ALL",
+  btnMonografiaFinal: "ALL",
+  btnCredencialPesquisa: "CREDENCIAL",
+  btnEstatisticas: "ESTATISTICAS",
+  btnParecerTec: "PARECER",
+  btnAtribuirSuperv: "ATRIBUIR_SUPERVISOR",
+  btnHomologarSuperv: "ALL",
+};
+
+function obterPermissoes(email) {
+  if (!email) return null;
+  return PERFIS[email.toLowerCase()] || null;
+}
+
+function aplicarRestricoesUI(email) {
+  const permissoes = obterPermissoes(email);
+
+  if (!permissoes) {
+    return;
+  }
+
+  Object.entries(MAPA_BOTOES).forEach(([btnId, permissao]) => {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+
+    if (permissoes.includes("ALL") || permissoes.includes(permissao)) {
+      btn.style.display = "";
+    } else {
+      btn.style.display = "none";
+    }
+  });
+}
+
 window.loginGestor = function (email, senha) {
   signInWithEmailAndPassword(auth, email, senha)
     .then((cred) => {
-      if (cred.user.email !== "gestor@faceeonline.ac.mz") {
+      if (!obterPermissoes(cred.user.email)) {
         signOut(auth);
         alert("Acesso não autorizado");
         return;
@@ -35,8 +76,10 @@ window.loginGestor = function (email, senha) {
 
 window.protegerGestor = function () {
   onAuthStateChanged(auth, (user) => {
-    if (!user || user.email !== "gestor@faceeonline.ac.mz") {
+    if (!user || !obterPermissoes(user.email)) {
       window.location.href = "index.html";
+      return;
     }
+    aplicarRestricoesUI(user.email);
   });
 };
