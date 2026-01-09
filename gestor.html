@@ -1,0 +1,95 @@
+ <!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal do Gestor | Secretaria Online</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="icon" href="/favicon.png">
+</head>
+<body>
+  <div class="page">
+    <header id="site-header"></header>
+
+    <main class="main-container">
+      <section class="page-section">
+
+        <!-- TÍTULO DO PORTAL DO GESTOR -->
+        <div class="section-header">
+          <span class="badge">Portal do Gestor</span>
+        </div>
+
+        <!-- BOTÕES -->
+<div class="actions">
+  <button class="button" id="btnGestaoGeral">Tema Monografia</button>
+  <button class="button" id="btnMonografiaFinal">Monografia Final</button>
+  <button class="button" id="btnCredencialPesquisa">Credencial Pesquisa</button>
+  <button class="button" id="btnEstatisticas">Listas e Estatísticas</button>
+
+  <!-- NOVOS BOTÕES -->
+  <button class="button" id="btnParecerTec">Parecer</button>
+  <div id="acoesSupervisor" class="acoes-supervisor">
+    <button class="button" id="btnAtribuirSuperv">Atribuir Supervisor</button>
+    <button class="button" id="btnHomologarSuperv">Homologar Supervisor</button>
+    <a class="button secondary" href="./index.html">Voltar à página inicial</a>
+
+    <div id="loadingAtribuirSupervisor" class="loading-local" hidden>
+      A carregar…
+    </div>
+  </div>
+</div>
+
+
+        <!-- CONTAINER PARA LISTAS E ESTATÍSTICAS (APARECE APENAS QUANDO CLICAR) -->
+        <div id="estatisticasContainer" class="estatisticas-container" style="display:none;">
+
+          <div class="estat-box">
+
+            <div class="estat-row">
+              <label for="tipoRelatorio">Selecione o tipo de relatório:</label>
+              <select id="tipoRelatorio">
+                  <option value="">-- Selecione --</option>
+                  <option value="tema_total">Tema de monografia: Total</option>
+                  <option value="tema_homologados">Tema de monografia: Supervisores homologados</option>
+                  <option value="tema_nao_homologados">Tema de monografia: Não homologados</option>
+                  <option value="monografia_total">Versão final de monografia: Total</option>
+                  <option value="monografia_aprovadas">Versão final de monografia: Submissões aprovadas</option>
+                  <option value="cred_total">Credencial: Total</option>
+                  <option value="cred_aprovados">Credencial: Aprovados</option>
+              </select>
+            </div>
+
+            <div class="estat-row">
+              <label>Selecione o período:</label>
+              <div class="estat-periodo">
+                <input id="periodoInicio" type="date">
+                <input id="periodoFim" type="date">
+              </div>
+            </div>
+
+            <button id="btnBuscarEstatisticas" class="btn-simples">Buscar</button>
+            <div id="resultadoRelatorio" style="margin-top:15px;"></div>
+
+          </div>
+
+        </div>
+
+        <!-- TABELA GERAL DAS GESTÕES (NÃO ALTERAR) -->
+        <div id="tabelaGestaoGeral"></div>
+
+      </section>
+    </main>
+  </div>
+
+  <script src="./js/main.js"></script>
+  <!-- HEADER -->
+  <script type="module">
+    import { renderHeader } from './componentes/header.js';
+
+    renderHeader(document.getElementById('site-header'));
+
+    import './js/gestor.js';
+  </script>
+
+</body>
+</html>

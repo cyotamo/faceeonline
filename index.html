@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secretaria Online</title>
+<link rel="icon" href="/favicon.png">
+<link rel="apple-touch-icon" href="/faceeonline/favicon.png">
+<link rel="stylesheet" href="./css/style.css">
+<link rel="manifest" href="/faceeonline/manifest.json">
+<meta name="theme-color" content="#0b3c5d">
+<meta property="og:title" content="Secretaria online">
+<meta property="og:description" content="Acesso rápido aos serviços académicos da Faculdade de Ciências Económicas e Empresariais">
+<meta property="og:image" content="https://seconlinefacee.web.app/og-image.png">
+<meta property="og:url" content="https://seconlinefacee.web.app/">
+<meta property="og:type" content="website">
+
+<meta name="twitter:image" content="https://seconlinefacee.web.app/og-image.png">
+
+
+
+  <style></style>
+</head>
+<body>
+  <div class="page">
+    <header id="site-header"></header>
+
+    <main class="hero">
+      <section class="cta">
+        <h1 class="title">Secretaria Online</h1>
+        <p class="subtitle">
+          Escolha o seu portal e aceda rapidamente aos serviços da faculdade.
+        </p>
+
+        <div class="actions">
+          <a class="cta-button" href="./aluno.html">Estudantes</a>
+          <a class="cta-button" href="./docente.html">Docentes</a>
+          <a class="cta-button" href="./gestor.html">Gestores</a>
+
+
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Component Header -->
+  <script type="module">
+    import { renderHeader } from './componentes/header.js';
+    renderHeader(document.getElementById('site-header'));
+  </script>
+
+  <script src="/js/pwa.js"></script>
+
+</body>
+</html>

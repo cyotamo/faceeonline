@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal do Estudante | Secretaria Online</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="icon" href="/favicon.png">
+</head>
+<body>
+  <div class="page">
+  <header id="site-header"></header>
+
+  <main class="main-container">
+    <section class="page-section">
+      <div class="section-header">
+        <span class="badge">Portal do Estudante</span>
+      </div>
+
+      <div class="actions">
+        <button id="btnTema" class="button btn-navegacao" type="button">Tema de Monografia</button>
+        <button class="button btn-navegacao" id="btnMonografia" type="button">Monografia Final</button>
+        <button class="button btn-navegacao" id="btnPedidoCredencial">Credencial Pesquisa</button>
+        <button class="button btn-navegacao" id="btnConsultaEstado" type="button">Consulta de Estado</button> 
+        <button class="button btn-navegacao" id="btnBaixarFormulario" type="button">Baixar Formulários</button>                                                                                               
+        
+        <a class="button secondary" href="./index.html">Voltar à página inicial</a>
+      </div>
+    </section>
+
+    <div id="form-container"></div>
+
+    <div id="containerDocumentos" class="container-conteudo" style="display:none;">
+      <div class="form-card">
+        <h2>Documentos Disponíveis</h2>
+        <div id="loadingDocumentos" style="display:none;">
+          A carregar documentos<span id="dots"></span>
+        </div>
+        <ul id="listaDocumentos"></ul>
+      </div>
+    </div>
+
+<div id="resultadoConsultaEstado" class="form-card" style="display:none">
+  <p><strong>Nome:</strong> <span id="resNome"></span></p>
+  <p><strong>Número:</strong> <span id="resNumero"></span></p>
+  <p><strong>Submissão:</strong> <span id="resSubmissao"></span></p>
+  <p><strong>Parecer:</strong> <span id="resParecer"></span></p>
+  <p id="linhaObservacoes" style="display:none;">
+  <strong>Observações:</strong> <span id="resObservacoes"></span>
+  </p>
+  <p><strong>Atribuição de Supervisor:</strong> <span id="resAtribuicao"></span></p>
+  <p><strong>Homologação de Supervisor:</strong> <span id="resHomologacao"></span></p>
+  <p><strong>Comprovativo:</strong> <span id="resPdfHomologacao"></span></p>
+</div>
+
+
+    <div id="pdfReprovadoContainer" class="form-card" style="display:none; margin-top:20px;">
+      <p><strong>Parecer detalhado:</strong></p>
+      <a id="pdfReprovadoLink" href="#" target="_blank" class="btn-submeter">Baixar PDF</a>
+    </div>
+  </main>
+</div>
+  <script src="./js/main.js"></script>
+  <script src="./js/aluno.js"></script>
+  
+  <script type="module">
+    import { renderHeader } from './componentes/header.js';
+    renderHeader(document.getElementById('site-header'));
+  </script>
+ 
+  <script>
+    const btnTema = document.getElementById('btnTema');
+    const btnMonografia = document.getElementById('btnMonografia');
+    const btnPedidoCredencial = document.getElementById('btnPedidoCredencial');
+
+    btnTema?.addEventListener('click', () => {
+      if (!formContainer) return;
+
+      formContainer.innerHTML = `
+        <h2>Submissão de Tema de Monografia</h2>
+        <div class="alert-obrigatorio">
+          ⚠️ Atenção: É obrigatório o preenchimento de todos os campos.  
+          Caso contrário, os dados não serão enviados.
+        </div>
+
+        <form id="formTema">
+
+            <label for="nome">Nome (Iniciais maiúsculas):</label>
+            <input type="text" id="nome" required>
+
+            <label for="numero">Número de Estudante (sem pontos "." somente números):</label>
+            <input type="text" id="numero" required>
+
+            <label for="contacto1">Contacto Telefónico 1:</label>
+            <input type="text" id="contacto1" required>
+
+            <label for="contacto2">Contacto Telefónico 2:</label>
+            <input type="text" id="contacto2">
+
+            <label for="departamento">Departamento:</label>
+            <select id="departamento" required>
+              <option value="">Seleccione...</option>
+            </select>
+
+            <label for="curso">Curso:</label>
+            <select id="curso" required>
+              <option value="">Seleccione...</option>
+            </select>
+
+            <label for="linha">Linha de Pesquisa:</label>
+            <select id="linha" required>
+              <option value="">Seleccione...</option>
+            </select>
+
+            <label for="supervisor">Proposta de Supervisor:</label>
+            <select id="supervisor" required>
+              <option value="">Seleccione...</option>
+            </select>
+
+            <label for="tema">Título/Tema:</label>
+            <input type="text" id="tema" required>
+
+            <label for="descricao">Descrição breve da pesquisa (máx 800 caracteres):</label>
+            <textarea id="descricao" maxlength="800"></textarea>
+
+            <button type="button" class="btn-submeter" onclick="enviarTema()">Enviar</button>
+
+        </form>
+      `;
+
+      carregarDadosLinhas().then(() => activarFiltrosFormulario());
+    });
+
+    btnMonografia?.addEventListener('click', () => {
+      if (!formContainer) return;
+
+      formContainer.innerHTML = '';
+
+      formContainer.innerHTML = `
+        <h2>Submissão da Versão Final da Monografia</h2>
+        <div class="alert-obrigatorio">
+          ⚠️ Atenção: É obrigatório o preenchimento de todos os campos.  
+          Caso contrário, os dados não serão enviados.
+        </div>
+
+        <form id="formMonografiaFinal">
+
+            <label for="nome">Nome (Iniciais maiúsculas):</label>
+            <input type="text" id="nome" required>
+
+            <label for="numero">Número de Estudante (sem pontos "." somente números):</label>
+            <input type="text" id="numero" required>
+
+            <label for="contacto1">Contacto 1:</label>
+            <input type="text" id="contacto1" required>
+
+            <label for="contacto2">Contacto 2:</label>
+            <input type="text" id="contacto2">
+
+            <label for="departamento">Departamento:</label>
+            <select id="departamento" required>
+              <option value="">Seleccione...</option>
+            </select>
+
+            <label for="curso">Curso:</label>
+            <select id="curso" required>
+              <option value="">Seleccione...</option>
+            </select>
+
+            <label for="titulo">Título da Monografia:</label>
+            <input type="text" id="titulo" required>
+
+            <label for="keywords">Palavras-chave:</label>
+            <input type="text" id="keywords">
+
+            <label for="supervisor">Supervisor:</label>
+            <select id="supervisor" required>
+              <option value="">Seleccione...</option>
+
+              <!-- LISTA FIXA DE SUPERVISORES (ORDENADA E SEM DUPLICADOS) -->
+              <option value="Dr. Adão Indipita">Dr. Adão Indipita</option>
+              <option value="Dr. Anli Bugdade">Dr. Anli Bugdade</option>
+              <option value="Dr. António Missomal">Dr. António Missomal</option>
+              <option value="Dr. Cremildo da Silva Filipe">Dr. Cremildo da Silva Filipe</option>
+              <option value="Dr. Elmano Mendes">Dr. Elmano Mendes</option>
+              <option value="Dr. Isaquiel Estamilo">Dr. Isaquiel Estamilo</option>
+              <option value="Dr. Issufo Yancubo">Dr. Issufo Yancubo</option>
+              <option value="Dr. Valdemiro Cumpe">Dr. Valdemiro Cumpe</option>
+
+              <option value="Dra. Lúcia Pulveira">Dra. Lúcia Pulveira</option>
+              <option value="Dra Mónica Calande">Dra Mónica Calande</option>
+
+              <option value="Mestre Abudo Sadate Ucade">Mestre Abudo Sadate Ucade</option>
+              <option value="Mestre Alcido Manuel Juaniha">Mestre Alcido Manuel Juaniha</option>
+              <option value="Mestre Benedito Machado">Mestre Benedito Machado</option>
+              <option value="Mestre Fabião Jaquissone">Mestre Fabião Jaquissone</option>
+              <option value="Mestre Faruque Jalilo">Mestre Faruque Jalilo</option>
+              <option value="Mestre Inês Neuana">Mestre Inês Neuana</option>
+              <option value="Mestre Itelvina Ribeiro">Mestre Itelvina Ribeiro</option>
+              <option value="Mestre King Francisco Chigalo">Mestre King Francisco Chigalo</option>
+              <option value="Mestre Sadoque Elias Nascimento">Mestre Sadoque Elias Nascimento</option>
+
+              <option value="Prof. Dr. António Pereira">Prof. Dr. António Pereira</option>
+              <option value="Prof. Dr. Armando Agostinho Tomás">Prof. Dr. Armando Agostinho Tomás</option>
+              <option value="Prof. Dr. Castigo José Castigo">Prof. Dr. Castigo José Castigo</option>
+              <option value="Prof. Dr. Cremildo José Yotamo">Prof. Dr. Cremildo José Yotamo</option>
+              <option value="Prof. Dr. Martinho Niamale">Prof. Dr. Martinho Niamale</option>
+
+              <!-- OPÇÃO ADICIONAL -->
+              <option value="Outro">Outro</option>
+            </select>
+
+            <label for="nota">Nota Final:</label>
+            <input type="text" id="nota" required>
+
+            <label for="dataDefesa">Data de Defesa (DD-MM-AAAA):</label>
+            <input type="text" id="dataDefesa" placeholder="DD-MM-AAAA" required>
+
+            <label for="ficheiro">Anexe aqui o seu trabalho (PDF):</label>
+            <input type="file" id="ficheiro" name="ficheiro" accept="application/pdf" required>
+
+            <button type="button" class="btn-submeter" onclick="enviarMonografiaFinal()">Enviar</button>
+
+        </form>
+      `;
+
+      carregarDadosLinhas().then(() => {
+        activarFiltrosFormulario();
+      });
+    });
+
+    btnPedidoCredencial?.addEventListener('click', () => {
+      if (!formContainer) return;
+
+      formContainer.innerHTML = `
+        <h2>Pedido de Credencial – Colecta de dados</h2>
+        <div class="alert-obrigatorio">
+          ⚠️ Atenção: É obrigatório o preenchimento de todos os campos.  
+          Caso contrário, os dados não serão enviados.
+        </div>
+
+        <form id="formPedidoCredencial">
+
+            <label for="nome">Nome (Iniciais maiúsculas):</label>
+            <input type="text" id="nome" required>
+
+            <label for="numeroEstudante">Número de Estudante (sem pontos "." somente números):</label>
+            <input type="text" id="numeroEstudante" required>
+
+            <label for="curso">Curso:</label>
+            <select id="curso" required>
+            <option value="">Seleccione...</option>
+            <option value="Economia">Economia</option>
+            <option value="Gestão de Empresas">Gestão de Empresas</option>
+            <option value="Gestão de Recursos Humanos">Gestão de Recursos Humanos</option>
+            <option value="Contabilidade e Auditoria">Contabilidade e Auditoria</option>
+            <option value="Contabilidade e Fiscalidade">Contabilidade e Fiscalidade</option>
+            </select>
+
+
+            <label for="titulo">Título:</label>
+            <input type="text" id="titulo" required>
+
+            <label for="organizacao">Organização:</label>
+            <input type="text" id="organizacao" required>
+
+<label for="supervisor">Supervisor:</label>
+<select id="supervisor" required>
+  <option value="">Seleccione...</option>
+
+  <!-- LISTA FIXA DE SUPERVISORES (ORDENADA E SEM DUPLICADOS) -->
+  <option value="Dr. Adão Indipita">Dr. Adão Indipita</option>
+  <option value="Dr. Anli Bugdade">Dr. Anli Bugdade</option>
+  <option value="Dr. António Missomal">Dr. António Missomal</option>
+  <option value="Dr. Cremildo da Silva Filipe">Dr. Cremildo da Silva Filipe</option>
+  <option value="Dr. Elmano Mendes">Dr. Elmano Mendes</option>
+  <option value="Dr. Isaquiel Estamilo">Dr. Isaquiel Estamilo</option>
+  <option value="Dr. Issufo Yancubo">Dr. Issufo Yancubo</option>
+  <option value="Dr. Valdemiro Cumpe">Dr. Valdemiro Cumpe</option>
+
+  <option value="Dra. Lúcia Pulveira">Dra. Lúcia Pulveira</option>
+  <option value="Dra Mónica Calande">Dra Mónica Calande</option>
+
+  <option value="Mestre Abudo Sadate Ucade">Mestre Abudo Sadate Ucade</option>
+  <option value="Mestre Alcido Manuel Juaniha">Mestre Alcido Manuel Juaniha</option>
+  <option value="Mestre Benedito Machado">Mestre Benedito Machado</option>
+  <option value="Mestre Fabião Jaquissone">Mestre Fabião Jaquissone</option>
+  <option value="Mestre Faruque Jalilo">Mestre Faruque Jalilo</option>
+  <option value="Mestre Inês Neuana">Mestre Inês Neuana</option>
+  <option value="Mestre Itelvina Ribeiro">Mestre Itelvina Ribeiro</option>
+  <option value="Mestre King Francisco Chigalo">Mestre King Francisco Chigalo</option>
+  <option value="Mestre Sadoque Elias Nascimento">Mestre Sadoque Elias Nascimento</option>
+
+  <option value="Prof. Dr. António Pereira">Prof. Dr. António Pereira</option>
+  <option value="Prof. Dr. Armando Agostinho Tomás">Prof. Dr. Armando Agostinho Tomás</option>
+  <option value="Prof. Dr. Castigo José Castigo">Prof. Dr. Castigo José Castigo</option>
+  <option value="Prof. Dr. Cremildo José Yotamo">Prof. Dr. Cremildo José Yotamo</option>
+  <option value="Prof. Dr. Martinho Niamale">Prof. Dr. Martinho Niamale</option>
+</select>
+
+
+            <button type="button" class="btn-submeter" onclick="enviarPedidoCredencial()">Submeter</button>
+
+        </form>
+      `;
+
+      carregarDadosLinhas().then(() => activarFiltrosFormulario());
+    });
+  </script>
+
+  <!-- Modal de Sucesso (reutilizável para todos os formulários) -->
+  <div id="modalSucesso" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <h3 class="modal-title">Operação concluída</h3>
+      <p id="modalMensagem" class="modal-text"></p>
+      <button id="modalOk" class="modal-ok-btn">OK</button>
+    </div>
+  </div>
+</body>
+</html>

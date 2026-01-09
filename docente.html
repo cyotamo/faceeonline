@@ -1,0 +1,54 @@
+ <!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal do Docente | Secretaria Online</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="icon" href="/favicon.png">
+</head>
+<body>
+  <div class="page">
+    <header id="site-header"></header>
+
+    <main class="main-container docente-page">
+      <!-- ===== SECÇÃO PRINCIPAL (mantida) ===== -->
+      <section class="page-section">
+        <div class="section-header">
+          <span class="badge">Portal do Docente</span>
+          <!-- ❌ removido texto de avaliação -->
+          <h1 class="section-title">Submissão do Plano de Disciplina</h1>
+          <p class="section-subtitle">
+            Selecione o seu nome para consultar as disciplinas e submeter o respectivo plano analítico.
+          </p>
+        </div>
+
+        <!-- ===== AÇÕES (limpas) ===== -->
+        <div class="actions">
+          <!-- ⚠️ ID mantido para o JS -->
+          <button class="button" id="btnPlano">Submeter Plano</button>
+
+          <!-- ❌ botões removidos -->
+          <!-- Aprovar Versões Finais -->
+          <!-- Consultar Submissões -->
+          <!-- Feedback aos Estudantes -->
+
+          <a class="button secondary" href="./index.html">Voltar à página inicial</a>
+        </div>
+
+        <!-- ⚠️ O JS injeta tudo aqui -->
+        <div id="formPlanoContainer" class="planos-analiticos"></div>
+      </section>
+
+      <!-- ❌ SECÇÃO "PAINEL RÁPIDO" TOTALMENTE REMOVIDA -->
+    </main>
+  </div>
+
+  <script src="./js/main.js"></script>
+  <script type="module">
+    import { renderHeader } from './componentes/header.js';
+    renderHeader(document.getElementById('site-header'));
+    import './js/docente.js';
+  </script>
+</body>
+</html>
