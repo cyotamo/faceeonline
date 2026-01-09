@@ -46,10 +46,7 @@
   <div id="modalLogin" style="display:none">
     <input type="email" id="emailGestor" placeholder="Email">
     <input type="password" id="senhaGestor" placeholder="Senha">
-    <button type="button" onclick="loginGestor(
-      document.getElementById('emailGestor').value,
-      document.getElementById('senhaGestor').value
-    )">Entrar</button>
+    <button type="button" id="btnLoginGestor">Entrar</button>
   </div>
 
   <!-- Component Header -->
@@ -60,8 +57,30 @@
 
   <script type="module" src="js/auth.js"></script>
   <script type="module">
-    document.getElementById("btnGestores").addEventListener("click", () => {
-      document.getElementById("modalLogin").style.display = "block";
+    document.addEventListener("DOMContentLoaded", () => {
+      const btn = document.getElementById("btnGestores");
+      const modal = document.getElementById("modalLogin");
+      const btnLogin = document.getElementById("btnLoginGestor");
+      const emailInput = document.getElementById("emailGestor");
+      const senhaInput = document.getElementById("senhaGestor");
+
+      if (btn && modal) {
+        btn.addEventListener("click", () => {
+          modal.style.display = "block";
+        });
+      } else {
+        console.error("Botão Gestores ou modalLogin não encontrado");
+      }
+
+      if (btnLogin && emailInput && senhaInput) {
+        btnLogin.addEventListener("click", () => {
+          if (typeof window.loginGestor === "function") {
+            window.loginGestor(emailInput.value, senhaInput.value);
+          } else {
+            console.error("Função loginGestor não encontrada");
+          }
+        });
+      }
     });
   </script>
 
