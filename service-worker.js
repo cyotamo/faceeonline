@@ -1,7 +1,7 @@
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open("app-shell-v1").then((cache) => {
-      return cache.addAll(["/", "/index.html"]);
+      return cache.addAll(["/faceeonline/", "/faceeonline/index.html"]);
     })
   );
   self.skipWaiting();
