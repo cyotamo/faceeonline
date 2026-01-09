@@ -65,7 +65,13 @@
     });
   </script>
 
-  <script type="module" src="js/pwa.js"></script>
+  <script type="module">
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/faceeonline/service-worker.js", {
+        scope: "/faceeonline/"
+      });
+    }
+  </script>
 
 </body>
 </html>
