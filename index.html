@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Secretaria Online</title>
-<link rel="icon" href="/favicon.png">
+<link rel="icon" href="favicon.png">
 <link rel="apple-touch-icon" href="/faceeonline/favicon.png">
 <link rel="stylesheet" href="./css/style.css">
-<link rel="manifest" href="/faceeonline/manifest.json">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0b3c5d">
 <meta property="og:title" content="Secretaria online">
 <meta property="og:description" content="Acesso rápido aos serviços académicos da Faculdade de Ciências Económicas e Empresariais">
@@ -59,13 +59,13 @@
   </script>
 
   <script type="module" src="js/auth.js"></script>
-  <script>
-    document.getElementById("btnGestores").onclick = () => {
+  <script type="module">
+    document.getElementById("btnGestores").addEventListener("click", () => {
       document.getElementById("modalLogin").style.display = "block";
-    };
+    });
   </script>
 
-  <script src="/js/pwa.js"></script>
+  <script type="module" src="js/pwa.js"></script>
 
 </body>
 </html>
