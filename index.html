@@ -35,7 +35,7 @@
         <div class="actions">
           <a class="cta-button" href="./aluno.html">Estudantes</a>
           <a class="cta-button" href="./docente.html">Docentes</a>
-          <a class="cta-button" href="./gestor.html">Gestores</a>
+          <button class="cta-button" id="btnGestores" type="button">Gestores</button>
 
 
         </div>
@@ -43,10 +43,26 @@
     </main>
   </div>
 
+  <div id="modalLogin" style="display:none">
+    <input type="email" id="emailGestor" placeholder="Email">
+    <input type="password" id="senhaGestor" placeholder="Senha">
+    <button type="button" onclick="loginGestor(
+      document.getElementById('emailGestor').value,
+      document.getElementById('senhaGestor').value
+    )">Entrar</button>
+  </div>
+
   <!-- Component Header -->
   <script type="module">
     import { renderHeader } from './componentes/header.js';
     renderHeader(document.getElementById('site-header'));
+  </script>
+
+  <script type="module" src="js/auth.js"></script>
+  <script>
+    document.getElementById("btnGestores").onclick = () => {
+      document.getElementById("modalLogin").style.display = "block";
+    };
   </script>
 
   <script src="/js/pwa.js"></script>
