@@ -57,6 +57,22 @@ window.aplicarRestricoesUI = function (email) {
   });
 };
 
+window.iniciarObservadorPermissoes = function (email) {
+  const container = document.querySelector(".actions");
+  if (!container) return;
+
+  const observer = new MutationObserver(() => {
+    aplicarRestricoesUI(email);
+  });
+
+  observer.observe(container, {
+    childList: true,
+    subtree: true,
+  });
+
+  aplicarRestricoesUI(email);
+};
+
 window.loginGestor = function (email, senha) {
   signInWithEmailAndPassword(auth, email, senha)
     .then((cred) => {
@@ -80,6 +96,6 @@ window.protegerGestor = function () {
     }
     window.userEmail = user.email;
     console.log("Perfil activo:", user.email, PERFIS[user.email]);
-    aplicarRestricoesUI(user.email);
+    iniciarObservadorPermissoes(user.email);
   });
 };
