@@ -42,12 +42,20 @@ function obterPermissoes(email) {
 
 window.aplicarRestricoesUI = function (email) {
   const permissoes = PERFIS[email] || [];
+  const isGestor = permissoes.includes("ALL");
 
   Object.entries(MAPA_BOTOES).forEach(([btnId, permissao]) => {
     const btn = document.getElementById(btnId);
     if (!btn) return;
 
-    if (permissoes.includes("ALL") || permissoes.includes(permissao)) {
+    // Gestor vê tudo
+    if (isGestor) {
+      btn.style.display = "";
+      return;
+    }
+
+    // Não-gestor: só vê se a permissão estiver explicitamente no perfil
+    if (permissoes.includes(permissao)) {
       btn.style.display = "";
     } else {
       btn.style.display = "none";
