@@ -40,12 +40,8 @@ function obterPermissoes(email) {
   return PERFIS[email.toLowerCase()] || null;
 }
 
-function aplicarRestricoesUI(email) {
-  const permissoes = obterPermissoes(email);
-
-  if (!permissoes) {
-    return;
-  }
+window.aplicarRestricoesUI = function (email) {
+  const permissoes = PERFIS[email] || [];
 
   Object.entries(MAPA_BOTOES).forEach(([btnId, permissao]) => {
     const btn = document.getElementById(btnId);
@@ -57,7 +53,7 @@ function aplicarRestricoesUI(email) {
       btn.style.display = "none";
     }
   });
-}
+};
 
 window.loginGestor = function (email, senha) {
   signInWithEmailAndPassword(auth, email, senha)
@@ -80,6 +76,8 @@ window.protegerGestor = function () {
       window.location.href = "index.html";
       return;
     }
+    window.userEmail = user.email;
+    console.log("Perfil activo:", user.email, PERFIS[user.email]);
     aplicarRestricoesUI(user.email);
   });
 };
