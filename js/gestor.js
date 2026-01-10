@@ -146,6 +146,12 @@ function esconderEstatisticas() {
     estatisticasContainer.style.display = "none";
 }
 
+function reaplicarRestricoesUI() {
+    if (window.aplicarRestricoesUI && window.userEmail) {
+        aplicarRestricoesUI(window.userEmail);
+    }
+}
+
 // Tema Monografia
 document.getElementById("btnGestaoGeral").addEventListener("click", () => {
     esconderEstatisticas();
@@ -237,6 +243,7 @@ function carregarEstatisticas() {
 
   // 3. Mostrar o container das estatísticas
   estatisticasContainer.style.display = "block";
+  reaplicarRestricoesUI();
 }
 
 document.getElementById("btnBuscarEstatisticas").addEventListener("click", async () => {
@@ -343,6 +350,7 @@ function actualizarEstadoRelatorio(mensagem, isErro = false) {
 
     const cor = isErro ? "red" : "inherit";
     areaLink.innerHTML = `<p style="color:${cor};">${mensagem}</p>`;
+    reaplicarRestricoesUI();
 }
 
 function mostrarLinkRelatorio(url) {
@@ -355,6 +363,7 @@ function mostrarLinkRelatorio(url) {
             👉 Baixar PDF do Relatório
         </a>
     `;
+    reaplicarRestricoesUI();
 }
 
 function ordenarDadosPorDataAscendente(lista) {
@@ -441,6 +450,7 @@ function carregarGestaoGeral() {
          document.getElementById("tabelaGestaoGeral").innerHTML =
          '<p class="sem-dados">Não existe nenhum dado para ser apresentado.</p>';
           esconderCarregamento();
+          reaplicarRestricoesUI();
           return;
          }
 
@@ -483,6 +493,7 @@ function carregarGestaoGeral() {
         esconderCarregamento();
         document.getElementById("tabelaGestaoGeral").innerHTML =
             "<p>Erro ao carregar os dados da gestão geral.</p>";
+        reaplicarRestricoesUI();
     });
 }
 
@@ -626,6 +637,7 @@ function renderTabelaGestaoGeral() {
     container.innerHTML = html;
     renderizarControlesGestaoGeral();
     aplicarDadosBloqueio();
+    reaplicarRestricoesUI();
 }
 
 function mudarPagina(delta) {
@@ -659,6 +671,7 @@ function carregarMonografiaFinal() {
             document.getElementById("tabelaGestaoGeral").innerHTML =
                 '<p class="sem-dados">Não existe nenhum dado para ser apresentado.</p>';
             esconderCarregamento();
+            reaplicarRestricoesUI();
             return;
         }
 
@@ -710,12 +723,14 @@ function carregarMonografiaFinal() {
         document.getElementById("tabelaGestaoGeral").innerHTML = html;
         mostrarBotaoGuardar("monografia");
         esconderCarregamento();
+        reaplicarRestricoesUI();
     })
     .catch(err => {
         console.error("Erro ao carregar dados:", err);
         esconderCarregamento();
         document.getElementById("tabelaGestaoGeral").innerHTML =
             "<p>Erro ao carregar os dados da monografia final.</p>";
+        reaplicarRestricoesUI();
     });
 }
 
@@ -776,6 +791,7 @@ function carregarCredencialPesquisa() {
             document.getElementById("tabelaGestaoGeral").innerHTML =
                 '<p class="sem-dados">Não existe nenhum dado para ser apresentado.</p>';
             esconderCarregamento();
+            reaplicarRestricoesUI();
             return;
         }
 
@@ -836,12 +852,14 @@ function carregarCredencialPesquisa() {
         processarObservacoes(document.querySelectorAll(".table-credencial textarea.observacoes"));
         mostrarBotaoGuardar("credencial");
         esconderCarregamento();
+        reaplicarRestricoesUI();
     })
     .catch(err => {
         console.error("Erro ao carregar dados:", err);
         esconderCarregamento();
         document.getElementById("tabelaGestaoGeral").innerHTML =
             "<p>Erro ao carregar os dados da credencial de pesquisa.</p>";
+        reaplicarRestricoesUI();
     });
 }
 
@@ -1187,6 +1205,7 @@ function carregarParecer() {
             document.getElementById("tabelaGestaoGeral").innerHTML =
                 '<p class="sem-dados">Nenhum dado a ser processado.</p>';
             esconderCarregamento();
+            reaplicarRestricoesUI();
             return;
         }
 
@@ -1281,6 +1300,7 @@ function renderTabelaParecer() {
         .addEventListener("click", guardarTodosPareceres);
 
     renderizarControlesParecer();
+    reaplicarRestricoesUI();
 }
 
 function renderizarControlesParecer() {
@@ -1292,6 +1312,7 @@ function renderizarControlesParecer() {
         <span>Página ${paginaAtual} de ${totalPaginas}</span>
         <button onclick="mudarPaginaParecer(1)">&gt;</button>
     `;
+    reaplicarRestricoesUI();
 }
 function mudarPaginaParecer(delta) {
     const novaPagina = paginaAtual + delta;

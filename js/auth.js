@@ -25,28 +25,22 @@ const PERFIS = {
   "supervisor@faceeonline.ac.mz": ["ATRIBUIR_SUPERVISOR", "ESTATISTICAS"],
 };
 
-const MAPA_BOTOES = {
-  btnGestaoGeral: "ALL",
-  btnMonografiaFinal: "ALL",
-  btnCredencialPesquisa: "CREDENCIAL",
-  btnEstatisticas: "ESTATISTICAS",
-  btnParecerTec: "PARECER",
-  btnAtribuirSuperv: "ATRIBUIR_SUPERVISOR",
-  btnHomologarSuperv: "ALL",
-};
-
 function obterPermissoes(email) {
   if (!email) return null;
   return PERFIS[email.toLowerCase()] || null;
 }
 
 window.aplicarRestricoesUI = function (email) {
-  const permissoes = PERFIS[email] || [];
+  const permissoes = obterPermissoes(email) || [];
   const isGestor = permissoes.includes("ALL");
+  const container = document.querySelector(".actions");
 
-  Object.entries(MAPA_BOTOES).forEach(([btnId, permissao]) => {
-    const btn = document.getElementById(btnId);
-    if (!btn) return;
+  if (!container) return;
+
+  const botoes = container.querySelectorAll("[data-permissao]");
+
+  botoes.forEach((btn) => {
+    const permissao = btn.dataset.permissao;
 
     // Gestor vê tudo
     if (isGestor) {
