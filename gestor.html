@@ -82,10 +82,6 @@
   </div>
 
   <script src="./js/main.js"></script>
-  <script type="module" src="./js/auth.js"></script>
-  <script>
-    protegerGestor();
-  </script>
   <!-- HEADER -->
   <script type="module">
     import { renderHeader } from './componentes/header.js';
@@ -93,6 +89,15 @@
     renderHeader(document.getElementById('site-header'));
 
     import './js/gestor.js';
+  </script>
+  <script type="module" src="/faceeonline/js/auth.js"></script>
+  <script type="module">
+    // chama depois de carregar o módulo
+    if (typeof window.protegerGestor === "function") {
+      window.protegerGestor();
+    } else {
+      console.error("auth.js não carregou: protegerGestor não existe");
+    }
   </script>
 
 </body>
