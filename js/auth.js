@@ -90,12 +90,14 @@ window.loginGestor = function (email, senha) {
 
 window.protegerGestor = function () {
   onAuthStateChanged(auth, (user) => {
-    if (!user || !obterPermissoes(user.email)) {
+    if (!user) {
       window.location.href = "index.html";
       return;
     }
     window.userEmail = user.email;
-    console.log("Perfil activo:", user.email, PERFIS[user.email]);
-    iniciarObservadorPermissoes(user.email);
+
+    if (window.iniciarObservadorPermissoes) {
+      iniciarObservadorPermissoes(user.email);
+    }
   });
 };
