@@ -21,16 +21,16 @@
 
         <!-- BOTÕES -->
 <div class="actions">
-  <button class="button" id="btnGestaoGeral">Tema Monografia</button>
-  <button class="button" id="btnMonografiaFinal">Monografia Final</button>
-  <button class="button" id="btnCredencialPesquisa">Credencial Pesquisa</button>
-  <button class="button" id="btnEstatisticas">Listas e Estatísticas</button>
+  <button class="button" id="btnGestaoGeral" data-permissao="ALL">Tema Monografia</button>
+  <button class="button" id="btnMonografiaFinal" data-permissao="ALL">Monografia Final</button>
+  <button class="button" id="btnCredencialPesquisa" data-permissao="CREDENCIAL">Credencial Pesquisa</button>
+  <button class="button" id="btnEstatisticas" data-permissao="ESTATISTICAS">Listas e Estatísticas</button>
 
   <!-- NOVOS BOTÕES -->
-  <button class="button" id="btnParecerTec">Parecer</button>
+  <button class="button" id="btnParecerTec" data-permissao="PARECER">Parecer</button>
   <div id="acoesSupervisor" class="acoes-supervisor">
-    <button class="button" id="btnAtribuirSuperv">Atribuir Supervisor</button>
-    <button class="button" id="btnHomologarSuperv">Homologar Supervisor</button>
+    <button class="button" id="btnAtribuirSuperv" data-permissao="ATRIBUIR_SUPERVISOR">Atribuir Supervisor</button>
+    <button class="button" id="btnHomologarSuperv" data-permissao="ALL">Homologar Supervisor</button>
     <a class="button secondary" href="./index.html">Voltar à página inicial</a>
 
     <div id="loadingAtribuirSupervisor" class="loading-local" hidden>
