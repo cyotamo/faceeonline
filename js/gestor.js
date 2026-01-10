@@ -152,6 +152,9 @@ document.getElementById("btnGestaoGeral").addEventListener("click", () => {
     modoTabelaGestao = "geral";
     mostrarCarregamentoAtribuirSupervisor();
     carregarGestaoGeral();
+    if (window.aplicarRestricoesUI && window.userEmail) {
+        aplicarRestricoesUI(window.userEmail);
+    }
 });
 
 // Monografia Final
@@ -159,6 +162,9 @@ document.getElementById("btnMonografiaFinal").addEventListener("click", () => {
     esconderEstatisticas();
     mostrarCarregamentoAtribuirSupervisor();
     carregarMonografiaFinal();
+    if (window.aplicarRestricoesUI && window.userEmail) {
+        aplicarRestricoesUI(window.userEmail);
+    }
 });
 
 // --- COPY-PASTE FUNCIONALIDADE PARA OS NOVOS BOTÕES ---
@@ -167,6 +173,9 @@ document.getElementById("btnMonografiaFinal").addEventListener("click", () => {
 document.getElementById("btnParecerTec").addEventListener("click", () => {
     mostrarCarregamentoAtribuirSupervisor();
     carregarParecer();
+    if (window.aplicarRestricoesUI && window.userEmail) {
+        aplicarRestricoesUI(window.userEmail);
+    }
 });
 
 
@@ -175,6 +184,9 @@ document.getElementById("btnAtribuirSuperv").addEventListener("click", function 
     modoTabelaGestao = "atribuirSupervisor";
     mostrarCarregamentoAtribuirSupervisor();
     carregarGestaoGeral();
+    if (window.aplicarRestricoesUI && window.userEmail) {
+        aplicarRestricoesUI(window.userEmail);
+    }
 });
 
 // Botão Homologar Supervisor
@@ -182,6 +194,9 @@ document.getElementById("btnHomologarSuperv").addEventListener("click", function
     modoTabelaGestao = "homologarSupervisor";
     mostrarCarregamentoAtribuirSupervisor();
     carregarGestaoGeral();
+    if (window.aplicarRestricoesUI && window.userEmail) {
+        aplicarRestricoesUI(window.userEmail);
+    }
 });
 
 
@@ -191,10 +206,18 @@ document.getElementById("btnCredencialPesquisa").addEventListener("click", () =>
     esconderEstatisticas();
     mostrarCarregamentoAtribuirSupervisor();
     carregarCredencialPesquisa();
+    if (window.aplicarRestricoesUI && window.userEmail) {
+        aplicarRestricoesUI(window.userEmail);
+    }
 });
 
 // Listas e Estatísticas (MOSTRA o container)
-document.getElementById("btnEstatisticas").addEventListener("click", carregarEstatisticas);
+document.getElementById("btnEstatisticas").addEventListener("click", () => {
+    carregarEstatisticas();
+    if (window.aplicarRestricoesUI && window.userEmail) {
+        aplicarRestricoesUI(window.userEmail);
+    }
+});
 
 document.addEventListener("DOMContentLoaded", esconderCarregamento);
 
@@ -222,6 +245,9 @@ document.getElementById("btnBuscarEstatisticas").addEventListener("click", async
     const erroValidacao = validarParametrosRelatorio(parametros);
     if (erroValidacao) {
         alert(erroValidacao);
+        if (window.aplicarRestricoesUI && window.userEmail) {
+            aplicarRestricoesUI(window.userEmail);
+        }
         return;
     }
 
@@ -243,6 +269,10 @@ document.getElementById("btnBuscarEstatisticas").addEventListener("click", async
     } catch (erro) {
         console.error("Erro ao gerar relatório:", erro);
         actualizarEstadoRelatorio("Ocorreu um erro ao gerar o relatório. Tente novamente.", true);
+    } finally {
+        if (window.aplicarRestricoesUI && window.userEmail) {
+            aplicarRestricoesUI(window.userEmail);
+        }
     }
 });
 
@@ -821,6 +851,9 @@ document.addEventListener("click", async (e) => {
 
         const botao = e.target.closest("#btnGuardar");
         if (botao?.dataset?.modulo === "credencial") {
+            if (window.aplicarRestricoesUI && window.userEmail) {
+                aplicarRestricoesUI(window.userEmail);
+            }
             return;
         }
         activarLoadingGuardar(botao);
@@ -891,6 +924,9 @@ document.addEventListener("click", async (e) => {
 
         try {
             if (payload.length === 0) {
+                if (window.aplicarRestricoesUI && window.userEmail) {
+                    aplicarRestricoesUI(window.userEmail);
+                }
                 return;
             }
 
@@ -931,6 +967,9 @@ document.addEventListener("click", async (e) => {
             console.error("Erro ao guardar dados:", err);
         } finally {
             desactivarLoadingGuardar(botao);
+        }
+        if (window.aplicarRestricoesUI && window.userEmail) {
+            aplicarRestricoesUI(window.userEmail);
         }
     }
 });
@@ -1298,6 +1337,9 @@ function guardarTodosPareceres() {
     if (pareceres.length === 0) {
         desactivarLoadingGuardar(botao);
         alert("Nenhum parecer preenchido.");
+        if (window.aplicarRestricoesUI && window.userEmail) {
+            aplicarRestricoesUI(window.userEmail);
+        }
         return;
     }
 
@@ -1322,5 +1364,8 @@ function guardarTodosPareceres() {
     })
     .finally(() => {
         desactivarLoadingGuardar(botao);
+        if (window.aplicarRestricoesUI && window.userEmail) {
+            aplicarRestricoesUI(window.userEmail);
+        }
     });
 }
