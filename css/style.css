@@ -86,12 +86,17 @@ main {
   padding: calc(var(--header-height) + 30px) 24px 48px;
 }
 
+header#site-header,
 .top-header {
   display: none !important;
 }
 
 main {
   padding-top: 0 !important;
+}
+
+.hero .title {
+  display: none !important;
 }
 
 .hero {
