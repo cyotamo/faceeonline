@@ -951,27 +951,40 @@ footer {
   left: 0;
   width: 100%;
   background: #003c85;
-  padding: 20px 10px;
+  padding: 20px 24px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 15px;
   color: white;
   z-index: 999;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* sombra subtil */
 }
 
+/* Link do logótipo */
+.header-logo-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.header-logo-link:hover {
+  opacity: 0.8;
+}
+
 /* Logótipo */
 .header-logo {
   height: 50px;
   width: auto;
+  display: block;
 }
 
 /* Texto dentro do cabeçalho */
 .header-text h1,
 .header-text h2 {
   margin: 0;
-  text-align: center;
+  text-align: left;
 }
 
 .header-text h1 {
@@ -1285,4 +1298,160 @@ input[type='file'] {
 
 #resultadoDisciplinas .button:hover {
   background: #f3f5f8;
+}
+
+/* ===== MODAL DE LOGIN ===== */
+.login-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.login-modal-box {
+  background: #ffffff;
+  width: 100%;
+  max-width: 420px;
+  padding: 40px 36px;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 51, 102, 0.3);
+  animation: slideUp 0.3s ease-out;
+  border: 1px solid var(--border);
+}
+
+.login-modal-title {
+  text-align: center;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: var(--primary);
+  letter-spacing: -0.3px;
+}
+
+.login-modal-subtitle {
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--muted);
+  margin: 0 0 32px 0;
+  font-weight: 400;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.login-input-group {
+  margin-bottom: 20px;
+}
+
+.login-input-group label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text);
+  margin-bottom: 8px;
+  letter-spacing: 0.1px;
+}
+
+.login-input-group input {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 1rem;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: #f7fbff;
+  color: var(--text);
+  font-family: inherit;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.login-input-group input:focus {
+  outline: none;
+  border-color: var(--secondary);
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(0, 85, 165, 0.12);
+}
+
+.login-input-group input::placeholder {
+  color: #9aa8b8;
+  font-weight: 400;
+}
+
+.login-submit-btn {
+  width: 100%;
+  padding: 15px 20px;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  background: linear-gradient(130deg, var(--secondary), var(--secondary-light));
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(0, 85, 165, 0.35);
+  transition: all 0.2s ease;
+  margin-top: 8px;
+}
+
+.login-submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px rgba(0, 85, 165, 0.4);
+  filter: brightness(1.05);
+}
+
+.login-submit-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 24px rgba(0, 51, 102, 0.35);
+}
+
+.login-submit-btn:focus-visible {
+  outline: 3px solid rgba(0, 85, 165, 0.25);
+  outline-offset: 2px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .login-modal-box {
+    max-width: 90%;
+    padding: 32px 24px;
+    margin: 20px;
+  }
+
+  .login-modal-title {
+    font-size: 1.5rem;
+  }
 }

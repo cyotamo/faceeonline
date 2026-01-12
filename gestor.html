@@ -31,6 +31,7 @@
   <div id="acoesSupervisor" class="acoes-supervisor">
     <button class="button" id="btnAtribuirSuperv" data-permissao="ATRIBUIR_SUPERVISOR">Atribuir Supervisor</button>
     <button class="button" id="btnHomologarSuperv" data-permissao="ALL">Homologar Supervisor</button>
+    <button class="button secondary" id="btnLogout">Sair</button>
     <a class="button secondary" href="./index.html">Voltar à página inicial</a>
 
     <div id="loadingAtribuirSupervisor" class="loading-local" hidden>
@@ -90,14 +91,33 @@
 
     import './js/gestor.js';
   </script>
-  <script type="module" src="/faceeonline/js/auth.js"></script>
   <script type="module">
-    // chama depois de carregar o módulo
+    import './js/auth.js';
+    
+    // Protege a página - verifica autenticação e permissões
+    // Como os módulos ES6 são carregados de forma assíncrona, 
+    // a função já estará disponível quando este código executar
     if (typeof window.protegerGestor === "function") {
       window.protegerGestor();
     } else {
+      // Se por algum motivo o módulo não carregou, redireciona para segurança
       console.error("auth.js não carregou: protegerGestor não existe");
+      window.location.href = "index.html";
     }
+
+    // Adiciona evento ao botão de logout
+    document.addEventListener("DOMContentLoaded", () => {
+      const btnLogout = document.getElementById("btnLogout");
+      if (btnLogout) {
+        btnLogout.addEventListener("click", () => {
+          if (typeof window.logoutGestor === "function") {
+            window.logoutGestor();
+          } else {
+            console.error("Função logoutGestor não encontrada");
+          }
+        });
+      }
+    });
   </script>
 
 </body>

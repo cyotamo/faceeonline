@@ -88,16 +88,69 @@ window.loginGestor = function (email, senha) {
     });
 };
 
+// Verifica se o usuário está logado e tem permissões válidas
+window.verificarAutenticacaoGestor = function () {
+  return new Promise((resolve) => {
+    // Verifica o usuário atual imediatamente (síncrono)
+    const user = auth.currentUser;
+    
+    if (user) {
+      // Verifica se tem permissões válidas
+      const permissoes = obterPermissoes(user.email);
+      if (permissoes && permissoes.length > 0) {
+        resolve(true);
+        return;
+      }
+    }
+    
+    // Se currentUser for null, pode ser que ainda não tenha carregado
+    // Espera um pouco e verifica novamente, ou usa onAuthStateChanged
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe(); // Remove o listener após a primeira verificação
+      if (user) {
+        const permissoes = obterPermissoes(user.email);
+        resolve(permissoes && permissoes.length > 0);
+      } else {
+        resolve(false);
+      }
+    });
+  });
+};
+
 window.protegerGestor = function () {
   onAuthStateChanged(auth, (user) => {
     if (!user) {
       window.location.href = "index.html";
       return;
     }
+    
+    // Verifica se o usuário tem permissões válidas
+    const permissoes = obterPermissoes(user.email);
+    if (!permissoes || permissoes.length === 0) {
+      signOut(auth).then(() => {
+        alert("Acesso não autorizado");
+        window.location.href = "index.html";
+      });
+      return;
+    }
+    
     window.userEmail = user.email;
 
     if (window.iniciarObservadorPermissoes) {
       iniciarObservadorPermissoes(user.email);
     }
   });
+};
+
+// Função para fazer logout
+window.logoutGestor = function () {
+  signOut(auth)
+    .then(() => {
+      window.location.href = "index.html";
+    })
+    .catch((error) => {
+      console.error("Erro ao fazer logout:", error);
+      // Mesmo com erro, redireciona para a página inicial
+      window.location.href = "index.html";
+    });
 };
