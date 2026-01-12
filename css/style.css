@@ -86,14 +86,6 @@ main {
   padding: calc(var(--header-height) + 30px) 24px 48px;
 }
 
-.top-header {
-  display: none !important;
-}
-
-main {
-  padding-top: 0 !important;
-}
-
 .hero {
   display: grid;
   align-items: center;
