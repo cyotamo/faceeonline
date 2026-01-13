@@ -462,6 +462,23 @@ function mostrarConsultaEstado() {
       </div>
     </div>
   `;
+
+  const tipoConsulta = document.getElementById('tipoConsulta');
+  const numeroEstudanteConsulta = document.getElementById('numeroEstudanteConsulta');
+
+  // manter desativado até escolher o tipo de consulta
+  numeroEstudanteConsulta.disabled = true;
+
+  // activar/desactivar conforme a seleção
+  tipoConsulta.addEventListener('change', () => {
+    if (tipoConsulta.value) {
+      numeroEstudanteConsulta.disabled = false;
+      numeroEstudanteConsulta.focus();
+    } else {
+      numeroEstudanteConsulta.value = '';
+      numeroEstudanteConsulta.disabled = true;
+    }
+  });
 }
 
 btnConsultaEstado?.addEventListener('click', mostrarConsultaEstado);
