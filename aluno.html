@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,67 +9,66 @@
   <link rel="icon" type="image/png" href="./favicon.png">
   <link rel="apple-touch-icon" href="./favicon.png">
 </head>
+
 <body>
   <div class="page">
-  <header id="site-header"></header>
+    <header id="site-header"></header>
 
-  <main class="main-container">
-    <section class="page-section">
-      <div class="section-header">
-        <span class="badge">Portal do Estudante</span>
-      </div>
-
-      <div class="actions">
-        <button id="btnTema" class="button btn-navegacao" type="button">Tema de Monografia</button>
-        <button class="button btn-navegacao" id="btnMonografia" type="button">Monografia Final</button>
-        <button class="button btn-navegacao" id="btnPedidoCredencial">Credencial Pesquisa</button>
-        <button class="button btn-navegacao" id="btnConsultaEstado" type="button">Consulta de Estado</button> 
-        <button class="button btn-navegacao" id="btnBaixarFormulario" type="button">Baixar Formulários</button>                                                                                               
-        
-        <a class="button secondary" href="./index.html">Voltar à página inicial</a>
-      </div>
-    </section>
-
-    <div id="form-container"></div>
-
-    <div id="containerDocumentos" class="container-conteudo" style="display:none;">
-      <div class="form-card">
-        <h2>Documentos Disponíveis</h2>
-        <div id="loadingDocumentos" style="display:none;">
-          A carregar documentos<span id="dots"></span>
+    <main class="main-container">
+      <section class="page-section">
+        <div class="section-header">
+          <span class="badge">Portal do Estudante</span>
         </div>
-        <ul id="listaDocumentos"></ul>
+
+        <div class="actions">
+          <button id="btnTema" class="button btn-navegacao" type="button">Tema de Monografia</button>
+          <button class="button btn-navegacao" id="btnMonografia" type="button">Monografia Final</button>
+          <button class="button btn-navegacao" id="btnPedidoCredencial">Credencial Pesquisa</button>
+          <button class="button btn-navegacao" id="btnConsultaEstado" type="button">Consulta de Estado</button>
+          <button class="button btn-navegacao" id="btnBaixarFormulario" type="button">Baixar Formulários</button>
+        </div>
+      </section>
+
+      <div id="form-container"></div>
+
+      <div id="containerDocumentos" class="container-conteudo" style="display:none;">
+        <div class="form-card">
+          <h2>Documentos Disponíveis</h2>
+          <div id="loadingDocumentos" style="display:none;">
+            A carregar documentos<span id="dots"></span>
+          </div>
+          <ul id="listaDocumentos"></ul>
+        </div>
       </div>
-    </div>
 
-<div id="resultadoConsultaEstado" class="form-card" style="display:none">
-  <p><strong>Nome:</strong> <span id="resNome"></span></p>
-  <p><strong>Número:</strong> <span id="resNumero"></span></p>
-  <p><strong>Submissão:</strong> <span id="resSubmissao"></span></p>
-  <p><strong>Parecer:</strong> <span id="resParecer"></span></p>
-  <p id="linhaObservacoes" style="display:none;">
-  <strong>Observações:</strong> <span id="resObservacoes"></span>
-  </p>
-  <p><strong>Atribuição de Supervisor:</strong> <span id="resAtribuicao"></span></p>
-  <p><strong>Homologação de Supervisor:</strong> <span id="resHomologacao"></span></p>
-  <p><strong>Comprovativo:</strong> <span id="resPdfHomologacao"></span></p>
-</div>
+      <div id="resultadoConsultaEstado" class="form-card" style="display:none">
+        <p><strong>Nome:</strong> <span id="resNome"></span></p>
+        <p><strong>Número:</strong> <span id="resNumero"></span></p>
+        <p><strong>Submissão:</strong> <span id="resSubmissao"></span></p>
+        <p><strong>Parecer:</strong> <span id="resParecer"></span></p>
+        <p id="linhaObservacoes" style="display:none;">
+          <strong>Observações:</strong> <span id="resObservacoes"></span>
+        </p>
+        <p><strong>Atribuição de Supervisor:</strong> <span id="resAtribuicao"></span></p>
+        <p><strong>Homologação de Supervisor:</strong> <span id="resHomologacao"></span></p>
+        <p><strong>Comprovativo:</strong> <span id="resPdfHomologacao"></span></p>
+      </div>
 
 
-    <div id="pdfReprovadoContainer" class="form-card" style="display:none; margin-top:20px;">
-      <p><strong>Parecer detalhado:</strong></p>
-      <a id="pdfReprovadoLink" href="#" target="_blank" class="btn-submeter">Baixar PDF</a>
-    </div>
-  </main>
-</div>
+      <div id="pdfReprovadoContainer" class="form-card" style="display:none; margin-top:20px;">
+        <p><strong>Parecer detalhado:</strong></p>
+        <a id="pdfReprovadoLink" href="#" target="_blank" class="btn-submeter">Baixar PDF</a>
+      </div>
+    </main>
+  </div>
   <script src="./js/main.js"></script>
   <script src="./js/aluno.js"></script>
-  
+
   <script type="module">
     import { renderHeader } from './componentes/header.js';
     renderHeader(document.getElementById('site-header'));
   </script>
- 
+
   <script>
     const btnTema = document.getElementById('btnTema');
     const btnMonografia = document.getElementById('btnMonografia');
@@ -318,4 +318,5 @@
     </div>
   </div>
 </body>
+
 </html>
