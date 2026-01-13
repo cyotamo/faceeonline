@@ -138,16 +138,12 @@ main {
 .acoes-supervisor button {
   flex: 0 0 auto;
   min-width: 220px;
-  height: 48px;
   white-space: nowrap;
 }
 
 .acoes-supervisor .button {
   flex: 0 0 auto;
   min-width: 220px;
-  height: 48px;
-  border-radius: 24px;
-  font-size: 15px;
   white-space: nowrap;
 }
 
@@ -1093,6 +1089,18 @@ footer {
 
 .btn-simples:hover {
   background: #e4e4e4;
+}
+/* Base dimensional para botões dos portais */
+.btn-padrao-portal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 /* Espaçamento entre a área de ações e o formulário */
 #formPlanoContainer {
