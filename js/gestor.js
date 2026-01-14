@@ -157,6 +157,8 @@ document.getElementById("btnGestaoGeral").addEventListener("click", () => {
     esconderEstatisticas();
     modoTabelaGestao = "geral";
     mostrarCarregamentoAtribuirSupervisor();
+    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
+    if (tabelaGestaoGeral) tabelaGestaoGeral.innerHTML = "";
     carregarGestaoGeral();
     if (window.aplicarRestricoesUI && window.userEmail) {
         aplicarRestricoesUI(window.userEmail);
@@ -192,7 +194,6 @@ document.getElementById("btnParecerTec").addEventListener("click", () => {
 // Botão Atribuir Supervisor
 document.getElementById("btnAtribuirSuperv").addEventListener("click", function () {
     modoTabelaGestao = "atribuirSupervisor";
-    mostrarCarregamentoAtribuirSupervisor();
     const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
     if (tabelaGestaoGeral) tabelaGestaoGeral.innerHTML = "";
     carregarGestaoGeral();
@@ -204,7 +205,6 @@ document.getElementById("btnAtribuirSuperv").addEventListener("click", function 
 // Botão Homologar Supervisor
 document.getElementById("btnHomologarSuperv").addEventListener("click", function () {
     modoTabelaGestao = "homologarSupervisor";
-    mostrarCarregamentoAtribuirSupervisor();
     const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
     if (tabelaGestaoGeral) tabelaGestaoGeral.innerHTML = "";
     carregarGestaoGeral();
