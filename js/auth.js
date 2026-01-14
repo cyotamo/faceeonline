@@ -33,11 +33,9 @@ function obterPermissoes(email) {
 window.aplicarRestricoesUI = function (email) {
   const permissoes = obterPermissoes(email) || [];
   const isGestor = permissoes.includes("ALL");
-  const container = document.querySelector(".actions");
+  const botoes = document.querySelectorAll("[data-permissao]");
 
-  if (!container) return;
-
-  const botoes = container.querySelectorAll("[data-permissao]");
+  if (!botoes.length) return;
 
   botoes.forEach((btn) => {
     const permissao = btn.dataset.permissao;
@@ -58,7 +56,8 @@ window.aplicarRestricoesUI = function (email) {
 };
 
 window.iniciarObservadorPermissoes = function (email) {
-  const container = document.querySelector(".actions");
+  const container =
+    document.querySelector(".actions, .actions-gestor") || document.body;
   if (!container) return;
 
   const observer = new MutationObserver(() => {
