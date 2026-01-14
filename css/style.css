@@ -128,6 +128,11 @@ main {
   justify-content: flex-start;
 }
 
+/* Ecrã inicial: uniformizar tamanho da letra dos botões */
+.actions .cta-button {
+  font-size: 16px;
+}
+
 .acoes-supervisor {
   display: flex;
   flex-direction: row;
