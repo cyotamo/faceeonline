@@ -89,6 +89,13 @@ function mostrarCarregamentoAtribuirSupervisor() {
     }
 }
 
+function mostrarLoadingPainelGestor(msg = "A carregar…") {
+    const box = document.getElementById("tabelaGestaoGeral");
+    if (!box) return;
+    // IMPORTANTÍSSIMO: o loading tem de ser inserido DEPOIS de limpar
+    box.innerHTML = `<div class="loading" id="loadingPainelGestor">${msg}</div>`;
+}
+
 function esconderCarregamentoAtribuirSupervisor() {
     const loading = document.getElementById("loadingAtribuirSupervisor");
     if (loading) {
@@ -170,9 +177,7 @@ document.getElementById("btnGestaoGeral").addEventListener("click", () => {
 // Monografia Final
 document.getElementById("btnMonografiaFinal").addEventListener("click", () => {
     esconderEstatisticas();
-    mostrarCarregamentoAtribuirSupervisor();
-    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
-    if (tabelaGestaoGeral) tabelaGestaoGeral.innerHTML = "";
+    mostrarLoadingPainelGestor("A carregar…");
     carregarMonografiaFinal();
     if (window.aplicarRestricoesUI && window.userEmail) {
         aplicarRestricoesUI(window.userEmail);
@@ -183,9 +188,7 @@ document.getElementById("btnMonografiaFinal").addEventListener("click", () => {
 
 // Botão Parecer
 document.getElementById("btnParecerTec").addEventListener("click", () => {
-    mostrarCarregamentoAtribuirSupervisor();
-    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
-    if (tabelaGestaoGeral) tabelaGestaoGeral.innerHTML = "";
+    mostrarLoadingPainelGestor("A carregar…");
     carregarParecer();
     if (window.aplicarRestricoesUI && window.userEmail) {
         aplicarRestricoesUI(window.userEmail);
@@ -196,8 +199,7 @@ document.getElementById("btnParecerTec").addEventListener("click", () => {
 // Botão Atribuir Supervisor
 document.getElementById("btnAtribuirSuperv").addEventListener("click", function () {
     modoTabelaGestao = "atribuirSupervisor";
-    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
-    if (tabelaGestaoGeral) tabelaGestaoGeral.innerHTML = "";
+    mostrarLoadingPainelGestor("A carregar…");
     carregarGestaoGeral();
     if (window.aplicarRestricoesUI && window.userEmail) {
         aplicarRestricoesUI(window.userEmail);
@@ -207,8 +209,7 @@ document.getElementById("btnAtribuirSuperv").addEventListener("click", function 
 // Botão Homologar Supervisor
 document.getElementById("btnHomologarSuperv").addEventListener("click", function () {
     modoTabelaGestao = "homologarSupervisor";
-    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
-    if (tabelaGestaoGeral) tabelaGestaoGeral.innerHTML = "";
+    mostrarLoadingPainelGestor("A carregar…");
     carregarGestaoGeral();
     if (window.aplicarRestricoesUI && window.userEmail) {
         aplicarRestricoesUI(window.userEmail);
@@ -220,9 +221,7 @@ document.getElementById("btnHomologarSuperv").addEventListener("click", function
 // Credencial Pesquisa
 document.getElementById("btnCredencialPesquisa").addEventListener("click", () => {
     esconderEstatisticas();
-    mostrarCarregamentoAtribuirSupervisor();
-    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
-    if (tabelaGestaoGeral) tabelaGestaoGeral.innerHTML = "";
+    mostrarLoadingPainelGestor("A carregar…");
     carregarCredencialPesquisa();
     if (window.aplicarRestricoesUI && window.userEmail) {
         aplicarRestricoesUI(window.userEmail);

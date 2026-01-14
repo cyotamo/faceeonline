@@ -176,6 +176,16 @@ main {
   align-items: center;
 }
 
+.loading {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #2a6db3;
+  opacity: 0.85;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
 .loading-local[hidden] {
   display: none !important;
 }
