@@ -167,6 +167,8 @@ document.getElementById("btnGestaoGeral").addEventListener("click", () => {
 document.getElementById("btnMonografiaFinal").addEventListener("click", () => {
     esconderEstatisticas();
     mostrarCarregamentoAtribuirSupervisor();
+    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
+    if (tabelaGestaoGeral) tabelaGestaoGeral.innerHTML = "";
     carregarMonografiaFinal();
     if (window.aplicarRestricoesUI && window.userEmail) {
         aplicarRestricoesUI(window.userEmail);
@@ -178,6 +180,8 @@ document.getElementById("btnMonografiaFinal").addEventListener("click", () => {
 // Botão Parecer
 document.getElementById("btnParecerTec").addEventListener("click", () => {
     mostrarCarregamentoAtribuirSupervisor();
+    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
+    if (tabelaGestaoGeral) tabelaGestaoGeral.innerHTML = "";
     carregarParecer();
     if (window.aplicarRestricoesUI && window.userEmail) {
         aplicarRestricoesUI(window.userEmail);
@@ -189,6 +193,8 @@ document.getElementById("btnParecerTec").addEventListener("click", () => {
 document.getElementById("btnAtribuirSuperv").addEventListener("click", function () {
     modoTabelaGestao = "atribuirSupervisor";
     mostrarCarregamentoAtribuirSupervisor();
+    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
+    if (tabelaGestaoGeral) tabelaGestaoGeral.innerHTML = "";
     carregarGestaoGeral();
     if (window.aplicarRestricoesUI && window.userEmail) {
         aplicarRestricoesUI(window.userEmail);
@@ -199,6 +205,8 @@ document.getElementById("btnAtribuirSuperv").addEventListener("click", function 
 document.getElementById("btnHomologarSuperv").addEventListener("click", function () {
     modoTabelaGestao = "homologarSupervisor";
     mostrarCarregamentoAtribuirSupervisor();
+    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
+    if (tabelaGestaoGeral) tabelaGestaoGeral.innerHTML = "";
     carregarGestaoGeral();
     if (window.aplicarRestricoesUI && window.userEmail) {
         aplicarRestricoesUI(window.userEmail);
@@ -211,6 +219,8 @@ document.getElementById("btnHomologarSuperv").addEventListener("click", function
 document.getElementById("btnCredencialPesquisa").addEventListener("click", () => {
     esconderEstatisticas();
     mostrarCarregamentoAtribuirSupervisor();
+    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
+    if (tabelaGestaoGeral) tabelaGestaoGeral.innerHTML = "";
     carregarCredencialPesquisa();
     if (window.aplicarRestricoesUI && window.userEmail) {
         aplicarRestricoesUI(window.userEmail);
@@ -219,6 +229,9 @@ document.getElementById("btnCredencialPesquisa").addEventListener("click", () =>
 
 // Listas e Estatísticas (MOSTRA o container)
 document.getElementById("btnEstatisticas").addEventListener("click", () => {
+    mostrarCarregamentoAtribuirSupervisor();
+    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
+    if (tabelaGestaoGeral) tabelaGestaoGeral.innerHTML = "";
     carregarEstatisticas();
     if (window.aplicarRestricoesUI && window.userEmail) {
         aplicarRestricoesUI(window.userEmail);
@@ -243,6 +256,7 @@ function carregarEstatisticas() {
 
   // 3. Mostrar o container das estatísticas
   estatisticasContainer.style.display = "block";
+  esconderCarregamento();
   reaplicarRestricoesUI();
 }
 
