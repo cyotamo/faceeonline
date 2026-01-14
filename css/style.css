@@ -139,7 +139,7 @@ main {
   gap: 12px;
   align-items: center;
   justify-content: flex-start;
-  margin-top: 12px;
+  margin-top: 0;
   flex-wrap: nowrap;
 }
 
@@ -493,6 +493,13 @@ form button[type='submit']:focus-visible {
   color: var(--primary);
 }
 
+.topo-gestor {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .section-subtitle {
   margin: 0 0 18px;
   color: var(--muted);
@@ -627,6 +634,12 @@ footer {
 
 #tabelaGestaoGeral {
   position: relative;
+}
+
+#tabelaGestaoGeral .loading-local {
+  width: 100%;
+  justify-content: center;
+  margin-top: 18px;
 }
 
 .carregamento-overlay {
