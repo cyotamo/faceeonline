@@ -18,8 +18,9 @@
       <section class="page-section">
 
         <!-- TÍTULO DO PORTAL DO GESTOR -->
-        <div class="section-header">
+        <div class="section-header topo-gestor">
           <span class="badge">Portal do Gestor</span>
+          <button class="button secondary btn-navegacao btn-padrao-portal" id="btnLogout">Sair</button>
         </div>
 
         <!-- BOTÕES -->
@@ -35,11 +36,6 @@
             <button class="button btn-navegacao btn-padrao-portal" id="btnAtribuirSuperv" data-permissao="ATRIBUIR_SUPERVISOR">Atribuir
               Supervisor</button>
             <button class="button btn-navegacao btn-padrao-portal" id="btnHomologarSuperv" data-permissao="ALL">Homologar Supervisor</button>
-            <button class="button secondary btn-navegacao btn-padrao-portal" id="btnLogout">Sair</button>
-
-            <div id="loadingAtribuirSupervisor" class="loading-local" hidden>
-              A carregar…
-            </div>
           </div>
         </div>
 
@@ -79,7 +75,11 @@
         </div>
 
         <!-- TABELA GERAL DAS GESTÕES (NÃO ALTERAR) -->
-        <div id="tabelaGestaoGeral"></div>
+        <div id="tabelaGestaoGeral">
+          <div id="loadingAtribuirSupervisor" class="loading-local" hidden>
+            A carregar…
+          </div>
+        </div>
 
       </section>
     </main>
