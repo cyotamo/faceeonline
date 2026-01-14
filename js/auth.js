@@ -25,6 +25,24 @@ const PERFIS = {
   "supervisor@faceeonline.ac.mz": ["ATRIBUIR_SUPERVISOR", "ESTATISTICAS"],
 };
 
+function obterElementoErroLogin() {
+  return document.getElementById("loginErro");
+}
+
+window.mostrarErroLogin = function () {
+  const erro = obterElementoErroLogin();
+  if (erro) {
+    erro.style.display = "block";
+  }
+};
+
+window.esconderErroLogin = function () {
+  const erro = obterElementoErroLogin();
+  if (erro) {
+    erro.style.display = "none";
+  }
+};
+
 function obterPermissoes(email) {
   if (!email) return null;
   return PERFIS[email.toLowerCase()] || null;
@@ -80,10 +98,11 @@ window.loginGestor = function (email, senha) {
         alert("Acesso não autorizado");
         return;
       }
+      window.esconderErroLogin?.();
       window.location.href = "gestor.html";
     })
     .catch(() => {
-      alert("Email ou senha inválidos");
+      window.mostrarErroLogin?.();
     });
 };
 

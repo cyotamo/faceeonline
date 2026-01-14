@@ -1414,6 +1414,18 @@ input[type='file'] {
   font-weight: 400;
 }
 
+.login-erro {
+  display: none;
+  color: #c62828;
+  background: #fdecea;
+  border: 1px solid #f5c6cb;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  text-align: center;
+}
+
 .login-submit-btn {
   width: 100%;
   padding: 15px 20px;
