@@ -138,30 +138,26 @@ main {
   flex-wrap: nowrap;
 }
 
-.acoes-supervisor button {
-  flex: 0 0 auto;
-  min-width: 220px;
-  white-space: nowrap;
-}
-
-.acoes-supervisor .button {
-  flex: 0 0 auto;
-  min-width: 220px;
-  white-space: nowrap;
-}
-
 .actions,
 .acoes-supervisor {
   display: flex;
   gap: 12px;
   justify-content: flex-start;
+  align-items: center;
 }
 
 .actions .btn-navegacao,
 .acoes-supervisor .btn-navegacao {
-  flex: 0 0 auto !important;
-  width: auto !important;
-  min-width: unset !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 22px;
+  min-height: 36px;
+  line-height: normal;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex: 0 0 auto;
+  width: auto;
 }
 
 .loading-local {
