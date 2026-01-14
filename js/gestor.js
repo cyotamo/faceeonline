@@ -156,9 +156,11 @@ function reaplicarRestricoesUI() {
 document.getElementById("btnGestaoGeral").addEventListener("click", () => {
     esconderEstatisticas();
     modoTabelaGestao = "geral";
-    mostrarCarregamentoAtribuirSupervisor();
     const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
-    if (tabelaGestaoGeral) tabelaGestaoGeral.innerHTML = "";
+    if (tabelaGestaoGeral) {
+        tabelaGestaoGeral.innerHTML = '<div id="loadingAtribuirSupervisor" class="loading-local" hidden>A carregar…</div>';
+    }
+    mostrarCarregamentoAtribuirSupervisor();
     carregarGestaoGeral();
     if (window.aplicarRestricoesUI && window.userEmail) {
         aplicarRestricoesUI(window.userEmail);
