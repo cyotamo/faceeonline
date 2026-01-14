@@ -436,10 +436,6 @@ form button[type='submit']:focus-visible {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 14px 18px;
-  min-width: 180px;
-  height: 48px;
-  line-height: 1;
   box-sizing: border-box;
   border-radius: 999px;
   font-weight: 600;
@@ -450,6 +446,13 @@ form button[type='submit']:focus-visible {
   cursor: pointer;
   box-shadow: 0 12px 30px rgba(0, 85, 165, 0.35);
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, filter 0.2s ease;
+}
+
+.hero .actions .cta-button {
+  padding: 14px 18px;
+  min-width: 180px;
+  height: 48px;
+  line-height: 1;
 }
 
 .cta-button:hover,
@@ -887,9 +890,7 @@ footer {
     padding: 24px 18px;
   }
 
-  .cta-button,
-  .button,
-  .nav-button {
+  .hero .actions .cta-button {
     padding: 12px 14px;
   }
 
