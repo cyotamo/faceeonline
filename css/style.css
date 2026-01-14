@@ -138,21 +138,26 @@ main {
   flex-wrap: nowrap;
 }
 
-.actions,
-.acoes-supervisor {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-start;
-  align-items: center;
-}
-
-.actions .btn-navegacao,
+.actions-gestor .btn-navegacao,
 .acoes-supervisor .btn-navegacao {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   white-space: nowrap;
   flex: 0 0 auto;
+}
+
+/* ===============================
+   Ações do Gestor / Supervisor
+   (container exclusivo)
+   =============================== */
+
+.actions-gestor,
+.acoes-supervisor {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
 }
 
 .loading-local {
