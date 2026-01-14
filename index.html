@@ -56,6 +56,9 @@
           <label for="senhaGestor">Senha</label>
           <input type="password" id="senhaGestor" placeholder="••••••••" required>
         </div>
+        <div id="loginErro" class="login-erro">
+          Email ou senha inválidos
+        </div>
         <button type="submit" id="btnEntrarGestor" class="login-submit-btn">Entrar</button>
       </form>
     </div>
@@ -74,6 +77,7 @@
       const btnGestores = document.getElementById("btnGestores");
       const modal = document.getElementById("modalLogin");
       const loginForm = document.querySelector(".login-form");
+      const loginInputs = document.querySelectorAll(".login-form input");
 
       if (!btnGestores) {
         console.error("Botão btnGestores não encontrado");
@@ -96,6 +100,7 @@
           }
         }
         // Usuário não está logado, mostra o modal de login
+        window.esconderErroLogin?.();
         modal.style.display = "flex";
       });
 
@@ -122,6 +127,14 @@
           if (email && senha) {
             loginGestor(email, senha);
           }
+        });
+      }
+
+      if (loginInputs.length) {
+        loginInputs.forEach((input) => {
+          input.addEventListener("input", () => {
+            window.esconderErroLogin?.();
+          });
         });
       }
     });
