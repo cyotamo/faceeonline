@@ -1417,13 +1417,9 @@ input[type='file'] {
 .login-erro {
   display: none;
   color: #c62828;
-  background: #fdecea;
-  border: 1px solid #f5c6cb;
-  padding: 10px;
-  margin-bottom: 12px;
-  border-radius: 6px;
   font-size: 14px;
   text-align: center;
+  margin: 10px 0 14px;
 }
 
 .login-submit-btn {
