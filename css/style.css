@@ -122,15 +122,18 @@ main {
 .actions {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
+  gap: 12px;
   margin-top: 16px;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 .acoes-supervisor {
   display: flex;
   flex-direction: row;
-  gap: 14px;
+  gap: 12px;
   align-items: center;
+  justify-content: flex-start;
   margin-top: 12px;
   flex-wrap: nowrap;
 }
@@ -1089,6 +1092,11 @@ footer {
 
 .btn-simples:hover {
   background: #e4e4e4;
+}
+
+.btn-navegacao {
+  flex: 0 0 auto;
+  width: auto;
 }
 /* Base dimensional para botões dos portais */
 .btn-padrao-portal {
