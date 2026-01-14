@@ -437,6 +437,10 @@ form button[type='submit']:focus-visible {
   justify-content: center;
   gap: 10px;
   padding: 14px 18px;
+  min-width: 180px;
+  height: 48px;
+  line-height: 1;
+  box-sizing: border-box;
   border-radius: 999px;
   font-weight: 600;
   letter-spacing: 0.2px;
