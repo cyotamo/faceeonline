@@ -1523,3 +1523,18 @@ input[type='file'] {
     font-size: 1.5rem;
   }
 }
+
+@media (max-width: 768px) {
+  /* Compensação do header fixo */
+  main,
+  .page,
+  .hero {
+    padding-top: 110px;
+  }
+
+  header {
+    z-index: 1000;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+}
