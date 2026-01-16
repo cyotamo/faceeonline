@@ -885,6 +885,44 @@ footer {
   }
 }
 
+@media (max-width: 768px) {
+  .actions-gestor,
+  .acoes-supervisor {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+  }
+
+  .actions-gestor .btn-navegacao,
+  .acoes-supervisor .btn-navegacao {
+    width: 100%;
+  }
+
+  .cta {
+    max-width: 560px;
+    width: 100%;
+    padding: 22px 20px;
+  }
+
+  .page,
+  main,
+  .hero {
+    min-height: auto;
+  }
+
+  .card-grid,
+  .nav-grid,
+  .grid-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .tabela-gestao-container,
+  .tabela-scroll {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
 @media (max-width: 520px) {
   .cta {
     padding: 24px 18px;
