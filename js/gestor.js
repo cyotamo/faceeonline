@@ -132,6 +132,7 @@ function limparCursosSupervisor() {
 async function carregarCursosDoDepartamento(departamento) {
     atualizarEstadoBuscaCursos({ carregando: true, mensagem: "" });
     limparCursosSupervisor();
+    let dados;
 
     try {
         // TODO: Integrar Firebase Auth para obter idToken do utilizador autenticado.
@@ -146,9 +147,10 @@ async function carregarCursosDoDepartamento(departamento) {
             })
         });
 
-        const dados = await resposta.json();
+        dados = await resposta.json();
+        const sucesso = dados?.ok || dados?.sucesso;
 
-        if (!resposta.ok || !dados?.ok) {
+        if (!resposta.ok || !sucesso) {
             throw new Error(dados?.erro || "Erro ao listar cursos.");
         }
 
@@ -165,6 +167,7 @@ async function carregarCursosDoDepartamento(departamento) {
         });
     } catch (erro) {
         console.error("Erro ao carregar cursos do departamento:", erro);
+        console.log(dados);
         atualizarEstadoBuscaCursos({
             carregando: false,
             mensagem:
