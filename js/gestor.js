@@ -129,6 +129,22 @@ function limparCursosSupervisor() {
     selectCursos.appendChild(optionPadrao);
 }
 
+function mostrarMensagem(mensagem) {
+    atualizarEstadoBuscaCursos({ carregando: false, mensagem });
+}
+
+function preencherSelectCursos(cursos) {
+    const selectCursos = document.getElementById("cursoSupervisor");
+    if (!selectCursos) return;
+
+    cursos.forEach((curso) => {
+        const option = document.createElement("option");
+        option.value = curso;
+        option.textContent = curso;
+        selectCursos.appendChild(option);
+    });
+}
+
 async function carregarCursosDoDepartamento(departamento) {
     atualizarEstadoBuscaCursos({ carregando: true, mensagem: "" });
     limparCursosSupervisor();
@@ -148,23 +164,17 @@ async function carregarCursosDoDepartamento(departamento) {
         });
 
         dados = await resposta.json();
-        const sucesso = dados?.ok || dados?.sucesso;
+        const sucesso = dados && (dados.sucesso === true || dados.ok === true);
 
-        if (!resposta.ok || !sucesso) {
-            throw new Error(dados?.erro || "Erro ao listar cursos.");
+        if (!sucesso) {
+            mostrarMensagem(
+                "Funcionalidade em activação: backend ainda não está a filtrar cursos por departamento."
+            );
+            return;
         }
 
         const cursos = Array.isArray(dados.cursos) ? dados.cursos : [];
-        const selectCursos = document.getElementById("cursoSupervisor");
-
-        if (!selectCursos) return;
-
-        cursos.forEach((curso) => {
-            const option = document.createElement("option");
-            option.value = curso;
-            option.textContent = curso;
-            selectCursos.appendChild(option);
-        });
+        preencherSelectCursos(cursos);
     } catch (erro) {
         console.error("Erro ao carregar cursos do departamento:", erro);
         console.log(dados);
