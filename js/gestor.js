@@ -96,6 +96,86 @@ function mostrarLoadingPainelGestor(msg = "A carregar…") {
     box.innerHTML = `<div class="loading" id="loadingPainelGestor">${msg}</div>`;
 }
 
+function atualizarEstadoBuscaCursos({ carregando, mensagem }) {
+    const btnBuscar = document.getElementById("btnBuscarAtribuirSupervisor");
+    const mensagemCursos = document.getElementById("mensagemCursosSupervisor");
+
+    if (mensagemCursos) {
+        mensagemCursos.textContent = mensagem || "";
+    }
+
+    if (!btnBuscar) return;
+
+    if (carregando) {
+        if (!btnBuscar.dataset.textoOriginal) {
+            btnBuscar.dataset.textoOriginal = btnBuscar.textContent;
+        }
+        btnBuscar.disabled = true;
+        btnBuscar.textContent = "A carregar…";
+    } else {
+        btnBuscar.disabled = false;
+        btnBuscar.textContent = btnBuscar.dataset.textoOriginal || "Buscar";
+    }
+}
+
+function limparCursosSupervisor() {
+    const selectCursos = document.getElementById("cursoSupervisor");
+    if (!selectCursos) return;
+
+    selectCursos.innerHTML = "";
+    const optionPadrao = document.createElement("option");
+    optionPadrao.value = "";
+    optionPadrao.textContent = "-- Selecionar Curso --";
+    selectCursos.appendChild(optionPadrao);
+}
+
+async function carregarCursosDoDepartamento(departamento) {
+    atualizarEstadoBuscaCursos({ carregando: true, mensagem: "" });
+    limparCursosSupervisor();
+
+    try {
+        // TODO: Integrar Firebase Auth para obter idToken do utilizador autenticado.
+        const token = "";
+
+        const resposta = await fetch(WEB_URL, {
+            method: "POST",
+            body: new URLSearchParams({
+                action: "listarCursosPorDepartamento",
+                departamento,
+                token
+            })
+        });
+
+        const dados = await resposta.json();
+
+        if (!resposta.ok || !dados?.ok) {
+            throw new Error(dados?.erro || "Erro ao listar cursos.");
+        }
+
+        const cursos = Array.isArray(dados.cursos) ? dados.cursos : [];
+        const selectCursos = document.getElementById("cursoSupervisor");
+
+        if (!selectCursos) return;
+
+        cursos.forEach((curso) => {
+            const option = document.createElement("option");
+            option.value = curso;
+            option.textContent = curso;
+            selectCursos.appendChild(option);
+        });
+    } catch (erro) {
+        console.error("Erro ao carregar cursos do departamento:", erro);
+        atualizarEstadoBuscaCursos({
+            carregando: false,
+            mensagem:
+                "Funcionalidade em activação: backend ainda não está a filtrar cursos por departamento."
+        });
+        return;
+    }
+
+    atualizarEstadoBuscaCursos({ carregando: false, mensagem: "" });
+}
+
 function esconderCarregamentoAtribuirSupervisor() {
     const loading = document.getElementById("loadingAtribuirSupervisor");
     if (loading) {
@@ -212,12 +292,15 @@ document.getElementById("btnAtribuirSuperv").addEventListener("click", function 
 
 // Botão Buscar (Atribuir Supervisor)
 document.getElementById("btnBuscarAtribuirSupervisor").addEventListener("click", function () {
-    modoTabelaGestao = "atribuirSupervisor";
-    mostrarLoadingPainelGestor("A carregar…");
-    carregarGestaoGeral();
-    if (window.aplicarRestricoesUI && window.userEmail) {
-        aplicarRestricoesUI(window.userEmail);
+    const departamentoSelect = document.getElementById("departamentoSupervisor");
+    const departamento = departamentoSelect ? departamentoSelect.value : "";
+
+    if (!departamento) {
+        alert("Selecione um departamento.");
+        return;
     }
+
+    carregarCursosDoDepartamento(departamento);
 });
 
 // Botão Homologar Supervisor
