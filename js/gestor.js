@@ -150,6 +150,8 @@ async function carregarCursosDoDepartamento(departamento) {
     limparCursosSupervisor();
     let dados;
 
+    const isTrue = (valor) => valor === true || String(valor).toLowerCase() === "true";
+
     try {
         // TODO: Integrar Firebase Auth para obter idToken do utilizador autenticado.
         const token = "";
@@ -163,18 +165,40 @@ async function carregarCursosDoDepartamento(departamento) {
             })
         });
 
-        dados = await resposta.json();
-        const sucesso = dados && (dados.sucesso === true || dados.ok === true);
+        const raw = await resposta.text();
 
-        if (!sucesso) {
+        if (!raw) {
             mostrarMensagem(
                 "Funcionalidade em activação: backend ainda não está a filtrar cursos por departamento."
             );
             return;
         }
 
+        try {
+            dados = JSON.parse(raw);
+        } catch (erro) {
+            mostrarMensagem("Resposta do backend não é JSON:\n" + raw.substring(0, 300));
+            return;
+        }
+
+        const sucesso = dados && (isTrue(dados.sucesso) || isTrue(dados.ok));
+
+        if (!sucesso) {
+            mostrarMensagem(dados.mensagem || "Backend respondeu sem sucesso.");
+            return;
+        }
+
         const cursos = Array.isArray(dados.cursos) ? dados.cursos : [];
+
+        if (cursos.length === 0) {
+            limparCursosSupervisor();
+            mostrarMensagem("Sem cursos disponíveis para este departamento.");
+            return;
+        }
+
         preencherSelectCursos(cursos);
+        mostrarMensagem("");
+        return;
     } catch (erro) {
         console.error("Erro ao carregar cursos do departamento:", erro);
         console.log(dados);
@@ -185,8 +209,6 @@ async function carregarCursosDoDepartamento(departamento) {
         });
         return;
     }
-
-    atualizarEstadoBuscaCursos({ carregando: false, mensagem: "" });
 }
 
 function esconderCarregamentoAtribuirSupervisor() {
