@@ -148,13 +148,14 @@ function preencherSelectCursos(cursos) {
 async function carregarCursosDoDepartamento(departamento) {
     atualizarEstadoBuscaCursos({ carregando: true, mensagem: "" });
     limparCursosSupervisor();
-    let dados;
 
     const isTrue = (valor) => valor === true || String(valor).toLowerCase() === "true";
 
     try {
         // TODO: Integrar Firebase Auth para obter idToken do utilizador autenticado.
         const token = "";
+
+        console.log("[DEBUG] WEB_URL =", WEB_URL);
 
         const resposta = await fetch(WEB_URL, {
             method: "POST",
@@ -167,45 +168,37 @@ async function carregarCursosDoDepartamento(departamento) {
 
         const raw = await resposta.text();
 
-        if (!raw) {
+        console.log("[DEBUG] HTTP status =", resposta.status);
+        console.log("[DEBUG] RAW =", raw);
+
+        mostrarMensagem(`[DEBUG] HTTP ${resposta.status} | RAW: ${raw.slice(0, 200)}`);
+
+        let dados;
+        try {
+            dados = JSON.parse(raw);
+        } catch (erro) {
+            mostrarMensagem("[ERRO] Resposta não é JSON. Ver RAW acima.");
+            return;
+        }
+
+        if (!isTrue(dados.sucesso)) {
             mostrarMensagem(
-                "Funcionalidade em activação: backend ainda não está a filtrar cursos por departamento."
+                `[ERRO] ${dados.mensagem || "sucesso=false"} | RAW: ${raw.slice(0, 120)}`
             );
             return;
         }
 
-        try {
-            dados = JSON.parse(raw);
-        } catch (erro) {
-            mostrarMensagem("Resposta do backend não é JSON:\n" + raw.substring(0, 300));
-            return;
-        }
-
-        const sucesso = dados && (isTrue(dados.sucesso) || isTrue(dados.ok));
-
-        if (!sucesso) {
-            mostrarMensagem(dados.mensagem || "Backend respondeu sem sucesso.");
-            return;
-        }
-
         const cursos = Array.isArray(dados.cursos) ? dados.cursos : [];
-
-        if (cursos.length === 0) {
-            limparCursosSupervisor();
-            mostrarMensagem("Sem cursos disponíveis para este departamento.");
-            return;
-        }
-
         preencherSelectCursos(cursos);
         mostrarMensagem("");
         return;
     } catch (erro) {
         console.error("Erro ao carregar cursos do departamento:", erro);
-        console.log(dados);
+        console.log(erro);
         atualizarEstadoBuscaCursos({
             carregando: false,
             mensagem:
-                "Funcionalidade em activação: backend ainda não está a filtrar cursos por departamento."
+                "[FALLBACK-1] Funcionalidade em activação: backend não filtrou cursos por departamento."
         });
         return;
     }
@@ -334,6 +327,9 @@ document.getElementById("btnBuscarAtribuirSupervisor").addEventListener("click",
         alert("Selecione um departamento.");
         return;
     }
+
+    console.log("[BUSCAR] departamento selecionado =", departamento);
+    mostrarMensagem(`[DEBUG] Buscar: ${departamento}`);
 
     carregarCursosDoDepartamento(departamento);
 });
