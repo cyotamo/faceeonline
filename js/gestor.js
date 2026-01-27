@@ -199,6 +199,20 @@ document.getElementById("btnParecerTec").addEventListener("click", () => {
 // Botão Atribuir Supervisor
 document.getElementById("btnAtribuirSuperv").addEventListener("click", function () {
     modoTabelaGestao = "atribuirSupervisor";
+    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
+    if (tabelaGestaoGeral) tabelaGestaoGeral.innerHTML = "";
+    const estatisticasContainer = document.getElementById("estatisticasContainer");
+    if (estatisticasContainer) estatisticasContainer.style.display = "none";
+    const atribuirSupervisorContainer = document.getElementById("atribuirSupervisorContainer");
+    if (atribuirSupervisorContainer) atribuirSupervisorContainer.style.display = "block";
+    if (window.aplicarRestricoesUI && window.userEmail) {
+        aplicarRestricoesUI(window.userEmail);
+    }
+});
+
+// Botão Buscar (Atribuir Supervisor)
+document.getElementById("btnBuscarAtribuirSupervisor").addEventListener("click", function () {
+    modoTabelaGestao = "atribuirSupervisor";
     mostrarLoadingPainelGestor("A carregar…");
     carregarGestaoGeral();
     if (window.aplicarRestricoesUI && window.userEmail) {
