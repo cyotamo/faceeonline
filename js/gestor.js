@@ -147,6 +147,39 @@ function formatarDataCompleta(valor) {
     return `${dia}-${mes}-${ano}`;
 }
 
+function obterOpcoesSupervisores(item) {
+    const opcoes = [];
+
+    if (item.colI) opcoes.push(item.colI);
+    if (item.colP && !opcoes.includes(item.colP)) opcoes.push(item.colP);
+    if (item.colQ && !opcoes.includes(item.colQ)) opcoes.push(item.colQ);
+    if (item.colR && !opcoes.includes(item.colR)) opcoes.push(item.colR);
+    if (item.colS && !opcoes.includes(item.colS)) opcoes.push(item.colS);
+    if (item.colT && !opcoes.includes(item.colT)) opcoes.push(item.colT);
+    if (item.colU && !opcoes.includes(item.colU)) opcoes.push(item.colU);
+    if (item.colV && !opcoes.includes(item.colV)) opcoes.push(item.colV);
+    if (item.colW && !opcoes.includes(item.colW)) opcoes.push(item.colW);
+    if (item.colX && !opcoes.includes(item.colX)) opcoes.push(item.colX);
+    if (item.colY && !opcoes.includes(item.colY)) opcoes.push(item.colY);
+    if (item.colZ && !opcoes.includes(item.colZ)) opcoes.push(item.colZ);
+
+    return opcoes;
+}
+
+function opcoesSupervisoresHTML(valorSelecionado, opcoes) {
+    if (!Array.isArray(opcoes) || opcoes.length === 0) {
+        return `<option value="">Seleccione…</option>`;
+    }
+
+    return opcoes
+        .map(opcao => {
+            const valor = String(opcao);
+            const selecionado = valorSelecionado && valorSelecionado === valor ? " selected" : "";
+            return `<option${selecionado}>${valor}</option>`;
+        })
+        .join("");
+}
+
 const estatisticasContainer = document.getElementById("estatisticasContainer");
 
 function esconderEstatisticas() {
@@ -238,6 +271,60 @@ document.getElementById("btnEstatisticas").addEventListener("click", () => {
         aplicarRestricoesUI(window.userEmail);
     }
 });
+
+const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
+if (tabelaGestaoGeral) {
+    tabelaGestaoGeral.addEventListener("click", async (e) => {
+        const btn = e.target.closest(".btn-atribuir-supervisor");
+        if (!btn) return;
+
+        if (modoTabelaGestao !== "atribuirSupervisor") return;
+
+        const tr = btn.closest("tr");
+        const select = tr?.querySelector("select.supervisorProposto");
+
+        const supervisor = (select?.value || "").trim();
+        const idEstudante = (btn.dataset.estudanteId || "").trim();
+        const row = (btn.dataset.row || "").trim();
+
+        if (!supervisor) {
+            alert("Seleccione um supervisor.");
+            return;
+        }
+
+        if (!idEstudante && !row) {
+            alert("Não foi possível identificar o estudante (sem ID/row).");
+            return;
+        }
+
+        btn.disabled = true;
+        const textoOriginal = btn.textContent;
+        btn.textContent = "A guardar...";
+
+        try {
+            const dados = new URLSearchParams();
+            dados.append("action", "atribuirSupervisorLinha");
+            dados.append("supervisor", supervisor);
+
+            if (idEstudante) dados.append("idEstudante", idEstudante);
+            if (row) dados.append("row", row);
+
+            const resp = await fetch(WEB_URL, { method: "POST", body: dados });
+            const json = await resp.json();
+
+            if (!json.sucesso) throw new Error(json.mensagem || "Erro.");
+
+            select.disabled = true;
+            btn.textContent = "Atribuído";
+            btn.classList.add("ok");
+        } catch (err) {
+            console.error(err);
+            alert(err.message || "Erro ao atribuir supervisor.");
+            btn.disabled = false;
+            btn.textContent = textoOriginal;
+        }
+    });
+}
 
 document.addEventListener("DOMContentLoaded", esconderCarregamento);
 
@@ -472,28 +559,15 @@ function carregarGestaoGeral() {
 
         const dadosOrdenados = ordenarDadosPorDataAscendente(dadosFiltrados).map((item, index) => {
             const linhaPlanilha = item.row;
-            const opcoes = [];
-
-            if (item.colI) opcoes.push(item.colI);
-            if (item.colP && !opcoes.includes(item.colP)) opcoes.push(item.colP);
-            if (item.colQ && !opcoes.includes(item.colQ)) opcoes.push(item.colQ);
-            if (item.colR && !opcoes.includes(item.colR)) opcoes.push(item.colR);
-            if (item.colS && !opcoes.includes(item.colS)) opcoes.push(item.colS);
-            if (item.colT && !opcoes.includes(item.colT)) opcoes.push(item.colT);
-            if (item.colU && !opcoes.includes(item.colU)) opcoes.push(item.colU);
-            if (item.colV && !opcoes.includes(item.colV)) opcoes.push(item.colV);
-            if (item.colW && !opcoes.includes(item.colW)) opcoes.push(item.colW);
-            if (item.colX && !opcoes.includes(item.colX)) opcoes.push(item.colX);
-            if (item.colY && !opcoes.includes(item.colY)) opcoes.push(item.colY);
-            if (item.colZ && !opcoes.includes(item.colZ)) opcoes.push(item.colZ);
-
-            const optionsHtml = opcoes
-                .map((valor, idx) => `<option${idx === 0 ? " selected" : ""}>${valor}</option>`)
-                .join("");
+            const opcoes = obterOpcoesSupervisores(item);
+            const supervisorAtual = item.supervisor ? item.supervisor.toString().trim() : "";
+            const supervisorAtualOuVazio = supervisorAtual || "";
 
             return {
                 ...item,
-                supervisor: `<select class="supervisorProposto" data-row="${linhaPlanilha}">${optionsHtml}</select>`
+                row: linhaPlanilha,
+                opcoesSupervisores: opcoes,
+                supervisorAtualOuVazio
             };
         });
 
@@ -578,6 +652,7 @@ function renderTabelaGestaoGeral() {
     const paginaDados = dadosGestaoGeral.slice(inicio, fim);
     const isGeral = modoTabelaGestao === "geral";
     const isHomologar = modoTabelaGestao === "homologarSupervisor";
+    const isAtribuir = modoTabelaGestao === "atribuirSupervisor";
 
     let html = `
             <div class="tabela-scroll">
@@ -595,6 +670,7 @@ function renderTabelaGestaoGeral() {
                         ${isGeral ? `<th class="col-parecer">Parecer</th>` : ""}
                         ${isGeral ? `<th class="col-observacoes">Observações</th>` : ""}
                         ${(isGeral || isHomologar) ? `<th class="col-homologacao">Homologação</th>` : ""}
+                        ${isAtribuir ? `<th class="col-acao">Ação</th>` : ""}
                     </tr>
                 </thead>
                 <tbody>
@@ -609,9 +685,14 @@ function renderTabelaGestaoGeral() {
                     <td class="col-data">${formatarDataCurta(item.data)}</td>
                     <td class="col-nome">${item.nome}</td>
                     <td class="col-curso">${item.curso}</td>
-                    ${!isHomologar ? `<td class="col-linha">${item.linha}</td>` : ""}
-                    ${!isHomologar ? `<td class="col-tema">${item.tema}</td>` : ""}
-                    ${!isHomologar ? `<td class="col-supervisor">${item.supervisor}</td>` : ""}
+                    ${!isHomologar ? `<td class="col-linha">${item.linhaPesquisa ?? item.linha ?? ""}</td>` : ""}
+                    ${!isHomologar ? `<td class="col-tema">${item.tema ?? ""}</td>` : ""}
+                    ${!isHomologar ? `
+                    <td class="col-supervisor">
+                        <select class="supervisorProposto" data-row="${item.row || ""}">
+                            ${opcoesSupervisoresHTML(item.supervisorAtualOuVazio, item.opcoesSupervisores)}
+                        </select>
+                    </td>` : ""}
                     ${isHomologar ? `
                     <td class="col-supervisor">${item.supervisorFinal}</td>
                     <td class="col-homologacao">
@@ -639,6 +720,16 @@ function renderTabelaGestaoGeral() {
                             <option>Homologado</option>
                         </select>
                     </td>` : ""}
+                    ${isAtribuir ? `
+                    <td class="col-acao">
+                        <button
+                            type="button"
+                            class="btn-atribuir-supervisor"
+                            data-estudante-id="${item.idEstudante || ""}"
+                            data-row="${item.row || ""}"
+                        >Guardar</button>
+                    </td>
+                    ` : ""}
                 </tr>
             `;
     });
