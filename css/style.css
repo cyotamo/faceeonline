@@ -1556,6 +1556,23 @@ input[type='file'] {
 .link-download {
   text-decoration: underline;
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .link-download:hover { opacity: 0.85; }
+
+.pdf-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  background: #d92d20;
+  border: 1px solid #b42318;
+  letter-spacing: 0.02em;
+}
