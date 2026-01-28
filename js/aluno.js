@@ -540,7 +540,8 @@ function renderLinkDownload(containerEl, url, label) {
   if (link && (/^(https?:\/\/|\/\/)/i).test(link)) {
     containerEl.innerHTML = `
       <a class="link-download" href="${link}" target="_blank" rel="noopener noreferrer">
-        ${label || "Baixar ficheiro"}
+        <span class="pdf-icon" aria-hidden="true">PDF</span>
+        <span class="link-download-text">${label || "Baixar ficheiro"}</span>
       </a>
     `;
   } else {
@@ -669,7 +670,7 @@ function mostrarResultadoConsulta(resposta) {
     if (isAprovado) {
       const linkMonografia = obterPrimeiroLinkPdf(dados, resposta.dados);
       if (linkMonografia) {
-        renderLinkDownload(comprovativoEl, linkMonografia, "Baixar monografia");
+        renderLinkDownload(comprovativoEl, linkMonografia, "Baixe aqui");
       }
     }
   } else {
