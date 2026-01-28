@@ -522,6 +522,8 @@ function mostrarBotaoGuardar(tipo) {
 function carregarGestaoGeral() {
     mostrarCarregamentoAtribuirSupervisor();
 
+    const normalizarCampo = (valor) => String(valor ?? "").trim().toLowerCase();
+
     fetch(WEB_URL,
     {
         method: "POST",
@@ -534,26 +536,35 @@ function carregarGestaoGeral() {
         let dadosFiltrados = dados;
 
         if (modoTabelaGestao === "atribuirSupervisor") {
-            console.log("getGestaoGeral keys:", Object.keys(dados?.[0] ?? {}));
+            console.log("getGestaoGeral keys (1 item):", Object.keys(dados?.[0] ?? {}));
             console.log(
-                "getGestaoGeral parecer amostra:",
-                dados.slice(0, 3).map(item => ({
-                    parecer: item.parecer,
-                    Parecer: item.Parecer,
-                    parecerTema: item.parecerTema,
-                    colL: item.colL
+                "getGestaoGeral colunas L/M/N (1 item):",
+                dados.slice(0, 1).map(item => ({
+                    colL: item.colL,
+                    colM: item.colM,
+                    colN: item.colN
                 }))
             );
 
             dadosFiltrados = dados.filter(item => {
-                const parecer = item.parecer ?? item.Parecer ?? item.parecerTema ?? item.colL ?? "";
-                const parecerLimpo = parecer.toString().trim().toLowerCase();
+                const parecerColL = normalizarCampo(item.colL);
+                const supervisorColM = normalizarCampo(item.colM);
 
-                return parecerLimpo === "aprovado";
+                if (parecerColL !== "aprovado") return false;
+                if (supervisorColM) return false;
+
+                return true;
             });
         }
 
         if (modoTabelaGestao === "homologarSupervisor") {
+            console.log(
+                "getGestaoGeral homologar (1 item):",
+                dados.slice(0, 1).map(item => ({
+                    supervisorFinal: item.supervisorFinal,
+                    homologado: item.homologado
+                }))
+            );
             dadosFiltrados = dados.filter(item =>
                 item.supervisorFinal &&
                 item.supervisorFinal.toString().trim() !== "" &&
