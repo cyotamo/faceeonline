@@ -537,7 +537,7 @@ function renderLinkDownload(containerEl, url, label) {
 
   const link = (url || "").toString().trim();
 
-  if (link && (/^https?:\\/\\/|^\\/\\//i).test(link)) {
+  if (link && (/^(https?:\/\/|\/\/)/i).test(link)) {
     containerEl.innerHTML = `
       <a class="link-download" href="${link}" target="_blank" rel="noopener noreferrer">
         ${label || "Baixar ficheiro"}
