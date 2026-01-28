@@ -1548,9 +1548,18 @@ input[type='file'] {
   font-size: 0.95rem;
 }
 
-.status-aprovado { color: #0b5ed7; background: rgba(11, 94, 215, 0.10); }
+.status-aprovado,
+.status-homologado,
+.status-atribuido {
+  color: #0b5ed7;
+  background: rgba(11, 94, 215, 0.10);
+}
 .status-pendente { color: #b58100; background: rgba(255, 193, 7, 0.18); }
-.status-reprovado { color: #b02a37; background: rgba(176, 42, 55, 0.12); }
+.status-reprovado,
+.status-recusado {
+  color: #b02a37;
+  background: rgba(176, 42, 55, 0.12);
+}
 
 /* Links de download */
 .link-download {
