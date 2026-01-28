@@ -536,11 +536,11 @@ function carregarGestaoGeral() {
         if (modoTabelaGestao === "atribuirSupervisor") {
             dadosFiltrados = dados.filter(item => {
                 const parecer = item.parecer ?? item.Parecer ?? "";
-                const parecerLimpo = parecer.toString().trim();
+                const parecerLimpo = parecer.toString().trim().toLowerCase();
                 const supervisorFinal = item.supervisorFinal ?? "";
                 const supervisorFinalLimpo = supervisorFinal.toString().trim();
 
-                return parecerLimpo === "Aprovado" && supervisorFinalLimpo === "";
+                return parecerLimpo === "aprovado" && supervisorFinalLimpo === "";
             });
         }
 
