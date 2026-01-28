@@ -515,6 +515,39 @@ async function enviarConsulta(payload) {
   }
 }
 
+function aplicarEstiloSituacao(el, situacaoRaw) {
+  if (!el) return;
+
+  const situacao = (situacaoRaw || "").toString().trim().toLowerCase();
+
+  el.classList.remove("status-aprovado", "status-pendente", "status-reprovado");
+  el.classList.add("status");
+
+  if (situacao === "aprovado") {
+    el.classList.add("status-aprovado");
+  } else if (situacao === "pendente") {
+    el.classList.add("status-pendente");
+  } else if (situacao === "reprovado" || situacao === "recusado") {
+    el.classList.add("status-reprovado");
+  }
+}
+
+function renderLinkDownload(containerEl, url, label) {
+  if (!containerEl) return;
+
+  const link = (url || "").toString().trim();
+
+  if (link && (/^https?:\\/\\/|^\\/\\//i).test(link)) {
+    containerEl.innerHTML = `
+      <a class="link-download" href="${link}" target="_blank" rel="noopener noreferrer">
+        ${label || "Baixar ficheiro"}
+      </a>
+    `;
+  } else {
+    containerEl.textContent = link || "—";
+  }
+}
+
 function mostrarResultadoConsulta(resposta) {
   const resultadoDiv = document.getElementById("resultadoConsultaEstado");
   const pdfBox = document.getElementById("pdfReprovadoContainer");
@@ -529,6 +562,8 @@ function mostrarResultadoConsulta(resposta) {
   resultadoDiv.style.display = "block";
 
   const dados = resposta.dados || {};
+  const situacaoEl = document.getElementById("resParecer");
+  const comprovativoEl = document.getElementById("resPdfHomologacao");
 
   const isCredencial =
     !dados.dataDefesa &&
@@ -566,15 +601,16 @@ function mostrarResultadoConsulta(resposta) {
     const estado = (dados.parecer || "").toLowerCase();
 
     if (estado === "aprovado") {
-      document.getElementById("resParecer").textContent =
+      situacaoEl.textContent =
         "Aprovado – Disponível para levantamento";
     } else if (estado === "reprovado") {
-      document.getElementById("resParecer").textContent =
+      situacaoEl.textContent =
         "Reprovado – Contacte a secretaria";
     } else {
-      document.getElementById("resParecer").textContent =
+      situacaoEl.textContent =
         dados.parecer || "Pendente";
     }
+    aplicarEstiloSituacao(situacaoEl, dados.parecer);
 
     document.querySelector('#resParecer')
       .closest('p')
@@ -592,23 +628,21 @@ function mostrarResultadoConsulta(resposta) {
   }
 
   // Limpar link anterior
-  document.getElementById("resPdfHomologacao").innerHTML = "";
+  comprovativoEl.innerHTML = "";
 
   document.querySelector('#resParecer')
     .closest('p')
     .querySelector('strong')
     .textContent = "Parecer:";
-  document.getElementById("resParecer").textContent = dados.parecer || "";
+  situacaoEl.textContent = dados.parecer || "";
+  aplicarEstiloSituacao(situacaoEl, dados.parecer);
 
   if (isVersaoFinal) {
     document.getElementById("resAtribuicao").parentElement.style.display = "none";
     document.getElementById("resHomologacao").parentElement.style.display = "none";
 
     if (isAprovado && dados.pdfComprovativo) {
-      document.getElementById("resPdfHomologacao").innerHTML =
-        `<a href="${dados.pdfComprovativo}" target="_blank" class="btn-download">
-            Baixar comprovativo da monografia (PDF)
-         </a>`;
+      renderLinkDownload(comprovativoEl, dados.pdfComprovativo, "Baixar monografia");
     }
   } else {
     document.getElementById("resAtribuicao").parentElement.style.display = "";
@@ -616,17 +650,11 @@ function mostrarResultadoConsulta(resposta) {
 
     // Verificar se veio link do backend
     if (resposta.dados.pdfHomologacao) {
-      document.getElementById("resPdfHomologacao").innerHTML =
-        `<a href="${resposta.dados.pdfHomologacao}" target="_blank" class="btn-download">
-              Baixar comprovativo de homologação (PDF)
-           </a>`;
+      renderLinkDownload(comprovativoEl, resposta.dados.pdfHomologacao, "Baixar comprovativo");
     }
 
     if (resposta.dados.pdfComprovativo) {
-      document.getElementById("resPdfHomologacao").innerHTML =
-        `<a href="${resposta.dados.pdfComprovativo}" target="_blank" class="btn-download">
-              Baixar comprovativo da monografia (PDF)
-           </a>`;
+      renderLinkDownload(comprovativoEl, resposta.dados.pdfComprovativo, "Baixar comprovativo");
     }
   }
 
