@@ -579,7 +579,7 @@ function mostrarResultadoConsulta(resposta) {
     document.querySelector('#resParecer')
       .closest('p')
       .querySelector('strong')
-      .textContent = "Nome:";
+      .textContent = "Situação:";
 
     document.getElementById("resAtribuicao").parentElement.style.display = "none";
     document.getElementById("resHomologacao").parentElement.style.display = "none";
