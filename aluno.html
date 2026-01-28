@@ -70,6 +70,16 @@
   </script>
 
   <script>
+    if (window.location.hash) {
+      history.replaceState(
+        null,
+        document.title,
+        window.location.pathname + window.location.search
+      );
+    }
+  </script>
+
+  <script>
     const btnTema = document.getElementById('btnTema');
     const btnMonografia = document.getElementById('btnMonografia');
     const btnPedidoCredencial = document.getElementById('btnPedidoCredencial');
