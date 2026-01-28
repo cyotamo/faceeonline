@@ -829,14 +829,16 @@ async function carregarDocumentos() {
         doc.file_id ||
         extrairId(doc.link);
 
+      const linkDocumento =
+        normalizarLink(doc.link || doc.url || doc.href || doc.pdf || '') ||
+        (idFicheiro ? `https://drive.google.com/file/d/${idFicheiro}/view` : '');
+
       const pdfIcon = document.createElement('img');
       pdfIcon.src = 'https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg';
       pdfIcon.alt = 'PDF';
       pdfIcon.width = 22;
 
-      pdfLink.href = idFicheiro
-        ? `https://drive.google.com/file/d/${idFicheiro}/view`
-        : '#';
+      pdfLink.href = linkDocumento || '#';
       pdfLink.target = '_blank';
       pdfLink.rel = 'noopener noreferrer';
       pdfLink.appendChild(pdfIcon);
