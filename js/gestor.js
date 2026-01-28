@@ -522,8 +522,6 @@ function mostrarBotaoGuardar(tipo) {
 function carregarGestaoGeral() {
     mostrarCarregamentoAtribuirSupervisor();
 
-    const normalizarCampo = (valor) => String(valor ?? "").trim().toLowerCase();
-
     fetch(WEB_URL,
     {
         method: "POST",
@@ -545,16 +543,7 @@ function carregarGestaoGeral() {
                     colN: item.colN
                 }))
             );
-
-            dadosFiltrados = dados.filter(item => {
-                const parecerColL = normalizarCampo(item.colL);
-                const supervisorColM = normalizarCampo(item.colM);
-
-                if (parecerColL !== "aprovado") return false;
-                if (supervisorColM) return false;
-
-                return true;
-            });
+            dadosFiltrados = dados;
         }
 
         if (modoTabelaGestao === "homologarSupervisor") {
