@@ -147,6 +147,14 @@ function formatarDataCompleta(valor) {
     return `${dia}-${mes}-${ano}`;
 }
 
+function normalizarCampo(valor) {
+    return String(valor ?? "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLowerCase();
+}
+
 function obterOpcoesSupervisores(item) {
     const opcoes = [];
 
@@ -534,16 +542,7 @@ function carregarGestaoGeral() {
         let dadosFiltrados = dados;
 
         if (modoTabelaGestao === "atribuirSupervisor") {
-            console.log("getGestaoGeral keys (1 item):", Object.keys(dados?.[0] ?? {}));
-            console.log(
-                "getGestaoGeral colunas L/M/N (1 item):",
-                dados.slice(0, 1).map(item => ({
-                    colL: item.colL,
-                    colM: item.colM,
-                    colN: item.colN
-                }))
-            );
-            dadosFiltrados = dados;
+            dadosFiltrados = dados.filter(item => normalizarCampo(item.colL) === "aprovado");
         }
 
         if (modoTabelaGestao === "homologarSupervisor") {
