@@ -698,7 +698,7 @@ function mostrarResultadoConsulta(resposta) {
     document.getElementById("resHomologacao").parentElement.style.display = "";
 
     const estadoTema = (dados.homologacao || dados.parecer || "").toString().trim().toLowerCase();
-    const temaAprovado = estadoTema === "aprovado";
+    const temaAprovado = ["aprovado", "homologado"].includes(estadoTema);
     const linkComprovativo = obterPrimeiroLinkPdf(resposta.dados, dados);
     if (temaAprovado && linkComprovativo) {
       renderLinkDownload(comprovativoEl, linkComprovativo, "Baixar comprovativo");
