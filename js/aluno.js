@@ -548,6 +548,31 @@ function renderLinkDownload(containerEl, url, label) {
   }
 }
 
+function obterPrimeiroLinkPdf(...fontes) {
+  const chavesPdf = [
+    "pdfComprovativo",
+    "pdfHomologacao",
+    "linkPDF",
+    "pdfURL",
+    "urlPDF",
+    "link",
+    "url"
+  ];
+
+  for (const fonte of fontes) {
+    if (!fonte || typeof fonte !== "object") continue;
+
+    for (const chave of chavesPdf) {
+      const valor = fonte[chave];
+      if (typeof valor === "string" && valor.trim()) {
+        return valor.trim();
+      }
+    }
+  }
+
+  return "";
+}
+
 function mostrarResultadoConsulta(resposta) {
   const resultadoDiv = document.getElementById("resultadoConsultaEstado");
   const pdfBox = document.getElementById("pdfReprovadoContainer");
@@ -641,20 +666,21 @@ function mostrarResultadoConsulta(resposta) {
     document.getElementById("resAtribuicao").parentElement.style.display = "none";
     document.getElementById("resHomologacao").parentElement.style.display = "none";
 
-    if (isAprovado && dados.pdfComprovativo) {
-      renderLinkDownload(comprovativoEl, dados.pdfComprovativo, "Baixar monografia");
+    if (isAprovado) {
+      const linkMonografia = obterPrimeiroLinkPdf(dados, resposta.dados);
+      if (linkMonografia) {
+        renderLinkDownload(comprovativoEl, linkMonografia, "Baixar monografia");
+      }
     }
   } else {
     document.getElementById("resAtribuicao").parentElement.style.display = "";
     document.getElementById("resHomologacao").parentElement.style.display = "";
 
-    // Verificar se veio link do backend
-    if (resposta.dados.pdfHomologacao) {
-      renderLinkDownload(comprovativoEl, resposta.dados.pdfHomologacao, "Baixar comprovativo");
-    }
-
-    if (resposta.dados.pdfComprovativo) {
-      renderLinkDownload(comprovativoEl, resposta.dados.pdfComprovativo, "Baixar comprovativo");
+    const estadoTema = (dados.homologacao || dados.parecer || "").toString().trim().toLowerCase();
+    const temaAprovado = estadoTema === "aprovado";
+    const linkComprovativo = obterPrimeiroLinkPdf(resposta.dados, dados);
+    if (temaAprovado && linkComprovativo) {
+      renderLinkDownload(comprovativoEl, linkComprovativo, "Baixar comprovativo");
     }
   }
 
