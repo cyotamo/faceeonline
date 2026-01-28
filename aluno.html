@@ -73,8 +73,10 @@
     const btnTema = document.getElementById('btnTema');
     const btnMonografia = document.getElementById('btnMonografia');
     const btnPedidoCredencial = document.getElementById('btnPedidoCredencial');
+    const obterFormContainer = () => document.getElementById('form-container');
 
     btnTema?.addEventListener('click', () => {
+      const formContainer = obterFormContainer();
       if (!formContainer) return;
 
       formContainer.innerHTML = `
@@ -133,6 +135,7 @@
     });
 
     btnMonografia?.addEventListener('click', () => {
+      const formContainer = obterFormContainer();
       if (!formContainer) return;
 
       formContainer.innerHTML = '';
@@ -231,6 +234,7 @@
     });
 
     btnPedidoCredencial?.addEventListener('click', () => {
+      const formContainer = obterFormContainer();
       if (!formContainer) return;
 
       formContainer.innerHTML = `
