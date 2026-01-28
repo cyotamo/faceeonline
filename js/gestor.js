@@ -534,10 +534,14 @@ function carregarGestaoGeral() {
         let dadosFiltrados = dados;
 
         if (modoTabelaGestao === "atribuirSupervisor") {
-            dadosFiltrados = dados.filter(item =>
-                !item.supervisorFinal ||
-                item.supervisorFinal.toString().trim() === ""
-            );
+            dadosFiltrados = dados.filter(item => {
+                const parecer = item.parecer ?? item.Parecer ?? "";
+                const parecerLimpo = parecer.toString().trim();
+                const supervisorFinal = item.supervisorFinal ?? "";
+                const supervisorFinalLimpo = supervisorFinal.toString().trim();
+
+                return parecerLimpo === "Aprovado" && supervisorFinalLimpo === "";
+            });
         }
 
         if (modoTabelaGestao === "homologarSupervisor") {
@@ -1318,7 +1322,7 @@ function carregarParecer() {
         // 🔥 Agora usamos a nova Tabela Parecer (não a Gestão Geral)
         dadosGestaoGeral = dados.filter(item => {
             const parecer = item.parecer ?? item.Parecer ?? "";
-            return parecer.toString().trim() === "";
+            return !parecer || parecer.toString().trim() === "";
         });
 
         paginaAtual = 1;
