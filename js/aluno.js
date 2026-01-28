@@ -550,12 +550,31 @@ function aplicarEstiloSituacao(el, situacaoRaw) {
   }
 }
 
+function normalizarLink(url) {
+  const link = (url || "").toString().trim();
+  if (!link) return "";
+
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(link) || link.startsWith("//")) {
+    return link;
+  }
+
+  if (link.startsWith("www.")) {
+    return `https://${link}`;
+  }
+
+  if (link.includes(".") && !link.includes(" ")) {
+    return `https://${link}`;
+  }
+
+  return link;
+}
+
 function renderLinkDownload(containerEl, url, label) {
   if (!containerEl) return;
 
-  const link = (url || "").toString().trim();
+  const link = normalizarLink(url);
 
-  if (link && (/^(https?:\/\/|\/\/)/i).test(link)) {
+  if (link) {
     containerEl.innerHTML = `
       <a class="link-download" href="${link}" target="_blank" rel="noopener noreferrer">
         <span class="pdf-icon" aria-hidden="true">PDF</span>
@@ -563,7 +582,7 @@ function renderLinkDownload(containerEl, url, label) {
       </a>
     `;
   } else {
-    containerEl.textContent = link || "—";
+    containerEl.textContent = "—";
   }
 }
 
@@ -721,8 +740,12 @@ function mostrarResultadoConsulta(resposta) {
   }
 
   // Mostrar link de PDF se o parecer for reprovado
-  if (resposta.dados.parecer === "Reprovado" && resposta.dados.pdfReprovado) {
-    pdfLink.href = resposta.dados.pdfReprovado;
+  const parecerReprovado =
+    (resposta.dados.parecer || "").toString().trim().toLowerCase() === "reprovado";
+  const pdfReprovado = normalizarLink(resposta.dados.pdfReprovado);
+
+  if (parecerReprovado && pdfReprovado) {
+    pdfLink.href = pdfReprovado;
     pdfBox.style.display = "block";
   }
 }
