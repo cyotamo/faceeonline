@@ -619,11 +619,13 @@ function renderizarControlesGestaoGeral() {
     container.style.marginTop = "15px";
     container.style.flexWrap = "wrap";
 
-    const btnGuardar = document.createElement("button");
-    btnGuardar.id = "btnGuardar";
-    btnGuardar.textContent = "Guardar";
-    btnGuardar.className = "btn-guardar";
-    container.appendChild(btnGuardar);
+    if (modoTabelaGestao !== "atribuirSupervisor") {
+        const btnGuardar = document.createElement("button");
+        btnGuardar.id = "btnGuardar";
+        btnGuardar.textContent = "Guardar";
+        btnGuardar.className = "btn-guardar";
+        container.appendChild(btnGuardar);
+    }
 
     const barraPaginacao = document.createElement("div");
     barraPaginacao.style.display = "flex";
