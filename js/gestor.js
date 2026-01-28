@@ -542,7 +542,10 @@ function carregarGestaoGeral() {
         let dadosFiltrados = dados;
 
         if (modoTabelaGestao === "atribuirSupervisor") {
-            dadosFiltrados = dados.filter(item => normalizarCampo(item.colL) === "aprovado");
+            dadosFiltrados = dados.filter(item =>
+                normalizarCampo(item.colL) === "aprovado" &&
+                (!item.supervisorFinal || item.supervisorFinal.toString().trim() === "")
+            );
         }
 
         if (modoTabelaGestao === "homologarSupervisor") {
