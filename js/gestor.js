@@ -534,13 +534,22 @@ function carregarGestaoGeral() {
         let dadosFiltrados = dados;
 
         if (modoTabelaGestao === "atribuirSupervisor") {
+            console.log("getGestaoGeral keys:", Object.keys(dados?.[0] ?? {}));
+            console.log(
+                "getGestaoGeral parecer amostra:",
+                dados.slice(0, 3).map(item => ({
+                    parecer: item.parecer,
+                    Parecer: item.Parecer,
+                    parecerTema: item.parecerTema,
+                    colL: item.colL
+                }))
+            );
+
             dadosFiltrados = dados.filter(item => {
                 const parecer = item.parecer ?? item.Parecer ?? item.parecerTema ?? item.colL ?? "";
                 const parecerLimpo = parecer.toString().trim().toLowerCase();
-                const supervisorFinal = item.supervisorFinal ?? item.supervisor ?? "";
-                const supervisorFinalLimpo = supervisorFinal.toString().trim();
 
-                return parecerLimpo === "aprovado" && supervisorFinalLimpo === "";
+                return parecerLimpo === "aprovado";
             });
         }
 
