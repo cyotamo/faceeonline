@@ -520,10 +520,22 @@ function aplicarEstiloSituacao(el, situacaoRaw) {
 
   const situacao = (situacaoRaw || "").toString().trim().toLowerCase();
 
-  el.classList.remove("status-aprovado", "status-pendente", "status-reprovado");
+  el.classList.remove(
+    "status-aprovado",
+    "status-homologado",
+    "status-atribuido",
+    "status-pendente",
+    "status-reprovado",
+    "status-recusado"
+  );
   el.classList.add("status");
 
-  if (situacao === "aprovado") {
+  if (
+    situacao === "aprovado" ||
+    situacao === "homologado" ||
+    situacao === "atribuido" ||
+    situacao === "atribuído"
+  ) {
     el.classList.add("status-aprovado");
   } else if (situacao === "pendente") {
     el.classList.add("status-pendente");
