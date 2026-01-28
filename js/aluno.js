@@ -794,51 +794,30 @@ async function carregarDocumentos() {
   mostrarLoadingDocumentos();
 
   try {
-    const resposta = await fetch(WEB_URL, {
-      method: 'POST',
-      body: new URLSearchParams({ action: 'listarDocumentos' }),
-    });
+    const documentos = [
+      {
+        nome: 'Estrutura TCC',
+        link: 'https://drive.google.com/file/d/1vHbgPPDpU3yrNBDUMYGPIcoP3L-eYKGZ/view?usp=drive_link',
+      },
+      {
+        nome: 'Linhas de Pesquisa',
+        link: 'https://drive.google.com/file/d/17wXc1iY4AjpB445KEMx2S9ygItvxK6uN/view?usp=drive_link',
+      },
+    ];
 
-    const dados = await resposta.json();
-    const documentos = Array.isArray(dados.documentos) ? dados.documentos : [];
-
-    if (dados.sucesso !== true || documentos.length === 0) {
-      listaDocumentos.textContent = 'Nenhum documento disponível';
-      return;
-    }
-
-    documentos.forEach((doc, indice) => {
+    documentos.forEach((doc) => {
       const item = document.createElement('li');
       const nomeSpan = document.createElement('span');
       const pdfLink = document.createElement('a');
 
-      const nomeDocumento = doc.nome || `Documento ${indice + 1}`;
-      nomeSpan.textContent = `${nomeDocumento} – `;
-
-      const extrairId = (valor = '') => {
-        const match = valor.match(/[-\\w]{25,}/);
-        return match ? match[0] : '';
-      };
-
-      const idFicheiro =
-        doc.id ||
-        doc.fileId ||
-        doc.fileID ||
-        doc.idFicheiro ||
-        doc.ficheiroId ||
-        doc.file_id ||
-        extrairId(doc.link);
-
-      const linkDocumento =
-        normalizarLink(doc.link || doc.url || doc.href || doc.pdf || '') ||
-        (idFicheiro ? `https://drive.google.com/file/d/${idFicheiro}/view` : '');
+      nomeSpan.textContent = `${doc.nome} – `;
 
       const pdfIcon = document.createElement('img');
       pdfIcon.src = 'https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg';
       pdfIcon.alt = 'PDF';
       pdfIcon.width = 22;
 
-      pdfLink.href = linkDocumento || '#';
+      pdfLink.href = doc.link;
       pdfLink.target = '_blank';
       pdfLink.rel = 'noopener noreferrer';
       pdfLink.appendChild(pdfIcon);
