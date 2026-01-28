@@ -528,6 +528,12 @@ function aplicarEstiloSituacao(el, situacaoRaw) {
     "status-reprovado",
     "status-recusado"
   );
+  el.classList.remove("status");
+
+  if (!situacao) {
+    return;
+  }
+
   el.classList.add("status");
 
   if (
@@ -630,6 +636,8 @@ function mostrarResultadoConsulta(resposta) {
   }
   document.getElementById("resAtribuicao").textContent = dados.atribuicaoSupervisor || "";
   document.getElementById("resHomologacao").textContent = dados.homologacao || "";
+  aplicarEstiloSituacao(document.getElementById("resAtribuicao"), dados.atribuicaoSupervisor);
+  aplicarEstiloSituacao(document.getElementById("resHomologacao"), dados.homologacao);
 
   const isVersaoFinal = !!dados.dataDefesa;
   const isAprovado =
