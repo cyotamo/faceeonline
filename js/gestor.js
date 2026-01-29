@@ -826,23 +826,23 @@ function carregarMonografiaFinal() {
         `;
 
         dadosFiltrados.forEach((item, index) => {
-            const idEstudante = (item.numeroEstudante || item.idEstudante || "").toString().trim();
+            const idSubmissao = (item.idSubmissao || "").toString().trim();
             html += `
-                <tr data-id="${idEstudante}">
+                <tr data-id="${idSubmissao}">
                     <td class="col-ord">${index + 1}</td>
                     <td class="col-data">${formatarDataCurta(item.timestamp)}</td>
                     <td class="col-nome">${item.nome}</td>
                     <td class="col-curso">${item.curso}</td>
                     <td class="col-pdf"><a class="pdf-icon" href="${item.linkPDF}" target="_blank" rel="noopener noreferrer">📄</a></td>
                     <td class="col-parecer">
-                        <select class="parecer" data-row="${index + 2}" data-id="${idEstudante}">
+                        <select class="parecer">
                             <option value="">Seleccione…</option>
                             <option>Aprovado</option>
                             <option>Recusado</option>
                         </select>
                     </td>
                     <td class="col-observacoes">
-                        <textarea class="observacoes" data-row="${index + 2}" data-id="${idEstudante}" rows="4" aria-label="Observações"></textarea>
+                        <textarea class="observacoes" rows="4" aria-label="Observações"></textarea>
                     </td>
                 </tr>
             `;
@@ -1306,76 +1306,78 @@ async function guardarMonografiaFinal() {
     const linhas = new Map();
     let idInvalido = false;
 
-    const obterIdEstudanteDoElemento = (elemento) => {
-        const idEstudante = (elemento?.dataset?.id || elemento?.closest("tr")?.dataset?.id || "").trim();
+    const obterIdSubmissaoDoElemento = (elemento, valorPreenchido) => {
+        const tr = elemento?.closest("tr");
+        const idSubmissao = (tr?.dataset?.id || "").trim();
 
-        if (!idEstudante) {
+        if (!idSubmissao && valorPreenchido) {
             idInvalido = true;
             return "";
         }
 
-        return idEstudante;
+        return idSubmissao;
     };
 
     const processarPareceres = (selects) => {
         selects.forEach(select => {
-            const idEstudante = obterIdEstudanteDoElemento(select);
             const valor = select.value.trim();
+            const idSubmissao = obterIdSubmissaoDoElemento(select, valor !== "");
 
-            if (!idEstudante || valor === "") {
+            if (!idSubmissao || valor === "") {
                 return;
             }
 
-            if (!linhas.has(idEstudante)) {
-                linhas.set(idEstudante, {
-                    idEstudante,
+            if (!linhas.has(idSubmissao)) {
+                linhas.set(idSubmissao, {
+                    idSubmissao,
                     parecer: "",
-                    observacoes: "",
-                    homologacao: "",
-                    supervisor: ""
+                    observacoes: ""
                 });
             }
 
-            const linha = linhas.get(idEstudante);
+            const linha = linhas.get(idSubmissao);
             linha.parecer = valor;
         });
     };
 
     const processarObservacoes = (inputs) => {
         inputs.forEach(input => {
-            const idEstudante = obterIdEstudanteDoElemento(input);
+            const valor = input.value.trim();
+            const idSubmissao = obterIdSubmissaoDoElemento(input, valor !== "");
 
-            if (!idEstudante) {
+            if (!idSubmissao) {
                 return;
             }
 
-            if (!linhas.has(idEstudante)) {
-                linhas.set(idEstudante, {
-                    idEstudante,
+            if (!linhas.has(idSubmissao)) {
+                linhas.set(idSubmissao, {
+                    idSubmissao,
                     parecer: "",
-                    observacoes: "",
-                    homologacao: "",
-                    supervisor: ""
+                    observacoes: ""
                 });
             }
 
-            const linha = linhas.get(idEstudante);
-            linha.observacoes = input.value.trim();
+            const linha = linhas.get(idSubmissao);
+            linha.observacoes = valor;
         });
     };
 
-    processarPareceres(document.querySelectorAll("select.parecer"));
-    processarObservacoes(document.querySelectorAll("textarea.observacoes"));
+    const tabela = document.querySelector(".table-monografia-final");
+    const pareceres = tabela ? tabela.querySelectorAll("select.parecer") : [];
+    const observacoes = tabela ? tabela.querySelectorAll("textarea.observacoes") : [];
 
-    const payload = Array.from(linhas.values()).filter(item => item.parecer || item.observacoes);
+    processarPareceres(pareceres);
+    processarObservacoes(observacoes);
 
-    if (payload.length === 0) {
+    if (idInvalido) {
+        alert("Não foi possível identificar a submissão. Recarregue a página e tente novamente.");
         desactivarLoadingGuardar(botao);
         return;
     }
 
-    if (idInvalido) {
-        alert("Não foi possível identificar o estudante. Recarregue a página e tente novamente.");
+    const payload = Array.from(linhas.values()).filter(item => item.parecer || item.observacoes);
+
+    if (payload.length === 0) {
         desactivarLoadingGuardar(botao);
         return;
     }
@@ -1397,10 +1399,14 @@ async function guardarMonografiaFinal() {
         }
 
         payload.forEach(item => {
-            document.querySelectorAll(`select.parecer[data-id="${item.idEstudante}"]`).forEach(select => {
+            const linha = document.querySelector(`[data-id="${item.idSubmissao}"]`);
+            if (!linha) {
+                return;
+            }
+            linha.querySelectorAll("select.parecer").forEach(select => {
                 select.disabled = true;
             });
-            document.querySelectorAll(`textarea.observacoes[data-id="${item.idEstudante}"]`).forEach(textarea => {
+            linha.querySelectorAll("textarea.observacoes").forEach(textarea => {
                 textarea.disabled = true;
             });
         });
