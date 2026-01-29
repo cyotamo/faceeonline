@@ -37,26 +37,35 @@ function aplicarDadosBloqueio() {
     }
 
     estadoCamposBloqueados.forEach(item => {
+        const idEstudante = (item.idEstudante || item.numeroEstudante || "").toString().trim();
+        const seletorId = idEstudante ? `[data-id="${idEstudante}"]` : null;
+        const seletorRow = item.row ? `[data-row="${item.row}"]` : null;
+        const seletorBase = seletorId || seletorRow;
+
+        if (!seletorBase) {
+            return;
+        }
+
         if (item.parecer) {
-            document.querySelectorAll(`select.parecer[data-row="${item.row}"]`).forEach(select => {
+            document.querySelectorAll(`select.parecer${seletorBase}`).forEach(select => {
                 select.disabled = true;
             });
         }
 
         if (item.supervisor) {
-            document.querySelectorAll(`select.supervisorProposto[data-row="${item.row}"]`).forEach(select => {
+            document.querySelectorAll(`select.supervisorProposto${seletorBase}`).forEach(select => {
                 select.disabled = true;
             });
         }
 
         if (item.homologacao) {
-            document.querySelectorAll(`select.homologacao[data-row="${item.row}"]`).forEach(select => {
+            document.querySelectorAll(`select.homologacao${seletorBase}`).forEach(select => {
                 select.disabled = true;
             });
         }
 
         if (item.observacoes) {
-            document.querySelectorAll(`textarea.observacoesTema[data-row="${item.row}"]`).forEach(textarea => {
+            document.querySelectorAll(`textarea.observacoesTema${seletorBase}`).forEach(textarea => {
                 textarea.disabled = true;
             });
         }
@@ -695,9 +704,10 @@ function renderTabelaGestaoGeral() {
 
     paginaDados.forEach((item, index) => {
         const indiceGlobal = inicio + index;
+        const idEstudante = (item.numeroEstudante || item.idEstudante || "").toString().trim();
 
         html += `
-                <tr>
+                <tr data-id="${idEstudante}">
                     <td class="col-ord">${indiceGlobal + 1}</td>
                     <td class="col-data">${formatarDataCurta(item.data)}</td>
                     <td class="col-nome">${item.nome}</td>
@@ -706,21 +716,21 @@ function renderTabelaGestaoGeral() {
                     ${!isHomologar ? `<td class="col-tema">${item.tema ?? ""}</td>` : ""}
                     ${!isHomologar ? `
                     <td class="col-supervisor">
-                        <select class="supervisorProposto" data-row="${item.row || ""}">
+                        <select class="supervisorProposto" data-row="${item.row || ""}" data-id="${idEstudante}">
                             ${opcoesSupervisoresHTML(item.supervisorAtualOuVazio, item.opcoesSupervisores)}
                         </select>
                     </td>` : ""}
                     ${isHomologar ? `
                     <td class="col-supervisor">${item.supervisorFinal}</td>
                     <td class="col-homologacao">
-                        <select class="homologacao" data-row="${item.row}">
+                        <select class="homologacao" data-row="${item.row}" data-id="${idEstudante}">
                             <option value="">Seleccione…</option>
                             <option>Homologado</option>
                         </select>
                     </td>` : ""}
                     ${isGeral ? `
                     <td class="col-parecer">
-                        <select class="parecer" data-row="${item.row}">
+                        <select class="parecer" data-row="${item.row}" data-id="${idEstudante}">
                             <option value="">Seleccione…</option>
                             <option>Aprovado</option>
                             <option>Reprovado</option>
@@ -728,11 +738,11 @@ function renderTabelaGestaoGeral() {
                     </td>
 
                     <td class="col-observacoes">
-                        <textarea class="observacoesTema" data-row="${item.row}" rows="4"></textarea>
+                        <textarea class="observacoesTema" data-row="${item.row}" data-id="${idEstudante}" rows="4"></textarea>
                     </td>
 
                     <td class="col-homologacao">
-                        <select class="homologacao" data-row="${item.row}">
+                        <select class="homologacao" data-row="${item.row}" data-id="${idEstudante}">
                             <option value="">Seleccione…</option>
                             <option>Homologado</option>
                         </select>
@@ -816,22 +826,23 @@ function carregarMonografiaFinal() {
         `;
 
         dadosFiltrados.forEach((item, index) => {
+            const idEstudante = (item.numeroEstudante || item.idEstudante || "").toString().trim();
             html += `
-                <tr>
+                <tr data-id="${idEstudante}">
                     <td class="col-ord">${index + 1}</td>
                     <td class="col-data">${formatarDataCurta(item.timestamp)}</td>
                     <td class="col-nome">${item.nome}</td>
                     <td class="col-curso">${item.curso}</td>
                     <td class="col-pdf"><a class="pdf-icon" href="${item.linkPDF}" target="_blank" rel="noopener noreferrer">📄</a></td>
                     <td class="col-parecer">
-                        <select class="parecer" data-row="${index + 2}">
+                        <select class="parecer" data-row="${index + 2}" data-id="${idEstudante}">
                             <option value="">Seleccione…</option>
                             <option>Aprovado</option>
                             <option>Recusado</option>
                         </select>
                     </td>
                     <td class="col-observacoes">
-                        <textarea class="observacoes" data-row="${index + 2}" rows="4" aria-label="Observações"></textarea>
+                        <textarea class="observacoes" data-row="${index + 2}" data-id="${idEstudante}" rows="4" aria-label="Observações"></textarea>
                     </td>
                 </tr>
             `;
@@ -938,20 +949,21 @@ function carregarCredencialPesquisa() {
 
         dadosFiltrados.forEach((item, index) => {
             const rowNumber = obterRowNumericoCredencial(item.row, index + 2);
+            const idEstudante = (item.numeroEstudante || item.idEstudante || "").toString().trim();
 
             if (rowNumber === null) {
                 return;
             }
 
             html += `
-                <tr data-row="${rowNumber}">
+                <tr data-row="${rowNumber}" data-id="${idEstudante}">
                     <td class="col-ord">${index + 1}</td>
                     <td class="col-data">${formatarDataCurta(item.timestamp)}</td>
                     <td class="col-nome">${item.nome}</td>
                     <td class="col-curso">${item.curso}</td>
                     <td class="col-organizacao">${item.organizacao}</td>
                     <td class="col-parecer">
-                        <select class="parecerPesquisa" data-row="${rowNumber}">
+                        <select class="parecerPesquisa" data-row="${rowNumber}" data-id="${idEstudante}">
                             <option value="">Seleccione…</option>
                             <option>Aprovado</option>
                             <option>Recusado</option>
@@ -959,7 +971,7 @@ function carregarCredencialPesquisa() {
                     </td>
                     <td class="col-pdf"><a class="pdf-icon" href="${item.pdfURL || item.linkPDF}" target="_blank" rel="noopener noreferrer" aria-label="Ver PDF">PDF</a></td>
                     <td class="col-observacoes">
-                        <textarea class="observacoes" data-row="${rowNumber}" rows="4" aria-label="Observações"></textarea>
+                        <textarea class="observacoes" data-row="${rowNumber}" data-id="${idEstudante}" rows="4" aria-label="Observações"></textarea>
                     </td>
                 </tr>
             `;
@@ -991,6 +1003,7 @@ document.addEventListener("click", async (e) => {
         console.log("BOTÃO GUARDAR CLICADO");
 
         const botao = e.target.closest("#btnGuardar");
+        const idBotao = (botao?.dataset?.id || "").trim();
         if (botao?.dataset?.modulo === "credencial") {
             if (window.aplicarRestricoesUI && window.userEmail) {
                 aplicarRestricoesUI(window.userEmail);
@@ -1000,56 +1013,92 @@ document.addEventListener("click", async (e) => {
         activarLoadingGuardar(botao);
 
         const linhas = new Map();
+        let idInvalido = false;
+
+        const obterIdEstudante = (elemento) => {
+            const id = (elemento?.dataset?.id || elemento?.closest("tr")?.dataset?.id || "").trim();
+
+            if (!id) {
+                idInvalido = true;
+                return "";
+            }
+
+            return id;
+        };
+
+        if (!idBotao && !document.querySelector("tr[data-id]")) {
+            alert("Não foi possível identificar o estudante. Recarregue a página e tente novamente.");
+            desactivarLoadingGuardar(botao);
+            return;
+        }
 
         const processarSelects = (selects, chave) => {
             selects.forEach(select => {
-                const row = select.dataset.row;
+                const idEstudante = obterIdEstudante(select);
                 const valor = select.value.trim();
 
-                if (!row || valor === "") {
+                if (!idEstudante || valor === "") {
                     return;
                 }
 
-                if (!linhas.has(row)) {
-                    linhas.set(row, { row: Number(row), parecer: "", homologacao: "", observacoes: "", supervisor: "" });
+                if (!linhas.has(idEstudante)) {
+                    linhas.set(idEstudante, {
+                        idEstudante,
+                        parecer: "",
+                        homologacao: "",
+                        observacoes: "",
+                        supervisor: ""
+                    });
                 }
 
-                const linha = linhas.get(row);
+                const linha = linhas.get(idEstudante);
                 linha[chave] = valor;
             });
         };
 
         const processarSupervisores = (selects) => {
             selects.forEach(select => {
-                const row = select.dataset.row;
+                const idEstudante = obterIdEstudante(select);
                 const valor = select.value.trim();
 
-                if (!row || valor === "") {
+                if (!idEstudante || valor === "") {
                     return;
                 }
 
-                if (!linhas.has(row)) {
-                    linhas.set(row, { row: Number(row), parecer: "", homologacao: "", observacoes: "", supervisor: "" });
+                if (!linhas.has(idEstudante)) {
+                    linhas.set(idEstudante, {
+                        idEstudante,
+                        parecer: "",
+                        homologacao: "",
+                        observacoes: "",
+                        supervisor: ""
+                    });
                 }
 
-                const linha = linhas.get(row);
+                const linha = linhas.get(idEstudante);
                 linha.supervisor = valor;
             });
         };
 
         const processarObservacoes = (inputs) => {
             inputs.forEach(input => {
-                const row = input.dataset.row;
+                const idEstudante = obterIdEstudante(input);
 
-                if (!row) {
+                if (!idEstudante) {
                     return;
                 }
 
-                if (!linhas.has(row)) {
-                    linhas.set(row, { row: Number(row), parecer: "", homologacao: "", observacoes: "", supervisor: "" });
+                if (!linhas.has(idEstudante)) {
+                    linhas.set(idEstudante, {
+                        idEstudante,
+                        parecer: "",
+                        homologacao: "",
+                        observacoes: "",
+                        supervisor: ""
+                    });
                 }
 
-                const linha = linhas.get(row);
+                const linha = linhas.get(idEstudante);
                 linha.observacoes = input.value.trim();
             });
         };
@@ -1058,6 +1107,12 @@ document.addEventListener("click", async (e) => {
         processarSelects(document.querySelectorAll("select.parecer"), "parecer");
         processarSelects(document.querySelectorAll("select.homologacao"), "homologacao");
         processarObservacoes(document.querySelectorAll("textarea.observacoesTema"));
+
+        if (idInvalido) {
+            alert("Não foi possível identificar o estudante. Recarregue a página e tente novamente.");
+            desactivarLoadingGuardar(botao);
+            return;
+        }
 
         const payload = Array.from(linhas.values()).filter(item =>
             item.parecer || item.homologacao || item.observacoes || item.supervisor
@@ -1087,19 +1142,19 @@ document.addEventListener("click", async (e) => {
             }
 
             payload.forEach(item => {
-                document.querySelectorAll(`select.parecer[data-row="${item.row}"]`).forEach(select => {
+                document.querySelectorAll(`select.parecer[data-id="${item.idEstudante}"]`).forEach(select => {
                     select.disabled = true;
                 });
-                document.querySelectorAll(`select.homologacao[data-row="${item.row}"]`).forEach(select => {
+                document.querySelectorAll(`select.homologacao[data-id="${item.idEstudante}"]`).forEach(select => {
                     select.disabled = true;
                 });
                 if (item.supervisor) {
-                    document.querySelectorAll(`select.supervisorProposto[data-row="${item.row}"]`).forEach(select => {
+                    document.querySelectorAll(`select.supervisorProposto[data-id="${item.idEstudante}"]`).forEach(select => {
                         select.disabled = true;
                     });
                 }
                 if (item.observacoes) {
-                    document.querySelectorAll(`textarea.observacoesTema[data-row="${item.row}"]`).forEach(textarea => {
+                    document.querySelectorAll(`textarea.observacoesTema[data-id="${item.idEstudante}"]`).forEach(textarea => {
                         textarea.disabled = true;
                     });
                 }
@@ -1123,47 +1178,62 @@ async function guardarCredencialPesquisa() {
     activarLoadingGuardar(botao);
 
     const linhas = new Map();
-    const obterRowValidoDoElemento = (elemento) => {
-        const rowNormalizado = obterRowNumericoCredencial(elemento?.dataset?.row);
+    let idInvalido = false;
 
-        if (rowNormalizado === null) {
-            return null;
+    const obterIdEstudanteDoElemento = (elemento) => {
+        const idEstudante = (elemento?.dataset?.id || elemento?.closest("tr")?.dataset?.id || "").trim();
+
+        if (!idEstudante) {
+            idInvalido = true;
+            return "";
         }
 
-        return rowNormalizado;
+        return idEstudante;
     };
 
     const processarPareceres = (selects) => {
         selects.forEach(select => {
-            const row = obterRowValidoDoElemento(select);
+            const idEstudante = obterIdEstudanteDoElemento(select);
             const valor = select.value.trim();
 
-            if (row === null || valor === "") {
+            if (!idEstudante || valor === "") {
                 return;
             }
 
-            if (!linhas.has(row)) {
-                linhas.set(row, { row, parecer: "", observacoes: "" });
+            if (!linhas.has(idEstudante)) {
+                linhas.set(idEstudante, {
+                    idEstudante,
+                    parecer: "",
+                    observacoes: "",
+                    homologacao: "",
+                    supervisor: ""
+                });
             }
 
-            const linha = linhas.get(row);
+            const linha = linhas.get(idEstudante);
             linha.parecer = valor;
         });
     };
 
     const processarObservacoes = (inputs) => {
         inputs.forEach(input => {
-            const row = obterRowValidoDoElemento(input);
+            const idEstudante = obterIdEstudanteDoElemento(input);
 
-            if (row === null) {
+            if (!idEstudante) {
                 return;
             }
 
-            if (!linhas.has(row)) {
-                linhas.set(row, { row, parecer: "", observacoes: "" });
+            if (!linhas.has(idEstudante)) {
+                linhas.set(idEstudante, {
+                    idEstudante,
+                    parecer: "",
+                    observacoes: "",
+                    homologacao: "",
+                    supervisor: ""
+                });
             }
 
-            const linha = linhas.get(row);
+            const linha = linhas.get(idEstudante);
             linha.observacoes = input.value.trim();
         });
     };
@@ -1180,15 +1250,15 @@ async function guardarCredencialPesquisa() {
 
     const payload = Array.from(linhas.values()).filter(item => item.parecer || item.observacoes);
     console.log("[CRED] PAYLOAD MONTADO", payload);
-    payload.forEach((p, i) => {
-        console.log(
-            "[CRED] ROW ENVIADA",
-            { index: i, row: p.row, tipo: typeof p.row }
-        );
-    });
 
     if (payload.length === 0) {
         console.log("[CRED] Nenhuma linha com dados preenchidos. Fluxo interrompido.");
+        desactivarLoadingGuardar(botao);
+        return;
+    }
+
+    if (idInvalido) {
+        alert("Não foi possível identificar o estudante. Recarregue a página e tente novamente.");
         desactivarLoadingGuardar(botao);
         return;
     }
@@ -1213,11 +1283,11 @@ async function guardarCredencialPesquisa() {
         }
 
         payload.forEach(item => {
-            document.querySelectorAll(`select.parecerPesquisa[data-row="${item.row}"]`).forEach(select => {
+            document.querySelectorAll(`select.parecerPesquisa[data-id="${item.idEstudante}"]`).forEach(select => {
                 select.disabled = true;
             });
             document
-                .querySelectorAll(`textarea.observacoes[data-row="${item.row}"]`)
+                .querySelectorAll(`textarea.observacoes[data-id="${item.idEstudante}"]`)
                 .forEach(textarea => {
                     textarea.disabled = true;
                 });
@@ -1234,38 +1304,62 @@ async function guardarMonografiaFinal() {
     activarLoadingGuardar(botao);
 
     const linhas = new Map();
+    let idInvalido = false;
+
+    const obterIdEstudanteDoElemento = (elemento) => {
+        const idEstudante = (elemento?.dataset?.id || elemento?.closest("tr")?.dataset?.id || "").trim();
+
+        if (!idEstudante) {
+            idInvalido = true;
+            return "";
+        }
+
+        return idEstudante;
+    };
 
     const processarPareceres = (selects) => {
         selects.forEach(select => {
-            const row = select.dataset.row;
+            const idEstudante = obterIdEstudanteDoElemento(select);
             const valor = select.value.trim();
 
-            if (!row || valor === "") {
+            if (!idEstudante || valor === "") {
                 return;
             }
 
-            if (!linhas.has(row)) {
-                linhas.set(row, { row: Number(row), parecer: "", observacoes: "" });
+            if (!linhas.has(idEstudante)) {
+                linhas.set(idEstudante, {
+                    idEstudante,
+                    parecer: "",
+                    observacoes: "",
+                    homologacao: "",
+                    supervisor: ""
+                });
             }
 
-            const linha = linhas.get(row);
+            const linha = linhas.get(idEstudante);
             linha.parecer = valor;
         });
     };
 
     const processarObservacoes = (inputs) => {
         inputs.forEach(input => {
-            const row = input.dataset.row;
+            const idEstudante = obterIdEstudanteDoElemento(input);
 
-            if (!row) {
+            if (!idEstudante) {
                 return;
             }
 
-            if (!linhas.has(row)) {
-                linhas.set(row, { row: Number(row), parecer: "", observacoes: "" });
+            if (!linhas.has(idEstudante)) {
+                linhas.set(idEstudante, {
+                    idEstudante,
+                    parecer: "",
+                    observacoes: "",
+                    homologacao: "",
+                    supervisor: ""
+                });
             }
 
-            const linha = linhas.get(row);
+            const linha = linhas.get(idEstudante);
             linha.observacoes = input.value.trim();
         });
     };
@@ -1276,6 +1370,12 @@ async function guardarMonografiaFinal() {
     const payload = Array.from(linhas.values()).filter(item => item.parecer || item.observacoes);
 
     if (payload.length === 0) {
+        desactivarLoadingGuardar(botao);
+        return;
+    }
+
+    if (idInvalido) {
+        alert("Não foi possível identificar o estudante. Recarregue a página e tente novamente.");
         desactivarLoadingGuardar(botao);
         return;
     }
@@ -1297,10 +1397,10 @@ async function guardarMonografiaFinal() {
         }
 
         payload.forEach(item => {
-            document.querySelectorAll(`select.parecer[data-row="${item.row}"]`).forEach(select => {
+            document.querySelectorAll(`select.parecer[data-id="${item.idEstudante}"]`).forEach(select => {
                 select.disabled = true;
             });
-            document.querySelectorAll(`textarea.observacoes[data-row="${item.row}"]`).forEach(textarea => {
+            document.querySelectorAll(`textarea.observacoes[data-id="${item.idEstudante}"]`).forEach(textarea => {
                 textarea.disabled = true;
             });
         });
@@ -1379,9 +1479,10 @@ function renderTabelaParecer() {
 
     paginaDados.forEach((item, index) => {
         const indiceGlobal = inicio + index;
+        const idEstudante = (item.numeroEstudante || item.idEstudante || "").toString().trim();
 
         html += `
-            <tr>
+            <tr data-id="${idEstudante}">
                 <td class="col-ord">${indiceGlobal + 1}</td>
                 <td class="col-data">${formatarDataCurta(item.data)}</td>
                 <td class="col-nome">${item.nome}</td>
@@ -1390,7 +1491,7 @@ function renderTabelaParecer() {
                 <td class="col-tema">${item.tema}</td>
 
                 <td class="col-parecer">
-                    <select class="parecerSelect" data-row="${item.row}">
+                    <select class="parecerSelect" data-row="${item.row}" data-id="${idEstudante}">
                         <option value="">Seleccione…</option>
                         <option value="Aprovado">Aprovado</option>
                         <option value="Reprovado">Reprovado</option>
@@ -1398,7 +1499,7 @@ function renderTabelaParecer() {
                 </td>
 
                 <td class="col-observacoes">
-                    <textarea class="observacoesInput" data-row="${item.row}" rows="3"></textarea>
+                    <textarea class="observacoesInput" data-row="${item.row}" data-id="${idEstudante}" rows="3"></textarea>
                 </td>
             </tr>
         `;
@@ -1461,15 +1562,28 @@ function guardarTodosPareceres() {
 
     const pareceres = [];
 
+    let idInvalido = false;
+
+    const obterIdEstudanteDoElemento = (elemento) => {
+        const idEstudante = (elemento?.dataset?.id || elemento?.closest("tr")?.dataset?.id || "").trim();
+
+        if (!idEstudante) {
+            idInvalido = true;
+            return "";
+        }
+
+        return idEstudante;
+    };
+
     selects.forEach(select => {
-        const row = select.dataset.row;
+        const idEstudante = obterIdEstudanteDoElemento(select);
         const parecer = (select.value || "").trim();
-        const obsElement = container.querySelector(`textarea[data-row="${row}"]`);
+        const obsElement = select.closest("tr")?.querySelector("textarea");
         const observacoes = obsElement ? (obsElement.value || "").trim() : "";
 
-        if (parecer !== "") {
+        if (parecer !== "" && idEstudante) {
             pareceres.push({
-                row,
+                idEstudante,
                 parecer,
                 observacoes
             });
@@ -1481,6 +1595,15 @@ function guardarTodosPareceres() {
     if (pareceres.length === 0) {
         desactivarLoadingGuardar(botao);
         alert("Nenhum parecer preenchido.");
+        if (window.aplicarRestricoesUI && window.userEmail) {
+            aplicarRestricoesUI(window.userEmail);
+        }
+        return;
+    }
+
+    if (idInvalido) {
+        desactivarLoadingGuardar(botao);
+        alert("Não foi possível identificar o estudante. Recarregue a página e tente novamente.");
         if (window.aplicarRestricoesUI && window.userEmail) {
             aplicarRestricoesUI(window.userEmail);
         }
