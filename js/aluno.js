@@ -725,8 +725,8 @@ function mostrarResultadoConsulta(resposta) {
   }
 
   // 🔵 OBSERVAÇÕES — mostrar sempre que for REPROVADO (Tema ou Versão Final)
-  const isReprovado =
-    dados.parecer && dados.parecer.toLowerCase() === "reprovado";
+  const parecerNormalizado = (dados.parecer || "").toString().trim().toLowerCase();
+  const isReprovado = ["reprovado", "recusado"].includes(parecerNormalizado);
 
   if (isReprovado) {
     document.getElementById("resObservacoes").textContent =
