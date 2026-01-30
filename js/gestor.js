@@ -1491,16 +1491,11 @@ function renderTabelaParecer() {
 
     paginaDados.forEach((item, index) => {
         const indiceGlobal = inicio + index;
-        const idTema = String(item.row ?? "").trim();
+        const idTema = String(item.idTema || "").trim();
 
-        console.log("[TEMA][RENDER] Linha:", {
-            index,
-            indiceGlobal,
-            item,
-            idTemaRaw: item.row,
-            idTema
-        });
-        if (!idTema) {
+        if (idTema) {
+            console.log("[TEMA][RENDER] idTema preenchido:", idTema);
+        } else {
             console.warn(
                 "[TEMA][RENDER] idTema vazio - verificar campo do item. Keys:",
                 Object.keys(item)
@@ -1608,17 +1603,17 @@ function guardarTodosPareceres() {
         const observacoes = obsElement ? (obsElement.value || "").trim() : "";
         const parecerTexto = select.options[select.selectedIndex]?.text || "";
 
-        console.log(
-            "[TEMA][GUARDAR] Linha:",
-            {
-                idTemaDataset,
-                idTemaTr,
-                idTema,
-                parecer,
-                parecerTexto,
-                observacoesLength: observacoes.length
-            }
-        );
+        if (idTema) {
+            console.log("[TEMA][GUARDAR] idTema !=", "", idTema);
+        }
+        console.log("[TEMA][GUARDAR] Linha:", {
+            idTemaDataset,
+            idTemaTr,
+            idTema,
+            parecer,
+            parecerTexto,
+            observacoesLength: observacoes.length
+        });
 
         if ((parecer !== "" || observacoes !== "") && !idTema) {
             houveInteracaoSemId = true;
