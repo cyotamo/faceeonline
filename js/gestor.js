@@ -378,7 +378,7 @@ document.getElementById("btnBuscarEstatisticas").addEventListener("click", async
         return;
     }
 
-    actualizarEstadoRelatorio("Gerando relatório…");
+    actualizarEstadoRelatorio("A gerar relatório…");
 
     try {
         const resposta = await solicitarDadosRelatorio(parametros);
@@ -1597,6 +1597,7 @@ function mudarPaginaParecer(delta) {
     paginaAtual = novaPagina;
     renderTabelaParecer();
 }
+
 
 function guardarTodosPareceres() {
     const botao = document.getElementById("btnGuardarParecerGlobal");
