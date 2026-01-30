@@ -664,6 +664,7 @@ function mostrarResultadoConsulta(resposta) {
 
   if (isCredencial) {
     const estado = (dados.parecer || "").toLowerCase();
+    const isReprovadoCredencial = ["reprovado", "recusado"].includes(estado);
 
     if (estado === "aprovado") {
       situacaoEl.textContent =
@@ -687,7 +688,16 @@ function mostrarResultadoConsulta(resposta) {
     document.getElementById("resPdfHomologacao").innerHTML = "";
     // ❌ Esconder completamente a linha "Comprovativo" na Credencial
     document.getElementById("resPdfHomologacao").parentElement.style.display = "none";
-    document.getElementById("linhaObservacoes").style.display = "none";
+
+    if (isReprovadoCredencial) {
+      document.getElementById("resObservacoes").textContent =
+        dados.observacoes && dados.observacoes.trim() !== ""
+          ? dados.observacoes
+          : "Sem observações adicionais.";
+      document.getElementById("linhaObservacoes").style.display = "block";
+    } else {
+      document.getElementById("linhaObservacoes").style.display = "none";
+    }
 
     return;
   }
