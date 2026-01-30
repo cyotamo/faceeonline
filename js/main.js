@@ -1,4 +1,4 @@
-const WEB_URL = "https://script.google.com/macros/s/AKfycbz2Xj4VtDqg_aIKXs4p9FfwWFm6cC7VKEB-bEk6pE9Dksi-dEZB3o6PhONaZSuxCNP3jw/exec";
+const WEB_URL = "https://script.google.com/macros/s/AKfycbzvk6U_f8ZNdMUgRVN-MJYZ8k_Uxg4xq_40JwMqlWsL3aLKKQjhRONqqYaZWsSJweDAvw/exec";
 
 // Funções gerais e utilitárias usadas em várias páginas
 // Ainda sem lógica funcional completa; serve apenas como base e placeholders.
@@ -152,6 +152,7 @@ function mostrarModal(mensagem) {
     if (e.target === modal) modal.style.display = "none";
   };
 }
+
 
 
 
