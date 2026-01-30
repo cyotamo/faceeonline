@@ -1441,13 +1441,20 @@ carregarDadosBloqueio();
 function carregarParecer() {
     esconderEstatisticas();
     mostrarCarregamentoAtribuirSupervisor();
-    fetch(WEB_URL, {
+    const url = WEB_URL;
+    console.log("[TEMA][LOAD] url=", url);
+    fetch(url, {
         method: "POST",
-        body: new URLSearchParams({ action: "getParecer" })
+        body: new URLSearchParams({ action: "getGestaoGeral" })
     })
     .then(r => r.json())
-    .then(resposta => {
-        const dados = resposta.dados || [];
+    .then(json => {
+        console.log("[TEMA][LOAD] keys 1º item=", Object.keys(json.dados?.[0] || {}));
+        console.log("[TEMA][LOAD] primeiro.idTema=", json.dados?.[0]?.idTema);
+        if (!json.dados?.[0]?.idTema) {
+            console.warn("[TEMA][LOAD] idTema não veio do servidor (ou veio com outro nome).");
+        }
+        const dados = json.dados || [];
 
         if (dados.length === 0) {
             document.getElementById("tabelaGestaoGeral").innerHTML =
