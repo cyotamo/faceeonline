@@ -525,6 +525,7 @@ function mostrarBotaoGuardar(tipo) {
         };
     }
     if (tipo === "monografia") {
+        btn.dataset.modulo = "monografia";
         btn.onclick = guardarMonografiaFinal;
     }
     if (tipo === "credencial") {
@@ -999,174 +1000,177 @@ function carregarCredencialPesquisa() {
 }
 
 document.addEventListener("click", async (e) => {
-    if (e.target && e.target.id === "btnGuardar") {
-        console.log("BOTÃO GUARDAR CLICADO");
+    const botao = e.target?.closest("#btnGuardar");
+    if (!botao) {
+        return;
+    }
+    if (botao.dataset.modulo === "monografia") {
+        return;
+    }
+    console.log("BOTÃO GUARDAR CLICADO");
+    const idBotao = (botao?.dataset?.id || "").trim();
+    if (botao?.dataset?.modulo === "credencial") {
+        if (window.aplicarRestricoesUI && window.userEmail) {
+            aplicarRestricoesUI(window.userEmail);
+        }
+        return;
+    }
+    activarLoadingGuardar(botao);
 
-        const botao = e.target.closest("#btnGuardar");
-        const idBotao = (botao?.dataset?.id || "").trim();
-        if (botao?.dataset?.modulo === "credencial") {
+    const linhas = new Map();
+    let idInvalido = false;
+
+    const obterIdEstudante = (elemento) => {
+        const id = (elemento?.dataset?.id || elemento?.closest("tr")?.dataset?.id || "").trim();
+
+        if (!id) {
+            idInvalido = true;
+            return "";
+        }
+
+        return id;
+    };
+
+    if (!idBotao && !document.querySelector("tr[data-id]")) {
+        alert("Não foi possível identificar o estudante. Recarregue a página e tente novamente.");
+        desactivarLoadingGuardar(botao);
+        return;
+    }
+
+    const processarSelects = (selects, chave) => {
+        selects.forEach(select => {
+            const idEstudante = obterIdEstudante(select);
+            const valor = select.value.trim();
+
+            if (!idEstudante || valor === "") {
+                return;
+            }
+
+            if (!linhas.has(idEstudante)) {
+                linhas.set(idEstudante, {
+                    idEstudante,
+                    parecer: "",
+                    homologacao: "",
+                    observacoes: "",
+                    supervisor: ""
+                });
+            }
+
+            const linha = linhas.get(idEstudante);
+            linha[chave] = valor;
+        });
+    };
+
+    const processarSupervisores = (selects) => {
+        selects.forEach(select => {
+            const idEstudante = obterIdEstudante(select);
+            const valor = select.value.trim();
+
+            if (!idEstudante || valor === "") {
+                return;
+            }
+
+            if (!linhas.has(idEstudante)) {
+                linhas.set(idEstudante, {
+                    idEstudante,
+                    parecer: "",
+                    homologacao: "",
+                    observacoes: "",
+                    supervisor: ""
+                });
+            }
+
+            const linha = linhas.get(idEstudante);
+            linha.supervisor = valor;
+        });
+    };
+
+    const processarObservacoes = (inputs) => {
+        inputs.forEach(input => {
+            const idEstudante = obterIdEstudante(input);
+
+            if (!idEstudante) {
+                return;
+            }
+
+            if (!linhas.has(idEstudante)) {
+                linhas.set(idEstudante, {
+                    idEstudante,
+                    parecer: "",
+                    homologacao: "",
+                    observacoes: "",
+                    supervisor: ""
+                });
+            }
+
+            const linha = linhas.get(idEstudante);
+            linha.observacoes = input.value.trim();
+        });
+    };
+
+    processarSupervisores(document.querySelectorAll("select.supervisorProposto"));
+    processarSelects(document.querySelectorAll("select.parecer"), "parecer");
+    processarSelects(document.querySelectorAll("select.homologacao"), "homologacao");
+    processarObservacoes(document.querySelectorAll("textarea.observacoesTema"));
+
+    if (idInvalido) {
+        alert("Não foi possível identificar o estudante. Recarregue a página e tente novamente.");
+        desactivarLoadingGuardar(botao);
+        return;
+    }
+
+    const payload = Array.from(linhas.values()).filter(item =>
+        item.parecer || item.homologacao || item.observacoes || item.supervisor
+    );
+
+    try {
+        if (payload.length === 0) {
             if (window.aplicarRestricoesUI && window.userEmail) {
                 aplicarRestricoesUI(window.userEmail);
             }
             return;
         }
-        activarLoadingGuardar(botao);
 
-        const linhas = new Map();
-        let idInvalido = false;
+        const dados = new FormData();
+        dados.append("action", "atualizarParecerHomologacao");
+        dados.append("linhas", JSON.stringify(payload));
 
-        const obterIdEstudante = (elemento) => {
-            const id = (elemento?.dataset?.id || elemento?.closest("tr")?.dataset?.id || "").trim();
+        const resposta = await fetch(WEB_URL, {
+            method: "POST",
+            body: dados
+        });
 
-            if (!id) {
-                idInvalido = true;
-                return "";
-            }
+        const resultado = await resposta.json();
 
-            return id;
-        };
-
-        if (!idBotao && !document.querySelector("tr[data-id]")) {
-            alert("Não foi possível identificar o estudante. Recarregue a página e tente novamente.");
-            desactivarLoadingGuardar(botao);
-            return;
+        if (!resultado || resultado.sucesso === false) {
+            throw new Error("Resposta de erro do servidor");
         }
 
-        const processarSelects = (selects, chave) => {
-            selects.forEach(select => {
-                const idEstudante = obterIdEstudante(select);
-                const valor = select.value.trim();
-
-                if (!idEstudante || valor === "") {
-                    return;
-                }
-
-                if (!linhas.has(idEstudante)) {
-                    linhas.set(idEstudante, {
-                        idEstudante,
-                        parecer: "",
-                        homologacao: "",
-                        observacoes: "",
-                        supervisor: ""
-                    });
-                }
-
-                const linha = linhas.get(idEstudante);
-                linha[chave] = valor;
+        payload.forEach(item => {
+            document.querySelectorAll(`select.parecer[data-id="${item.idEstudante}"]`).forEach(select => {
+                select.disabled = true;
             });
-        };
-
-        const processarSupervisores = (selects) => {
-            selects.forEach(select => {
-                const idEstudante = obterIdEstudante(select);
-                const valor = select.value.trim();
-
-                if (!idEstudante || valor === "") {
-                    return;
-                }
-
-                if (!linhas.has(idEstudante)) {
-                    linhas.set(idEstudante, {
-                        idEstudante,
-                        parecer: "",
-                        homologacao: "",
-                        observacoes: "",
-                        supervisor: ""
-                    });
-                }
-
-                const linha = linhas.get(idEstudante);
-                linha.supervisor = valor;
+            document.querySelectorAll(`select.homologacao[data-id="${item.idEstudante}"]`).forEach(select => {
+                select.disabled = true;
             });
-        };
-
-        const processarObservacoes = (inputs) => {
-            inputs.forEach(input => {
-                const idEstudante = obterIdEstudante(input);
-
-                if (!idEstudante) {
-                    return;
-                }
-
-                if (!linhas.has(idEstudante)) {
-                    linhas.set(idEstudante, {
-                        idEstudante,
-                        parecer: "",
-                        homologacao: "",
-                        observacoes: "",
-                        supervisor: ""
-                    });
-                }
-
-                const linha = linhas.get(idEstudante);
-                linha.observacoes = input.value.trim();
-            });
-        };
-
-        processarSupervisores(document.querySelectorAll("select.supervisorProposto"));
-        processarSelects(document.querySelectorAll("select.parecer"), "parecer");
-        processarSelects(document.querySelectorAll("select.homologacao"), "homologacao");
-        processarObservacoes(document.querySelectorAll("textarea.observacoesTema"));
-
-        if (idInvalido) {
-            alert("Não foi possível identificar o estudante. Recarregue a página e tente novamente.");
-            desactivarLoadingGuardar(botao);
-            return;
-        }
-
-        const payload = Array.from(linhas.values()).filter(item =>
-            item.parecer || item.homologacao || item.observacoes || item.supervisor
-        );
-
-        try {
-            if (payload.length === 0) {
-                if (window.aplicarRestricoesUI && window.userEmail) {
-                    aplicarRestricoesUI(window.userEmail);
-                }
-                return;
-            }
-
-            const dados = new FormData();
-            dados.append("action", "atualizarParecerHomologacao");
-            dados.append("linhas", JSON.stringify(payload));
-
-            const resposta = await fetch(WEB_URL, {
-                method: "POST",
-                body: dados
-            });
-
-            const resultado = await resposta.json();
-
-            if (!resultado || resultado.sucesso === false) {
-                throw new Error("Resposta de erro do servidor");
-            }
-
-            payload.forEach(item => {
-                document.querySelectorAll(`select.parecer[data-id="${item.idEstudante}"]`).forEach(select => {
+            if (item.supervisor) {
+                document.querySelectorAll(`select.supervisorProposto[data-id="${item.idEstudante}"]`).forEach(select => {
                     select.disabled = true;
                 });
-                document.querySelectorAll(`select.homologacao[data-id="${item.idEstudante}"]`).forEach(select => {
-                    select.disabled = true;
+            }
+            if (item.observacoes) {
+                document.querySelectorAll(`textarea.observacoesTema[data-id="${item.idEstudante}"]`).forEach(textarea => {
+                    textarea.disabled = true;
                 });
-                if (item.supervisor) {
-                    document.querySelectorAll(`select.supervisorProposto[data-id="${item.idEstudante}"]`).forEach(select => {
-                        select.disabled = true;
-                    });
-                }
-                if (item.observacoes) {
-                    document.querySelectorAll(`textarea.observacoesTema[data-id="${item.idEstudante}"]`).forEach(textarea => {
-                        textarea.disabled = true;
-                    });
-                }
-            });
-        } catch (err) {
-            console.error("Erro ao guardar dados:", err);
-        } finally {
-            desactivarLoadingGuardar(botao);
-        }
-        if (window.aplicarRestricoesUI && window.userEmail) {
-            aplicarRestricoesUI(window.userEmail);
-        }
+            }
+        });
+    } catch (err) {
+        console.error("Erro ao guardar dados:", err);
+    } finally {
+        desactivarLoadingGuardar(botao);
+    }
+    if (window.aplicarRestricoesUI && window.userEmail) {
+        aplicarRestricoesUI(window.userEmail);
     }
 });
 
@@ -1395,8 +1399,9 @@ async function guardarMonografiaFinal() {
         });
 
         const resultado = await resposta.json();
+        console.log("[MONO] resposta servidor:", resultado);
 
-        if (!resultado || resultado.sucesso === false) {
+        if (!resultado || resultado.sucesso !== true) {
             throw new Error("Resposta de erro do servidor");
         }
 
