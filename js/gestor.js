@@ -1667,40 +1667,61 @@ function guardarTodosPareceres() {
         return;
     }
 
-    fetch(WEB_URL, {
-        method: "POST",
-        body: new URLSearchParams({
-            action: "guardarParecer",
-            dados: JSON.stringify(pareceres)
-        })
-    })
-    .then(r => r.json())
-    .then(res => {
-        if (res.sucesso) {
-            pareceres.forEach(({ idTema }) => {
-                document
-                    .querySelectorAll(`select.parecerSelect[data-id="${idTema}"]`)
-                    .forEach(select => {
-                        select.disabled = true;
-                    });
-                document
-                    .querySelectorAll(`textarea.observacoesInput[data-id="${idTema}"]`)
-                    .forEach(textarea => {
-                        textarea.disabled = true;
-                    });
-            });
-        } else {
-            alert("Erro ao guardar: " + res.mensagem);
-        }
-    })
-    .catch(err => {
-        console.error("Erro ao guardar pareceres:", err);
-        alert("Erro ao comunicar com o servidor.");
-    })
-    .finally(() => {
-        desactivarLoadingGuardar(botao);
-        if (window.aplicarRestricoesUI && window.userEmail) {
-            aplicarRestricoesUI(window.userEmail);
-        }
+    const url = WEB_URL;
+    const params = new URLSearchParams({
+        action: "guardarParecer",
+        dados: JSON.stringify(pareceres)
     });
+
+    console.log("[TEMA][ENVIAR] url=", url);
+    console.log("[TEMA][ENVIAR] pareceres=", pareceres);
+    console.log("[TEMA][ENVIAR] pareceres JSON=", JSON.stringify(pareceres));
+    console.log("[TEMA][ENVIAR] body=", params.toString());
+
+    fetch(url, {
+        method: "POST",
+        body: params
+    })
+        .then(async response => {
+            console.log("[TEMA][RESP] status=", response.status, "ok=", response.ok);
+            console.log("[TEMA][RESP] content-type=", response.headers.get("content-type"));
+            const raw = await response.text();
+            console.log("[TEMA][RESP] raw=", raw);
+
+            let res = null;
+            try {
+                res = JSON.parse(raw);
+                console.log("[TEMA][RESP] json=", res);
+            } catch (err) {
+                console.warn("[TEMA][RESP] JSON parse falhou:", err);
+            }
+
+            if (res && res.sucesso) {
+                pareceres.forEach(({ idTema }) => {
+                    document
+                        .querySelectorAll(`select.parecerSelect[data-id="${idTema}"]`)
+                        .forEach(select => {
+                            select.disabled = true;
+                        });
+                    document
+                        .querySelectorAll(`textarea.observacoesInput[data-id="${idTema}"]`)
+                        .forEach(textarea => {
+                            textarea.disabled = true;
+                        });
+                });
+            } else {
+                const mensagemErro = res?.mensagem || "Erro ao guardar pareceres.";
+                alert("Erro ao guardar: " + mensagemErro);
+            }
+        })
+        .catch(err => {
+            console.error("Erro ao guardar pareceres:", err);
+            alert("Erro ao comunicar com o servidor.");
+        })
+        .finally(() => {
+            desactivarLoadingGuardar(botao);
+            if (window.aplicarRestricoesUI && window.userEmail) {
+                aplicarRestricoesUI(window.userEmail);
+            }
+        });
 }
