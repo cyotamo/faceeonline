@@ -1491,13 +1491,13 @@ function renderTabelaParecer() {
 
     paginaDados.forEach((item, index) => {
         const indiceGlobal = inicio + index;
-        const idTema = String(item.idTema ?? item.id ?? item.codigo ?? "").trim();
+        const idTema = String(item.row ?? "").trim();
 
         console.log("[TEMA][RENDER] Linha:", {
             index,
             indiceGlobal,
             item,
-            idTemaRaw: item.idTema,
+            idTemaRaw: item.row,
             idTema
         });
         if (!idTema) {
