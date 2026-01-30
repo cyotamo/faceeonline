@@ -1579,9 +1579,16 @@ function guardarTodosPareceres() {
 
     selects.forEach(select => {
         const idTema = (select.dataset.id || select.closest("tr")?.dataset?.id || "").trim();
-        const parecer = (select.value || "").trim();
+        const parecer = ((select.value || select.options[select.selectedIndex]?.text) || "").trim();
         const obsElement = select.closest("tr")?.querySelector("textarea.observacoesInput");
         const observacoes = obsElement ? (obsElement.value || "").trim() : "";
+
+        console.log(
+            "[TEMA] value=",
+            select.value,
+            "text=",
+            select.options[select.selectedIndex]?.text
+        );
 
         if (parecer && !idTema) {
             idInvalido = true;
