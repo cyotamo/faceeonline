@@ -706,8 +706,6 @@ function renderTabelaGestaoGeral() {
 
     paginaDados.forEach((item, index) => {
         const indiceGlobal = inicio + index;
-        const idTema = (item.idTema || "").toString().trim();
-
         html += `
                 <tr data-id="${idEstudante}">
                     <td class="col-ord">${indiceGlobal + 1}</td>
@@ -1493,7 +1491,21 @@ function renderTabelaParecer() {
 
     paginaDados.forEach((item, index) => {
         const indiceGlobal = inicio + index;
-        const idTema = (item.idTema || "").toString().trim();
+        const idTema = String(item.idTema ?? item.id ?? item.codigo ?? "").trim();
+
+        console.log("[TEMA][RENDER] Linha:", {
+            index,
+            indiceGlobal,
+            item,
+            idTemaRaw: item.idTema,
+            idTema
+        });
+        if (!idTema) {
+            console.warn(
+                "[TEMA][RENDER] idTema vazio - verificar campo do item. Keys:",
+                Object.keys(item)
+            );
+        }
 
         html += `
             <tr data-id="${idTema}">
@@ -1567,43 +1579,70 @@ function guardarTodosPareceres() {
 
     const container = document.getElementById("tabelaGestaoGeral");
 
-    const selects = container.querySelectorAll("select.parecerSelect");
+    const selects = container ? container.querySelectorAll("select.parecerSelect") : [];
 
-    console.log("Selects encontrados:", selects.length);
+    const selectSnapshots = Array.from(selects)
+        .slice(0, 3)
+        .map(select => ({
+            datasetId: select.dataset.id || "",
+            value: select.value,
+            selectedText: select.options[select.selectedIndex]?.text || ""
+        }));
+
+    console.log("[TEMA][GUARDAR] container encontrado?", Boolean(container));
+    console.log("[TEMA][GUARDAR] Selects encontrados:", selects.length);
+    console.log("[TEMA][GUARDAR] Snapshot selects (3):", selectSnapshots);
     // Debug rápido: ver se está a achar alguma coisa
     // alert("Selects encontrados: " + selects.length);
 
     const pareceres = [];
 
-    let idInvalido = false;
+    let houveInteracaoSemId = false;
 
     selects.forEach(select => {
-        const idTema = (select.dataset.id || select.closest("tr")?.dataset?.id || "").trim();
-        const parecer = ((select.value || select.options[select.selectedIndex]?.text) || "").trim();
+        const idTemaDataset = select.dataset.id || "";
+        const idTemaTr = select.closest("tr")?.dataset?.id || "";
+        const idTema = (idTemaDataset || idTemaTr || "").trim();
+        const parecer = (select.value || "").trim();
         const obsElement = select.closest("tr")?.querySelector("textarea.observacoesInput");
         const observacoes = obsElement ? (obsElement.value || "").trim() : "";
+        const parecerTexto = select.options[select.selectedIndex]?.text || "";
 
         console.log(
-            "[TEMA] value=",
-            select.value,
-            "text=",
-            select.options[select.selectedIndex]?.text
+            "[TEMA][GUARDAR] Linha:",
+            {
+                idTemaDataset,
+                idTemaTr,
+                idTema,
+                parecer,
+                parecerTexto,
+                observacoesLength: observacoes.length
+            }
         );
 
-        if (parecer && !idTema) {
-            idInvalido = true;
+        if ((parecer !== "" || observacoes !== "") && !idTema) {
+            houveInteracaoSemId = true;
+            console.warn(
+                "[TEMA][GUARDAR] Interação sem idTema - não será guardado.",
+                { parecer, observacoesLength: observacoes.length }
+            );
             return;
         }
 
         if (parecer !== "" || observacoes !== "") {
-            if (!idTema) {
-                return;
-            }
-
             pareceres.push({
                 idTema,
                 parecer,
                 observacoes
+            });
+            console.log("[TEMA][GUARDAR] Parecer adicionado:", {
+                idTema,
+                parecer,
+                observacoesLength: observacoes.length
+            });
+        } else {
+            console.log("[TEMA][GUARDAR] Linha descartada (sem interação).", {
+                idTema
             });
         }
     });
@@ -1611,17 +1650,17 @@ function guardarTodosPareceres() {
     console.log("Pareceres prontos para envio:", pareceres);
 
     if (pareceres.length === 0) {
+        if (houveInteracaoSemId) {
+            desactivarLoadingGuardar(botao);
+            alert("Não foi possível identificar o tema. Recarregue a página e tente novamente.");
+            if (window.aplicarRestricoesUI && window.userEmail) {
+                aplicarRestricoesUI(window.userEmail);
+            }
+            return;
+        }
+
         desactivarLoadingGuardar(botao);
         alert("Nenhum parecer preenchido.");
-        if (window.aplicarRestricoesUI && window.userEmail) {
-            aplicarRestricoesUI(window.userEmail);
-        }
-        return;
-    }
-
-    if (idInvalido) {
-        desactivarLoadingGuardar(botao);
-        alert("Não foi possível identificar o tema. Recarregue a página e tente novamente.");
         if (window.aplicarRestricoesUI && window.userEmail) {
             aplicarRestricoesUI(window.userEmail);
         }
