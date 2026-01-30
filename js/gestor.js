@@ -548,6 +548,14 @@ function carregarGestaoGeral() {
     })
     .then(r => r.json())
     .then(resposta => {
+        console.log("[TEMA][LOAD] raw json=", resposta);
+        const primeiro = (resposta?.dados && resposta.dados[0]) ? resposta.dados[0] : null;
+        console.log("[TEMA][LOAD] primeiro item=", primeiro);
+        console.log("[TEMA][LOAD] keys=", primeiro ? Object.keys(primeiro) : null);
+        console.log("[TEMA][LOAD] primeiro.idTema=", primeiro?.idTema);
+        if (!primeiro?.idTema) {
+            console.warn("[TEMA][LOAD] idTema não veio do servidor (ou veio com outro nome).");
+        }
         // Aqui corrigimos: o array está em resposta.dados
         const dados = resposta.dados;
         let dadosFiltrados = dados;
@@ -706,8 +714,9 @@ function renderTabelaGestaoGeral() {
 
     paginaDados.forEach((item, index) => {
         const indiceGlobal = inicio + index;
-        html += `
-                <tr data-id="${idEstudante}">
+        const idTema = String(item.idTema || "").trim();
+        const rowHtml = `
+                <tr data-id="${idTema}">
                     <td class="col-ord">${indiceGlobal + 1}</td>
                     <td class="col-data">${formatarDataCurta(item.data)}</td>
                     <td class="col-nome">${item.nome}</td>
@@ -716,21 +725,21 @@ function renderTabelaGestaoGeral() {
                     ${!isHomologar ? `<td class="col-tema">${item.tema ?? ""}</td>` : ""}
                     ${!isHomologar ? `
                     <td class="col-supervisor">
-                        <select class="supervisorProposto" data-row="${item.row || ""}" data-id="${idEstudante}">
+                        <select class="supervisorProposto" data-row="${item.row || ""}" data-id="${idTema}">
                             ${opcoesSupervisoresHTML(item.supervisorAtualOuVazio, item.opcoesSupervisores)}
                         </select>
                     </td>` : ""}
                     ${isHomologar ? `
                     <td class="col-supervisor">${item.supervisorFinal}</td>
                     <td class="col-homologacao">
-                        <select class="homologacao" data-row="${item.row}" data-id="${idEstudante}">
+                        <select class="homologacao" data-row="${item.row}" data-id="${idTema}">
                             <option value="">Seleccione…</option>
                             <option>Homologado</option>
                         </select>
                     </td>` : ""}
                     ${isGeral ? `
                     <td class="col-parecer">
-                        <select class="parecer" data-row="${item.row}" data-id="${idEstudante}">
+                        <select class="parecer" data-row="${item.row}" data-id="${idTema}">
                             <option value="">Seleccione…</option>
                             <option>Aprovado</option>
                             <option>Reprovado</option>
@@ -738,11 +747,11 @@ function renderTabelaGestaoGeral() {
                     </td>
 
                     <td class="col-observacoes">
-                        <textarea class="observacoesTema" data-row="${item.row}" data-id="${idEstudante}" rows="4"></textarea>
+                        <textarea class="observacoesTema" data-row="${item.row}" data-id="${idTema}" rows="4"></textarea>
                     </td>
 
                     <td class="col-homologacao">
-                        <select class="homologacao" data-row="${item.row}" data-id="${idEstudante}">
+                        <select class="homologacao" data-row="${item.row}" data-id="${idTema}">
                             <option value="">Seleccione…</option>
                             <option>Homologado</option>
                         </select>
@@ -759,6 +768,10 @@ function renderTabelaGestaoGeral() {
                     ` : ""}
                 </tr>
             `;
+        if (index === 0) {
+            console.log("[TEMA][LOAD] row html=", rowHtml.trim());
+        }
+        html += rowHtml;
     });
 
     html += `
