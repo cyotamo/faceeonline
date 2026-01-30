@@ -925,8 +925,8 @@ function carregarCredencialPesquisa() {
 
         const processarObservacoes = (inputs) => {
             inputs.forEach((textarea) => {
-                const rowValue = Number(textarea.dataset.row);
-                const item = dadosFiltrados.find((entrada) => Number(entrada.row) === rowValue);
+                const idValue = (textarea.dataset.id || "").trim();
+                const item = dadosFiltrados.find((entrada) => String(entrada.id || "").trim() === idValue);
 
                 if (item && item.observacoes) {
                     textarea.value = item.observacoes;
@@ -962,21 +962,21 @@ function carregarCredencialPesquisa() {
 
         dadosFiltrados.forEach((item, index) => {
             const rowNumber = obterRowNumericoCredencial(item.row, index + 2);
-            const idEstudante = (item.numeroEstudante || item.idEstudante || "").toString().trim();
+            const idCredencial = String(item.id || "").trim();
 
             if (rowNumber === null) {
                 return;
             }
 
             html += `
-                <tr data-row="${rowNumber}" data-id="${idEstudante}">
+                <tr data-id="${idCredencial}">
                     <td class="col-ord">${index + 1}</td>
                     <td class="col-data">${formatarDataCurta(item.timestamp)}</td>
                     <td class="col-nome">${item.nome}</td>
                     <td class="col-curso">${item.curso}</td>
                     <td class="col-organizacao">${item.organizacao}</td>
                     <td class="col-parecer">
-                        <select class="parecerPesquisa" data-row="${rowNumber}" data-id="${idEstudante}">
+                        <select class="parecerPesquisa" data-id="${idCredencial}">
                             <option value="">Seleccione…</option>
                             <option>Aprovado</option>
                             <option>Recusado</option>
@@ -984,7 +984,7 @@ function carregarCredencialPesquisa() {
                     </td>
                     <td class="col-pdf"><a class="pdf-icon" href="${item.pdfURL || item.linkPDF}" target="_blank" rel="noopener noreferrer" aria-label="Ver PDF">PDF</a></td>
                     <td class="col-observacoes">
-                        <textarea class="observacoes" data-row="${rowNumber}" data-id="${idEstudante}" rows="4" aria-label="Observações"></textarea>
+                        <textarea class="observacoes" data-id="${idCredencial}" rows="4" aria-label="Observações"></textarea>
                     </td>
                 </tr>
             `;
@@ -1196,61 +1196,54 @@ async function guardarCredencialPesquisa() {
     const linhas = new Map();
     let idInvalido = false;
 
-    const obterIdEstudanteDoElemento = (elemento) => {
-        const idEstudante = (elemento?.dataset?.id || elemento?.closest("tr")?.dataset?.id || "").trim();
+    const obterIdCredencial = (elemento) => (elemento?.dataset?.id || elemento?.closest("tr")?.dataset?.id || "").trim();
 
-        if (!idEstudante) {
-            idInvalido = true;
-            return "";
+    const registrarLinha = (id, valores) => {
+        if (!linhas.has(id)) {
+            linhas.set(id, {
+                id,
+                parecer: "",
+                observacoes: ""
+            });
         }
 
-        return idEstudante;
+        const linha = linhas.get(id);
+        Object.assign(linha, valores);
     };
 
     const processarPareceres = (selects) => {
         selects.forEach(select => {
-            const idEstudante = obterIdEstudanteDoElemento(select);
-            const valor = select.value.trim();
+            const parecer = select.value.trim();
+            const id = obterIdCredencial(select);
 
-            if (!idEstudante || valor === "") {
+            if ((parecer !== "") && !id) {
+                idInvalido = true;
                 return;
             }
 
-            if (!linhas.has(idEstudante)) {
-                linhas.set(idEstudante, {
-                    idEstudante,
-                    parecer: "",
-                    observacoes: "",
-                    homologacao: "",
-                    supervisor: ""
-                });
+            if (!id || parecer === "") {
+                return;
             }
 
-            const linha = linhas.get(idEstudante);
-            linha.parecer = valor;
+            registrarLinha(id, { parecer });
         });
     };
 
     const processarObservacoes = (inputs) => {
         inputs.forEach(input => {
-            const idEstudante = obterIdEstudanteDoElemento(input);
+            const observacoes = input.value.trim();
+            const id = obterIdCredencial(input);
 
-            if (!idEstudante) {
+            if ((observacoes !== "") && !id) {
+                idInvalido = true;
                 return;
             }
 
-            if (!linhas.has(idEstudante)) {
-                linhas.set(idEstudante, {
-                    idEstudante,
-                    parecer: "",
-                    observacoes: "",
-                    homologacao: "",
-                    supervisor: ""
-                });
+            if (!id || observacoes === "") {
+                return;
             }
 
-            const linha = linhas.get(idEstudante);
-            linha.observacoes = input.value.trim();
+            registrarLinha(id, { observacoes });
         });
     };
 
@@ -1264,10 +1257,10 @@ async function guardarCredencialPesquisa() {
     processarPareceres(pareceresEncontrados);
     processarObservacoes(observacoesEncontradas);
 
-    const payload = Array.from(linhas.values()).filter(item => item.parecer || item.observacoes);
-    console.log("[CRED] PAYLOAD MONTADO", payload);
+    const updates = Array.from(linhas.values()).filter(item => item.parecer || item.observacoes);
+    console.log("[CRED] PAYLOAD MONTADO", updates);
 
-    if (payload.length === 0) {
+    if (updates.length === 0) {
         console.log("[CRED] Nenhuma linha com dados preenchidos. Fluxo interrompido.");
         desactivarLoadingGuardar(botao);
         return;
@@ -1282,28 +1275,29 @@ async function guardarCredencialPesquisa() {
     try {
         const dados = new URLSearchParams();
         dados.append("action", "atualizarCredencialPesquisa");
-        dados.append("linhas", JSON.stringify(payload));
+        dados.append("linhas", JSON.stringify(updates));
 
-        console.log("[CRED] ANTES DO FETCH", { payloadSerializado: [...dados.entries()] });
+        console.log("[CRED][ENVIAR] updates=", updates);
 
         const resposta = await fetch(WEB_URL, {
             method: "POST",
             body: dados
         });
 
-        const resultado = await resposta.json();
-        console.log("[CRED] RESPOSTA RECEBIDA", resultado);
+        const raw = await resposta.text();
+        console.log("[CRED][RESP] raw=", raw);
+        const resultado = raw ? JSON.parse(raw) : null;
 
         if (!resultado || resultado.sucesso !== true) {
             throw new Error("Resposta de erro do servidor");
         }
 
-        payload.forEach(item => {
-            document.querySelectorAll(`select.parecerPesquisa[data-id="${item.idEstudante}"]`).forEach(select => {
+        updates.forEach(item => {
+            document.querySelectorAll(`select.parecerPesquisa[data-id="${item.id}"]`).forEach(select => {
                 select.disabled = true;
             });
             document
-                .querySelectorAll(`textarea.observacoes[data-id="${item.idEstudante}"]`)
+                .querySelectorAll(`textarea.observacoes[data-id="${item.id}"]`)
                 .forEach(textarea => {
                     textarea.disabled = true;
                 });
