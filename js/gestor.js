@@ -1308,7 +1308,7 @@ async function guardarMonografiaFinal() {
 
     const obterIdSubmissaoDoElemento = (elemento, valorPreenchido) => {
         const tr = elemento?.closest("tr");
-        const idSubmissao = (tr?.dataset?.id || "").trim();
+        const idSubmissao = (elemento?.dataset?.id || tr?.dataset?.id || "").trim();
 
         if (!idSubmissao && valorPreenchido) {
             idInvalido = true;
