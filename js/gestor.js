@@ -37,8 +37,9 @@ function aplicarDadosBloqueio() {
     }
 
     estadoCamposBloqueados.forEach(item => {
+        const idTema = (item.idTema || "").toString().trim();
         const idEstudante = (item.idEstudante || item.numeroEstudante || "").toString().trim();
-        const seletorId = idEstudante ? `[data-id="${idEstudante}"]` : null;
+        const seletorId = idTema ? `[data-id="${idTema}"]` : idEstudante ? `[data-id="${idEstudante}"]` : null;
         const seletorRow = item.row ? `[data-row="${item.row}"]` : null;
         const seletorBase = seletorId || seletorRow;
 
@@ -705,7 +706,7 @@ function renderTabelaGestaoGeral() {
 
     paginaDados.forEach((item, index) => {
         const indiceGlobal = inicio + index;
-        const idEstudante = (item.numeroEstudante || item.idEstudante || "").toString().trim();
+        const idTema = (item.idTema || "").toString().trim();
 
         html += `
                 <tr data-id="${idEstudante}">
@@ -1492,10 +1493,10 @@ function renderTabelaParecer() {
 
     paginaDados.forEach((item, index) => {
         const indiceGlobal = inicio + index;
-        const idEstudante = (item.numeroEstudante || item.idEstudante || "").toString().trim();
+        const idTema = (item.idTema || "").toString().trim();
 
         html += `
-            <tr data-id="${idEstudante}">
+            <tr data-id="${idTema}">
                 <td class="col-ord">${indiceGlobal + 1}</td>
                 <td class="col-data">${formatarDataCurta(item.data)}</td>
                 <td class="col-nome">${item.nome}</td>
@@ -1504,7 +1505,7 @@ function renderTabelaParecer() {
                 <td class="col-tema">${item.tema}</td>
 
                 <td class="col-parecer">
-                    <select class="parecerSelect" data-row="${item.row}" data-id="${idEstudante}">
+                    <select class="parecerSelect" data-id="${idTema}">
                         <option value="">Seleccione…</option>
                         <option value="Aprovado">Aprovado</option>
                         <option value="Reprovado">Reprovado</option>
@@ -1512,7 +1513,7 @@ function renderTabelaParecer() {
                 </td>
 
                 <td class="col-observacoes">
-                    <textarea class="observacoesInput" data-row="${item.row}" data-id="${idEstudante}" rows="3"></textarea>
+                    <textarea class="observacoesInput" data-id="${idTema}" rows="3"></textarea>
                 </td>
             </tr>
         `;
@@ -1566,8 +1567,7 @@ function guardarTodosPareceres() {
 
     const container = document.getElementById("tabelaGestaoGeral");
 
-    // 👉 Procura selects com class="parecerSelect" OU class="parecer"
-    const selects = container.querySelectorAll("select.parecerSelect, select.parecer");
+    const selects = container.querySelectorAll("select.parecerSelect");
 
     console.log("Selects encontrados:", selects.length);
     // Debug rápido: ver se está a achar alguma coisa
@@ -1577,26 +1577,24 @@ function guardarTodosPareceres() {
 
     let idInvalido = false;
 
-    const obterIdEstudanteDoElemento = (elemento) => {
-        const idEstudante = (elemento?.dataset?.id || elemento?.closest("tr")?.dataset?.id || "").trim();
-
-        if (!idEstudante) {
-            idInvalido = true;
-            return "";
-        }
-
-        return idEstudante;
-    };
-
     selects.forEach(select => {
-        const idEstudante = obterIdEstudanteDoElemento(select);
+        const idTema = (select.dataset.id || select.closest("tr")?.dataset?.id || "").trim();
         const parecer = (select.value || "").trim();
-        const obsElement = select.closest("tr")?.querySelector("textarea");
+        const obsElement = select.closest("tr")?.querySelector("textarea.observacoesInput");
         const observacoes = obsElement ? (obsElement.value || "").trim() : "";
 
-        if (parecer !== "" && idEstudante) {
+        if (parecer && !idTema) {
+            idInvalido = true;
+            return;
+        }
+
+        if (parecer !== "" || observacoes !== "") {
+            if (!idTema) {
+                return;
+            }
+
             pareceres.push({
-                idEstudante,
+                idTema,
                 parecer,
                 observacoes
             });
@@ -1616,7 +1614,7 @@ function guardarTodosPareceres() {
 
     if (idInvalido) {
         desactivarLoadingGuardar(botao);
-        alert("Não foi possível identificar o estudante. Recarregue a página e tente novamente.");
+        alert("Não foi possível identificar o tema. Recarregue a página e tente novamente.");
         if (window.aplicarRestricoesUI && window.userEmail) {
             aplicarRestricoesUI(window.userEmail);
         }
@@ -1633,7 +1631,18 @@ function guardarTodosPareceres() {
     .then(r => r.json())
     .then(res => {
         if (res.sucesso) {
-            carregarParecer(); // recarrega a lista, já sem esses registos
+            pareceres.forEach(({ idTema }) => {
+                document
+                    .querySelectorAll(`select.parecerSelect[data-id="${idTema}"]`)
+                    .forEach(select => {
+                        select.disabled = true;
+                    });
+                document
+                    .querySelectorAll(`textarea.observacoesInput[data-id="${idTema}"]`)
+                    .forEach(textarea => {
+                        textarea.disabled = true;
+                    });
+            });
         } else {
             alert("Erro ao guardar: " + res.mensagem);
         }
