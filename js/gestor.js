@@ -1452,7 +1452,11 @@ function carregarParecer() {
 
         if (dados.length === 0) {
             document.getElementById("tabelaGestaoGeral").innerHTML =
-                '<p class="sem-dados">Nenhum dado a ser processado.</p>';
+                '<p class="sem-dados">Não existe nenhum dado para ser apresentado.</p>';
+            const controles = document.getElementById("controlesPaginacao");
+            if (controles) {
+                controles.innerHTML = "";
+            }
             esconderCarregamento();
             reaplicarRestricoesUI();
             return;
@@ -1463,6 +1467,18 @@ function carregarParecer() {
             const parecer = item.parecer ?? item.Parecer ?? "";
             return !parecer || parecer.toString().trim() === "";
         });
+
+        if (dadosGestaoGeral.length === 0) {
+            document.getElementById("tabelaGestaoGeral").innerHTML =
+                '<p class="sem-dados">Não existe nenhum dado para ser apresentado.</p>';
+            const controles = document.getElementById("controlesPaginacao");
+            if (controles) {
+                controles.innerHTML = "";
+            }
+            esconderCarregamento();
+            reaplicarRestricoesUI();
+            return;
+        }
 
         paginaAtual = 1;
         totalPaginas = Math.ceil(dadosGestaoGeral.length / linhasPorPagina);
