@@ -239,6 +239,7 @@ document.getElementById("btnMonografiaFinal").addEventListener("click", () => {
 
 // Botão Parecer
 document.getElementById("btnParecerTec").addEventListener("click", () => {
+    esconderEstatisticas();
     mostrarLoadingPainelGestor("A carregar…");
     carregarParecer();
     if (window.aplicarRestricoesUI && window.userEmail) {
@@ -249,6 +250,7 @@ document.getElementById("btnParecerTec").addEventListener("click", () => {
 
 // Botão Atribuir Supervisor
 document.getElementById("btnAtribuirSuperv").addEventListener("click", function () {
+    esconderEstatisticas();
     modoTabelaGestao = "atribuirSupervisor";
     mostrarLoadingPainelGestor("A carregar…");
     carregarGestaoGeral();
@@ -259,6 +261,7 @@ document.getElementById("btnAtribuirSuperv").addEventListener("click", function 
 
 // Botão Homologar Supervisor
 document.getElementById("btnHomologarSuperv").addEventListener("click", function () {
+    esconderEstatisticas();
     modoTabelaGestao = "homologarSupervisor";
     mostrarLoadingPainelGestor("A carregar…");
     carregarGestaoGeral();
