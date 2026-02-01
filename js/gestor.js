@@ -442,11 +442,21 @@ async function solicitarDadosRelatorio(parametros) {
         body: construirPayloadRelatorio(parametros)
     });
 
-    if (!resposta.ok) {
-        throw new Error(`Falha ao contactar o servidor (${resposta.status})`);
+    const raw = await resposta.text();
+    console.log("HTTP", resposta.status, raw);
+
+    let data = null;
+    try {
+        data = JSON.parse(raw);
+    } catch (erro) {
+        data = null;
     }
 
-    return resposta.json();
+    if (!resposta.ok || data?.sucesso === false) {
+        throw new Error(data?.mensagem || raw || `HTTP ${resposta.status}`);
+    }
+
+    return data;
 }
 
 function extrairUrlRelatorio(resposta) {
