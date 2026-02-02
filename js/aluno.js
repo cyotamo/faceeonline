@@ -804,26 +804,46 @@ async function carregarDocumentos() {
   mostrarLoadingDocumentos();
 
   try {
-    const documentos = [
+    const gruposDocumentos = [
       {
-        nome: 'Estrutura TCC',
-        link: 'https://drive.google.com/file/d/1vHbgPPDpU3yrNBDUMYGPIcoP3L-eYKGZ/view?usp=drive_link',
+        titulo: 'Formulários',
+        documentos: [
+          {
+            nome: 'Mudança de Regime',
+            link: 'https://drive.google.com/file/d/1vWT6c4smuGL8LClgJt7yjb1H4EZoh-O-/view?usp=drive_link',
+          },
+        ],
       },
       {
-        nome: 'Plano Curricular Contabilidade e Fiscalidade',
-        link: 'https://drive.google.com/file/d/1LjFyqn8FUc9AWlNvK0CRjUTxtQ9Lgl2U/view?usp=drive_link',
+        titulo: 'Planos Curriculares',
+        documentos: [
+          {
+            nome: 'Plano Curricular Contabilidade e Fiscalidade',
+            link: 'https://drive.google.com/file/d/1LjFyqn8FUc9AWlNvK0CRjUTxtQ9Lgl2U/view?usp=drive_link',
+          },
+        ],
       },
       {
-        nome: 'Mudança de Regime',
-        link: 'https://drive.google.com/file/d/1vWT6c4smuGL8LClgJt7yjb1H4EZoh-O-/view?usp=drive_link',
+        titulo: 'Regulamentos',
+        documentos: [
+          {
+            nome: 'Estrutura TCC',
+            link: 'https://drive.google.com/file/d/1vHbgPPDpU3yrNBDUMYGPIcoP3L-eYKGZ/view?usp=drive_link',
+          },
+        ],
       },
       {
-        nome: 'Linhas de Pesquisa',
-        link: 'https://drive.google.com/file/d/17wXc1iY4AjpB445KEMx2S9ygItvxK6uN/view?usp=drive_link',
+        titulo: 'Outros',
+        documentos: [
+          {
+            nome: 'Linhas de Pesquisa',
+            link: 'https://drive.google.com/file/d/17wXc1iY4AjpB445KEMx2S9ygItvxK6uN/view?usp=drive_link',
+          },
+        ],
       },
     ];
 
-    documentos.forEach((doc) => {
+    const criarItemDocumento = (doc) => {
       const item = document.createElement('li');
       const nomeSpan = document.createElement('span');
       const pdfLink = document.createElement('a');
@@ -842,7 +862,26 @@ async function carregarDocumentos() {
 
       item.appendChild(nomeSpan);
       item.appendChild(pdfLink);
-      listaDocumentos.appendChild(item);
+      return item;
+    };
+
+    gruposDocumentos.forEach((grupo) => {
+      if (!grupo.documentos.length) return;
+
+      const grupoItem = document.createElement('li');
+      const titulo = document.createElement('h3');
+      const listaGrupo = document.createElement('ul');
+
+      grupoItem.className = 'documentos-grupo';
+      titulo.textContent = grupo.titulo;
+
+      grupo.documentos.forEach((doc) => {
+        listaGrupo.appendChild(criarItemDocumento(doc));
+      });
+
+      grupoItem.appendChild(titulo);
+      grupoItem.appendChild(listaGrupo);
+      listaDocumentos.appendChild(grupoItem);
     });
   } catch (error) {
     listaDocumentos.textContent = 'Nenhum documento disponível';
