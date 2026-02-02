@@ -813,7 +813,10 @@ async function carregarDocumentos() {
         nome: 'Plano Curricular Contabilidade e Fiscalidade',
         link: 'https://drive.google.com/file/d/1LjFyqn8FUc9AWlNvK0CRjUTxtQ9Lgl2U/view?usp=drive_link',
       },
-
+      {
+        nome: 'Mudança de Regime',
+        link: 'https://drive.google.com/file/d/1vWT6c4smuGL8LClgJt7yjb1H4EZoh-O-/view?usp=drive_link',
+      },
       {
         nome: 'Linhas de Pesquisa',
         link: 'https://drive.google.com/file/d/17wXc1iY4AjpB445KEMx2S9ygItvxK6uN/view?usp=drive_link',
@@ -857,4 +860,5 @@ btnBaixarFormulario?.addEventListener('click', () => {
   const botao = document.getElementById(idBotao);
   botao?.addEventListener('click', mostrarContainerFormularios);
 });
+
 
