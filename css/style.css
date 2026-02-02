@@ -280,6 +280,43 @@ main {
   box-shadow: var(--shadow);
 }
 
+.documentos-lista {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.documentos-grupo {
+  list-style: none;
+}
+
+.documentos-grupo h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.documentos-grupo ul {
+  list-style: disc;
+  margin: 0;
+  padding-left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.documentos-grupo li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 form {
   display: flex;
   flex-direction: column;
