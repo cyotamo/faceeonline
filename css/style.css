@@ -325,6 +325,10 @@ main {
   gap: 10px;
 }
 
+.documentos-grupo ul[hidden] {
+  display: none;
+}
+
 .documentos-grupo li {
   display: flex;
   align-items: center;
