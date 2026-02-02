@@ -910,7 +910,7 @@ btnBaixarFormulario?.addEventListener('click', () => {
   carregarDocumentos();
 });
 
-['btnTema', 'btnMonografia', 'btnPedidoCredencial', 'btnConsultaEstado'].forEach((idBotao) => {
+['btnTema', 'btnMonografia', 'btnPedidoCredencial', 'btnPedidoCredencialEstagio', 'btnConsultaEstado'].forEach((idBotao) => {
   const botao = document.getElementById(idBotao);
   botao?.addEventListener('click', mostrarContainerFormularios);
 });
