@@ -865,15 +865,24 @@ async function carregarDocumentos() {
       return item;
     };
 
-    gruposDocumentos.forEach((grupo) => {
+    gruposDocumentos.forEach((grupo, index) => {
       if (!grupo.documentos.length) return;
 
       const grupoItem = document.createElement('li');
       const titulo = document.createElement('h3');
+      const botaoToggle = document.createElement('button');
       const listaGrupo = document.createElement('ul');
+      const listaId = `documentos-grupo-${index}`;
 
       grupoItem.className = 'documentos-grupo';
-      titulo.textContent = grupo.titulo;
+      botaoToggle.type = 'button';
+      botaoToggle.className = 'documentos-toggle';
+      botaoToggle.textContent = grupo.titulo;
+      botaoToggle.setAttribute('aria-expanded', 'false');
+      botaoToggle.setAttribute('aria-controls', listaId);
+      titulo.appendChild(botaoToggle);
+      listaGrupo.id = listaId;
+      listaGrupo.hidden = true;
 
       grupo.documentos.forEach((doc) => {
         listaGrupo.appendChild(criarItemDocumento(doc));
@@ -882,6 +891,12 @@ async function carregarDocumentos() {
       grupoItem.appendChild(titulo);
       grupoItem.appendChild(listaGrupo);
       listaDocumentos.appendChild(grupoItem);
+
+      botaoToggle.addEventListener('click', () => {
+        const isExpanded = botaoToggle.getAttribute('aria-expanded') === 'true';
+        botaoToggle.setAttribute('aria-expanded', String(!isExpanded));
+        listaGrupo.hidden = isExpanded;
+      });
     });
   } catch (error) {
     listaDocumentos.textContent = 'Nenhum documento disponível';

@@ -294,12 +294,26 @@ main {
 }
 
 .documentos-grupo h3 {
+  margin: 0 0 10px;
+}
+
+.documentos-toggle {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0 0 6px;
+  margin: 0;
+  text-align: left;
   font-size: 1rem;
   font-weight: 700;
   color: var(--text);
-  margin: 0 0 10px;
-  padding-bottom: 6px;
   border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.documentos-toggle:focus-visible {
+  outline: 2px solid #004aad;
+  outline-offset: 2px;
 }
 
 .documentos-grupo ul {
