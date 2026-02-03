@@ -1463,6 +1463,9 @@ async function guardarCredencialEstagio() {
     const botao = document.getElementById("btnGuardar") || document.getElementById("btnGuardarCredencialEstagio");
     activarLoadingGuardar(botao);
 
+    console.log("tabela:", document.querySelector(".table-credencial-estagio"));
+    console.log("nLinhas:", document.querySelectorAll(".table-credencial-estagio tbody tr").length);
+
     const linhas = new Map();
     let idInvalido = false;
 
@@ -1515,6 +1518,7 @@ async function guardarCredencialEstagio() {
 
     if (updates.length === 0) {
         desactivarLoadingGuardar(botao);
+        mostrarModal?.("Não há alterações para guardar.") || alert("Não há alterações para guardar.");
         return;
     }
 
