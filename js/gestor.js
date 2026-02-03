@@ -742,6 +742,8 @@ function renderTabelaGestaoGeral() {
     paginaDados.forEach((item, index) => {
         const indiceGlobal = inicio + index;
         const idTema = String(item.idTema || "").trim();
+        const parecerAtual = String(item.parecer ?? item.Parecer ?? item.colL ?? "").trim();
+        const homologacaoAtual = String(item.homologado ?? item.homologacao ?? "").trim();
         const rowHtml = `
                 <tr data-id="${idTema}">
                     <td class="col-ord">${indiceGlobal + 1}</td>
@@ -752,24 +754,24 @@ function renderTabelaGestaoGeral() {
                     ${!isHomologar ? `<td class="col-tema">${item.tema ?? ""}</td>` : ""}
                     ${!isHomologar ? `
                     <td class="col-supervisor">
-                        <select class="supervisorProposto" data-row="${item.row || ""}" data-id="${idTema}">
+                        <select class="supervisorProposto" data-row="${item.row || ""}" data-id="${idTema}" data-original="${item.supervisorAtualOuVazio}">
                             ${opcoesSupervisoresHTML(item.supervisorAtualOuVazio, item.opcoesSupervisores)}
                         </select>
                     </td>` : ""}
                     ${isHomologar ? `
                     <td class="col-supervisor">${item.supervisorFinal}</td>
                     <td class="col-homologacao">
-                        <select class="homologacao" data-row="${item.row}" data-id="${idTema}">
-                            <option value="">Seleccione…</option>
-                            <option>Homologado</option>
+                        <select class="homologacao" data-row="${item.row}" data-id="${idTema}" data-original="${homologacaoAtual}">
+                            <option value=""${homologacaoAtual === "" ? " selected" : ""}>Seleccione…</option>
+                            <option${homologacaoAtual === "Homologado" ? " selected" : ""}>Homologado</option>
                         </select>
                     </td>` : ""}
                     ${isGeral ? `
                     <td class="col-parecer">
-                        <select class="parecer" data-row="${item.row}" data-id="${idTema}">
-                            <option value="">Seleccione…</option>
-                            <option>Aprovado</option>
-                            <option>Reprovado</option>
+                        <select class="parecer" data-row="${item.row}" data-id="${idTema}" data-original="${parecerAtual}">
+                            <option value=""${parecerAtual === "" ? " selected" : ""}>Seleccione…</option>
+                            <option${parecerAtual === "Aprovado" ? " selected" : ""}>Aprovado</option>
+                            <option${parecerAtual === "Reprovado" ? " selected" : ""}>Reprovado</option>
                         </select>
                     </td>
 
@@ -778,9 +780,9 @@ function renderTabelaGestaoGeral() {
                     </td>
 
                     <td class="col-homologacao">
-                        <select class="homologacao" data-row="${item.row}" data-id="${idTema}">
-                            <option value="">Seleccione…</option>
-                            <option>Homologado</option>
+                        <select class="homologacao" data-row="${item.row}" data-id="${idTema}" data-original="${homologacaoAtual}">
+                            <option value=""${homologacaoAtual === "" ? " selected" : ""}>Seleccione…</option>
+                            <option${homologacaoAtual === "Homologado" ? " selected" : ""}>Homologado</option>
                         </select>
                     </td>` : ""}
                     ${isAtribuir ? `
@@ -1204,80 +1206,55 @@ document.addEventListener("click", async (e) => {
         return;
     }
 
-    const processarSelects = (selects, chave) => {
+    const garantirLinha = (idTema) => {
+        if (!linhas.has(idTema)) {
+            linhas.set(idTema, { idTema });
+        }
+
+        return linhas.get(idTema);
+    };
+
+    const processarSelects = (selects, chave, { exigirValor = true, compararOriginal = true } = {}) => {
         selects.forEach(select => {
             const idTema = obterIdTema(select);
             const valor = select.value.trim();
+            const valorOriginal = (select.dataset.original || "").trim();
+            const mudou = compararOriginal ? valor !== valorOriginal : true;
 
-            if (!idTema || valor === "") {
+            if (!idTema || !mudou) {
                 return;
             }
 
-            if (!linhas.has(idTema)) {
-                linhas.set(idTema, {
-                    idTema,
-                    parecer: "",
-                    homologacao: "",
-                    observacoes: "",
-                    supervisor: ""
-                });
+            if (exigirValor && valor === "") {
+                return;
             }
 
-            const linha = linhas.get(idTema);
+            const linha = garantirLinha(idTema);
             linha[chave] = valor;
         });
     };
 
     const processarSupervisores = (selects) => {
-        selects.forEach(select => {
-            const idTema = obterIdTema(select);
-            const valor = select.value.trim();
-
-            if (!idTema || valor === "") {
-                return;
-            }
-
-            if (!linhas.has(idTema)) {
-                linhas.set(idTema, {
-                    idTema,
-                    parecer: "",
-                    homologacao: "",
-                    observacoes: "",
-                    supervisor: ""
-                });
-            }
-
-            const linha = linhas.get(idTema);
-            linha.supervisor = valor;
-        });
+        processarSelects(selects, "supervisor", { exigirValor: true, compararOriginal: true });
     };
 
     const processarObservacoes = (inputs) => {
         inputs.forEach(input => {
             const idTema = obterIdTema(input);
+            const valor = input.value.trim();
 
-            if (!idTema) {
+            if (!idTema || valor === "") {
                 return;
             }
 
-            if (!linhas.has(idTema)) {
-                linhas.set(idTema, {
-                    idTema,
-                    parecer: "",
-                    homologacao: "",
-                    observacoes: "",
-                    supervisor: ""
-                });
-            }
-
-            const linha = linhas.get(idTema);
-            linha.observacoes = input.value.trim();
+            const linha = garantirLinha(idTema);
+            linha.observacoes = valor;
         });
     };
 
     processarSupervisores(document.querySelectorAll("select.supervisorProposto"));
-    processarSelects(document.querySelectorAll("select.parecer"), "parecer");
-    processarSelects(document.querySelectorAll("select.homologacao"), "homologacao");
+    processarSelects(document.querySelectorAll("select.parecer"), "parecer", { exigirValor: true, compararOriginal: true });
+    processarSelects(document.querySelectorAll("select.homologacao"), "homologacao", { exigirValor: false, compararOriginal: true });
     processarObservacoes(document.querySelectorAll("textarea.observacoesTema"));
 
     if (idInvalido) {
@@ -1287,7 +1264,7 @@ document.addEventListener("click", async (e) => {
     }
 
     const payload = Array.from(linhas.values()).filter(item =>
-        item.parecer || item.homologacao || item.observacoes || item.supervisor
+        Object.keys(item).some(chave => chave !== "idTema")
     );
 
     try {
