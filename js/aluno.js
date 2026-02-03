@@ -697,7 +697,7 @@ function mostrarResultadoConsulta(resposta) {
 
   if (!resposta.sucesso) {
     resultadoDiv.style.display = "none";
-    mostrarModal("Submissão não encontrada");
+    mostrarModal(resposta.mensagem || "Submissão não encontrada");
     return;
   }
 
