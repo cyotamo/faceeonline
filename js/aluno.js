@@ -526,6 +526,7 @@ function mostrarConsultaEstado() {
             <option value="monografia">Tema de Monografia</option>
             <option value="versaoFinal">Versão Final Monografia</option>
             <option value="credencial">Credencial Pesquisa</option>
+            <option value="consulta_credencial_estagio">Credencial de Estágio</option>
           </select>
         </div>
 
@@ -846,6 +847,8 @@ document.addEventListener('click', (event) => {
 
   const payload = {
     action: "consultaEstado",
+    tipo: tipoConsulta,
+    numero: numero,
     tipoConsulta: tipoConsulta,
     numeroEstudante: numero,
   };
