@@ -556,6 +556,10 @@ function mostrarBotaoGuardar(tipo) {
         btn.dataset.modulo = "credencial";
         btn.onclick = guardarCredencialPesquisa;
     }
+    if (tipo === "estagio") {
+        btn.dataset.modulo = "estagio";
+        btn.onclick = guardarCredencialEstagio;
+    }
 
     // Inserir após a tabela
     area.appendChild(btn);
@@ -1064,7 +1068,7 @@ async function carregarCredenciaisEstagioGestor() {
 
         let html = `
             <div class="tabela-scroll">
-            <table class="tabela-gestao table-credencial">
+            <table class="tabela-gestao table-credencial table-credencial-estagio">
                 <thead>
                     <tr>
                         <th class="col-ord">Ord</th>
@@ -1095,7 +1099,7 @@ async function carregarCredenciaisEstagioGestor() {
                     <td class="col-curso">${item.curso ?? ""}</td>
                     <td class="col-organizacao">${item.organizacao ?? ""}</td>
                     <td class="col-parecer">
-                        <select class="parecerPesquisa" data-id="${idCredencial}">
+                        <select class="parecerEstagio" data-id="${idCredencial}">
                             <option value="">Seleccione…</option>
                             <option value="Aprovado">Aprovado</option>
                             <option value="Recusado">Recusado</option>
@@ -1103,7 +1107,7 @@ async function carregarCredenciaisEstagioGestor() {
                     </td>
                     <td class="col-pdf">${linkPDFHtml}</td>
                     <td class="col-observacoes">
-                        <textarea class="observacoes" data-id="${idCredencial}" rows="4" aria-label="Observações"></textarea>
+                        <textarea class="observacoesEstagio" data-id="${idCredencial}" rows="4" aria-label="Observações"></textarea>
                     </td>
                 </tr>
             `;
@@ -1123,15 +1127,22 @@ async function carregarCredenciaisEstagioGestor() {
             }
             const parecerValor = String(item.parecer ?? "").trim();
             const observacoesValor = String(item.observacoes ?? "").trim();
-            const select = document.querySelector(`select.parecerPesquisa[data-id="${idCredencial}"]`);
+            const select = document.querySelector(`select.parecerEstagio[data-id="${idCredencial}"]`);
             if (select && parecerValor !== "") {
                 select.value = parecerValor;
             }
-            const textarea = document.querySelector(`textarea.observacoes[data-id="${idCredencial}"]`);
+            if (select) {
+                select.dataset.original = parecerValor;
+            }
+            const textarea = document.querySelector(`textarea.observacoesEstagio[data-id="${idCredencial}"]`);
             if (textarea && observacoesValor !== "") {
                 textarea.value = observacoesValor;
             }
+            if (textarea) {
+                textarea.dataset.original = observacoesValor;
+            }
         });
+        mostrarBotaoGuardar("estagio");
         esconderCarregamento();
         reaplicarRestricoesUI();
     } catch (err) {
@@ -1155,6 +1166,12 @@ document.addEventListener("click", async (e) => {
     console.log("BOTÃO GUARDAR CLICADO");
     const idBotao = (botao?.dataset?.id || "").trim();
     if (botao?.dataset?.modulo === "credencial") {
+        if (window.aplicarRestricoesUI && window.userEmail) {
+            aplicarRestricoesUI(window.userEmail);
+        }
+        return;
+    }
+    if (botao?.dataset?.modulo === "estagio") {
         if (window.aplicarRestricoesUI && window.userEmail) {
             aplicarRestricoesUI(window.userEmail);
         }
@@ -1437,6 +1454,101 @@ async function guardarCredencialPesquisa() {
         });
     } catch (err) {
         console.error("Erro ao guardar dados da credencial de pesquisa:", err);
+    } finally {
+        desactivarLoadingGuardar(botao);
+    }
+}
+
+async function guardarCredencialEstagio() {
+    const botao = document.getElementById("btnGuardar") || document.getElementById("btnGuardarCredencialEstagio");
+    activarLoadingGuardar(botao);
+
+    const linhas = new Map();
+    let idInvalido = false;
+
+    const registrarLinha = (id, valores) => {
+        if (!linhas.has(id)) {
+            linhas.set(id, {
+                id,
+                parecer: "",
+                observacoes: ""
+            });
+        }
+
+        const linha = linhas.get(id);
+        Object.assign(linha, valores);
+    };
+
+    const tabela = document.querySelector(".table-credencial-estagio");
+    const linhasTabela = tabela ? tabela.querySelectorAll("tbody tr") : [];
+
+    linhasTabela.forEach(linha => {
+        const id = (linha.dataset.id || "").trim();
+        const select = linha.querySelector("select.parecerEstagio");
+        const textarea = linha.querySelector("textarea.observacoesEstagio");
+        const parecer = (select?.value || "").trim();
+        const observacoes = (textarea?.value || "").trim();
+        const parecerOriginal = (select?.dataset?.original || "").trim();
+        const observacoesOriginal = (textarea?.dataset?.original || "").trim();
+
+        const houveAlteracao = parecer !== parecerOriginal || observacoes !== observacoesOriginal;
+
+        if (!houveAlteracao) {
+            return;
+        }
+
+        if ((parecer !== "" || observacoes !== "") && !id) {
+            idInvalido = true;
+            return;
+        }
+
+        if (!id) {
+            return;
+        }
+
+        registrarLinha(id, { parecer, observacoes });
+    });
+
+    const updates = Array.from(linhas.values()).filter(item => item.parecer || item.observacoes);
+
+    if (updates.length === 0) {
+        desactivarLoadingGuardar(botao);
+        return;
+    }
+
+    if (idInvalido) {
+        alert("Não foi possível identificar o estágio. Recarregue a página e tente novamente.");
+        desactivarLoadingGuardar(botao);
+        return;
+    }
+
+    try {
+        const dados = new FormData();
+        dados.append("action", "atualizarCredencialEstagio");
+        dados.append("linhas", JSON.stringify(updates));
+
+        const resposta = await fetch(WEB_URL, {
+            method: "POST",
+            body: dados
+        });
+
+        const resultado = await resposta.json();
+
+        if (!resultado || resultado.sucesso !== true) {
+            const detalhe = resultado?.detalhe ? `\n${resultado.detalhe}` : "";
+            throw new Error(`${resultado?.mensagem || "Erro ao actualizar registos."}${detalhe}`);
+        }
+
+        if (typeof mostrarModal === "function") {
+            mostrarModal("Actualizado com sucesso.");
+        } else {
+            alert("Actualizado com sucesso.");
+        }
+
+        await carregarCredenciaisEstagioGestor();
+    } catch (err) {
+        console.error("Erro ao guardar dados da credencial de estágio:", err);
+        alert(err.message || "Erro ao actualizar registos.");
     } finally {
         desactivarLoadingGuardar(botao);
     }
