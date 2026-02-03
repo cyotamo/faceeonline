@@ -356,7 +356,7 @@ function enviarPedidoCredencial() {
   const dados = new FormData();
   dados.append('action', 'submeterCredencial');
 
-  const campos = ['nome', 'numeroEstudante', 'curso', 'titulo', 'organizacao', 'supervisor'];
+  const campos = ['nome', 'numeroEstudante', 'curso', 'titulo', 'ano', 'organizacao', 'supervisor'];
 
   campos.forEach((campo) => {
     const elemento = document.getElementById(campo);

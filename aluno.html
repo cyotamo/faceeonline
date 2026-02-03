@@ -329,7 +329,7 @@
       if (!formContainer) return;
 
       formContainer.innerHTML = `
-        <h2>Pedido de Credencial – Colecta de dados</h2>
+        <h2>Pedido de Credencial – Estágios</h2>
         <div class="alert-obrigatorio">
           ⚠️ Atenção: É obrigatório o preenchimento de todos os campos.  
           Caso contrário, os dados não serão enviados.
@@ -353,46 +353,11 @@
             <option value="Contabilidade e Fiscalidade">Contabilidade e Fiscalidade</option>
             </select>
 
-
-            <label for="titulo">Título:</label>
-            <input type="text" id="titulo" required>
+            <label for="ano">Ano:</label>
+            <input type="text" id="ano" inputmode="numeric" pattern="\\d" maxlength="1" placeholder="0-9" required oninput="this.value = this.value.replace(/\\D/g, '').slice(0, 1)">
 
             <label for="organizacao">Organização:</label>
             <input type="text" id="organizacao" required>
-
-<label for="supervisor">Supervisor:</label>
-<select id="supervisor" required>
-  <option value="">Seleccione...</option>
-
-  <!-- LISTA FIXA DE SUPERVISORES (ORDENADA E SEM DUPLICADOS) -->
-  <option value="Dr. Adão Indipita">Dr. Adão Indipita</option>
-  <option value="Dr. Anli Bugdade">Dr. Anli Bugdade</option>
-  <option value="Dr. António Missomal">Dr. António Missomal</option>
-  <option value="Dr. Cremildo da Silva Filipe">Dr. Cremildo da Silva Filipe</option>
-  <option value="Dr. Elmano Mendes">Dr. Elmano Mendes</option>
-  <option value="Dr. Isaquiel Estamilo">Dr. Isaquiel Estamilo</option>
-  <option value="Dr. Issufo Yancubo">Dr. Issufo Yancubo</option>
-  <option value="Dr. Valdemiro Cumpe">Dr. Valdemiro Cumpe</option>
-
-  <option value="Dra. Lúcia Pulveira">Dra. Lúcia Pulveira</option>
-  <option value="Dra Mónica Calande">Dra Mónica Calande</option>
-
-  <option value="Mestre Abudo Sadate Ucade">Mestre Abudo Sadate Ucade</option>
-  <option value="Mestre Alcido Manuel Juaniha">Mestre Alcido Manuel Juaniha</option>
-  <option value="Mestre Benedito Machado">Mestre Benedito Machado</option>
-  <option value="Mestre Fabião Jaquissone">Mestre Fabião Jaquissone</option>
-  <option value="Mestre Faruque Jalilo">Mestre Faruque Jalilo</option>
-  <option value="Mestre Inês Neuana">Mestre Inês Neuana</option>
-  <option value="Mestre Itelvina Ribeiro">Mestre Itelvina Ribeiro</option>
-  <option value="Mestre King Francisco Chigalo">Mestre King Francisco Chigalo</option>
-  <option value="Mestre Sadoque Elias Nascimento">Mestre Sadoque Elias Nascimento</option>
-
-  <option value="Prof. Dr. António Pereira">Prof. Dr. António Pereira</option>
-  <option value="Prof. Dr. Armando Agostinho Tomás">Prof. Dr. Armando Agostinho Tomás</option>
-  <option value="Prof. Dr. Castigo José Castigo">Prof. Dr. Castigo José Castigo</option>
-  <option value="Prof. Dr. Cremildo José Yotamo">Prof. Dr. Cremildo José Yotamo</option>
-  <option value="Prof. Dr. Martinho Niamale">Prof. Dr. Martinho Niamale</option>
-</select>
 
 
             <button type="button" class="btn-submeter" onclick="enviarPedidoCredencial()">Submeter</button>
