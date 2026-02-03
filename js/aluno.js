@@ -924,19 +924,60 @@ function mostrarResultadoConsulta(resposta) {
     .closest('p')
     .querySelector('strong')
     .textContent = "Parecer:";
-  situacaoEl.textContent = dados.parecer || "";
-  aplicarEstiloSituacao(situacaoEl, dados.parecer);
+  const parecerBase = dados.parecer || "Pendente";
+  situacaoEl.textContent = parecerBase;
+  aplicarEstiloSituacao(situacaoEl, parecerBase);
 
   if (isVersaoFinal) {
     document.getElementById("resAtribuicao").parentElement.style.display = "none";
     document.getElementById("resHomologacao").parentElement.style.display = "none";
 
+    const parecerNormalizado = (dados.parecer || "").toString().trim().toLowerCase();
+    const parecerPendente = parecerNormalizado === "";
+    const parecerRecusado = ["recusado", "reprovado"].includes(parecerNormalizado);
+
+    if (parecerPendente) {
+      alternarLinha(linhaObservacoes, false);
+      comprovativoEl.innerHTML = "";
+      alternarLinha(linhaComprovativo, false);
+      if (pdfBox) {
+        pdfBox.style.display = "none";
+      }
+      return;
+    }
+
+    if (parecerRecusado) {
+      document.getElementById("resObservacoes").textContent =
+        dados.observacoes && dados.observacoes.trim() !== ""
+          ? dados.observacoes
+          : "Sem observações adicionais.";
+      alternarLinha(linhaObservacoes, true);
+      comprovativoEl.innerHTML = "";
+      alternarLinha(linhaComprovativo, false);
+      if (pdfBox) {
+        pdfBox.style.display = "none";
+      }
+      return;
+    }
+
+    alternarLinha(linhaObservacoes, false);
     if (isAprovado) {
       const linkMonografia = obterPrimeiroLinkPdf(dados, resposta.dados);
       if (linkMonografia) {
         renderLinkDownload(comprovativoEl, linkMonografia, "Baixe aqui");
+        alternarLinha(linhaComprovativo, true);
+      } else {
+        comprovativoEl.innerHTML = "";
+        alternarLinha(linhaComprovativo, false);
       }
+    } else {
+      comprovativoEl.innerHTML = "";
+      alternarLinha(linhaComprovativo, false);
     }
+    if (pdfBox) {
+      pdfBox.style.display = "none";
+    }
+    return;
   } else {
     document.getElementById("resAtribuicao").parentElement.style.display = "";
     document.getElementById("resHomologacao").parentElement.style.display = "";
