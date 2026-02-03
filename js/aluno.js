@@ -352,6 +352,50 @@ async function enviarMonografiaFinal() {
 
 window.enviarMonografiaFinal = enviarMonografiaFinal;
 
+function limparAnoOrdinario(input) {
+  if (!input) return;
+
+  if (input.value.trim().toLowerCase() === 'ordinário') {
+    input.value = '';
+  }
+}
+
+function restaurarAnoOrdinario(input) {
+  if (!input) return;
+
+  if (input.value.trim() === '') {
+    input.value = 'ordinário';
+  }
+}
+
+function actualizarAnoOrdinal(input) {
+  if (!input) return;
+
+  const valor = input.value.trim();
+
+  if (valor === '' || valor.toLowerCase() === 'ordinário') {
+    return;
+  }
+
+  const digitos = valor.replace(/\D/g, '');
+  if (!digitos) {
+    input.value = '';
+    return;
+  }
+
+  const numero = digitos[0];
+  if (!['1', '2', '3', '4'].includes(numero)) {
+    input.value = '';
+    return;
+  }
+
+  input.value = `${numero}º`;
+}
+
+window.limparAnoOrdinario = limparAnoOrdinario;
+window.restaurarAnoOrdinario = restaurarAnoOrdinario;
+window.actualizarAnoOrdinal = actualizarAnoOrdinal;
+
 function enviarPedidoCredencial() {
   const dados = new FormData();
   dados.append('action', 'submeterCredencial');
