@@ -710,7 +710,8 @@ function mostrarResultadoConsulta(resposta) {
   const isCredencial =
     !dados.dataDefesa &&
     !("atribuicaoSupervisor" in dados) &&
-    !("homologacao" in dados);
+    !("homologacao" in dados) &&
+    !("homologado" in dados);
 
   // Esconder antes de avaliar
   pdfBox.style.display = "none";
@@ -732,10 +733,11 @@ function mostrarResultadoConsulta(resposta) {
   } else {
     document.getElementById("resSubmissao").textContent = "";
   }
+  const homologacaoValor = dados.homologacao || dados.homologado || "";
   document.getElementById("resAtribuicao").textContent = dados.atribuicaoSupervisor || "";
-  document.getElementById("resHomologacao").textContent = dados.homologacao || "";
+  document.getElementById("resHomologacao").textContent = homologacaoValor;
   aplicarEstiloSituacao(document.getElementById("resAtribuicao"), dados.atribuicaoSupervisor);
-  aplicarEstiloSituacao(document.getElementById("resHomologacao"), dados.homologacao);
+  aplicarEstiloSituacao(document.getElementById("resHomologacao"), homologacaoValor);
 
   const isVersaoFinal = !!dados.dataDefesa;
   const isAprovado =
@@ -805,7 +807,7 @@ function mostrarResultadoConsulta(resposta) {
     document.getElementById("resAtribuicao").parentElement.style.display = "";
     document.getElementById("resHomologacao").parentElement.style.display = "";
 
-    const estadoTema = (dados.homologacao || dados.parecer || "").toString().trim().toLowerCase();
+    const estadoTema = (homologacaoValor || dados.parecer || "").toString().trim().toLowerCase();
     const temaAprovado = ["aprovado", "homologado"].includes(estadoTema);
     const linkComprovativo = obterPrimeiroLinkPdf(resposta.dados, dados);
     if (temaAprovado && linkComprovativo) {
