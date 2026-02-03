@@ -282,6 +282,16 @@ document.getElementById("btnCredencialPesquisa").addEventListener("click", () =>
     }
 });
 
+// Estágios
+document.getElementById("btnCredencialEstagio").addEventListener("click", () => {
+    esconderEstatisticas();
+    mostrarLoadingPainelGestor("A carregar…");
+    carregarCredenciaisEstagioGestor();
+    if (window.aplicarRestricoesUI && window.userEmail) {
+        aplicarRestricoesUI(window.userEmail);
+    }
+});
+
 // Listas e Estatísticas (MOSTRA o container)
 document.getElementById("btnEstatisticas").addEventListener("click", () => {
     mostrarCarregamentoAtribuirSupervisor();
@@ -1022,6 +1032,93 @@ function carregarCredencialPesquisa() {
             "<p>Erro ao carregar os dados da credencial de pesquisa.</p>";
         reaplicarRestricoesUI();
     });
+}
+
+async function carregarCredenciaisEstagioGestor() {
+    mostrarCarregamentoAtribuirSupervisor();
+
+    try {
+        const dados = new FormData();
+        dados.append("action", "getCredencialEstagio");
+
+        const resposta = await fetch(WEB_URL, {
+            method: "POST",
+            body: dados
+        });
+
+        const resultado = await resposta.json();
+
+        if (!resultado || resultado.sucesso === false) {
+            throw new Error(resultado?.mensagem || "Erro ao carregar registos de estágio.");
+        }
+
+        const lista = Array.isArray(resultado.dados) ? resultado.dados : [];
+
+        if (lista.length === 0) {
+            document.getElementById("tabelaGestaoGeral").innerHTML =
+                '<p class="sem-dados">Sem registos de estágio.</p>';
+            esconderCarregamento();
+            reaplicarRestricoesUI();
+            return;
+        }
+
+        let html = `
+            <div class="tabela-scroll">
+            <table class="tabela-gestao table-credencial">
+                <thead>
+                    <tr>
+                        <th class="col-ord">Ord</th>
+                        <th class="col-data">Data</th>
+                        <th class="col-nome">Nome</th>
+                        <th class="col-curso">Curso</th>
+                        <th class="col-organizacao">Organização</th>
+                        <th class="col-parecer">Parecer</th>
+                        <th class="col-pdf">Ver (PDF)</th>
+                        <th class="col-observacoes">Observações</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        lista.forEach((item, index) => {
+            const parecer = item.parecer ?? "";
+            const observacoes = item.observacoes ?? "";
+            const linkPDF = item.linkPDF ?? "";
+            const linkPDFHtml = linkPDF
+                ? `<a class="pdf-icon" href="${linkPDF}" target="_blank" rel="noopener noreferrer">PDF</a>`
+                : "—";
+
+            html += `
+                <tr>
+                    <td class="col-ord">${index + 1}</td>
+                    <td class="col-data">${formatarDataCurta(item.data)}</td>
+                    <td class="col-nome">${item.nome ?? ""}</td>
+                    <td class="col-curso">${item.curso ?? ""}</td>
+                    <td class="col-organizacao">${item.organizacao ?? ""}</td>
+                    <td class="col-parecer">${parecer}</td>
+                    <td class="col-pdf">${linkPDFHtml}</td>
+                    <td class="col-observacoes">${observacoes}</td>
+                </tr>
+            `;
+        });
+
+        html += `
+                </tbody>
+            </table>
+            </div>
+        `;
+
+        document.getElementById("tabelaGestaoGeral").innerHTML = html;
+        esconderCarregamento();
+        reaplicarRestricoesUI();
+    } catch (err) {
+        console.error("Erro ao carregar credenciais de estágio:", err);
+        esconderCarregamento();
+        alert(err.message || "Erro ao carregar registos de estágio.");
+        document.getElementById("tabelaGestaoGeral").innerHTML =
+            "<p>Erro ao carregar os dados de estágio.</p>";
+        reaplicarRestricoesUI();
+    }
 }
 
 document.addEventListener("click", async (e) => {
