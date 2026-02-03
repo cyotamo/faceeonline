@@ -413,6 +413,41 @@ function enviarPedidoCredencial() {
 
 window.enviarPedidoCredencial = enviarPedidoCredencial;
 
+function enviarPedidoCredencialEstagio() {
+  const dados = new FormData();
+  dados.append('action', 'submeterCredencialEstagio');
+
+  const campos = ['nome', 'numeroEstudante', 'curso', 'titulo', 'ano', 'organizacao', 'supervisor'];
+
+  campos.forEach((campo) => {
+    const elemento = document.getElementById(campo);
+    if (elemento) {
+      dados.append(campo, elemento.value);
+    }
+  });
+
+  const botao = document.activeElement;
+  activarLoading(botao);
+
+  fetch(WEB_URL, {
+    method: 'POST',
+    body: dados,
+  })
+    .then((r) => r.json())
+    .then((res) => {
+      desativarLoading(botao);
+      document.getElementById("form-container").innerHTML = "";
+      mostrarModal("Os seus dados foram enviados com sucesso. Acompanhe o andamento do processo na aba Consulta.");
+      // Qualquer link de PDF retornado pelo servidor é intencionalmente ignorado.
+    })
+    .catch((err) => {
+      desativarLoading(botao);
+      mostrarModal("Ocorreu um erro ao enviar os dados. Por favor, tente novamente.");
+    });
+}
+
+window.enviarPedidoCredencialEstagio = enviarPedidoCredencialEstagio;
+
 const btnConsultaEstado = document.getElementById('btnConsultaEstado');
 const formContainer = document.getElementById('form-container');
 const containerDocumentos = document.getElementById('containerDocumentos');
