@@ -619,7 +619,8 @@ function aplicarEstiloSituacao(el, situacaoRaw) {
     situacao === "aprovado" ||
     situacao === "homologado" ||
     situacao === "atribuido" ||
-    situacao === "atribuído"
+    situacao === "atribuído" ||
+    situacao === "ok"
   ) {
     el.classList.add("status-aprovado");
   } else if (situacao === "pendente") {
@@ -694,18 +695,53 @@ function mostrarResultadoConsulta(resposta) {
   const resultadoDiv = document.getElementById("resultadoConsultaEstado");
   const pdfBox = document.getElementById("pdfReprovadoContainer");
   const pdfLink = document.getElementById("pdfReprovadoLink");
+  const mensagemEl = document.getElementById("resMensagemConsulta");
+
+  const linhaNome = document.getElementById("resNome")?.parentElement;
+  const linhaNumero = document.getElementById("resNumero")?.parentElement;
+  const linhaSubmissao = document.getElementById("resSubmissao")?.parentElement;
+  const linhaParecer = document.getElementById("resParecer")?.parentElement;
+  const linhaObservacoes = document.getElementById("linhaObservacoes");
+  const linhaAtribuicao = document.getElementById("resAtribuicao")?.parentElement;
+  const linhaHomologacao = document.getElementById("resHomologacao")?.parentElement;
+  const linhaComprovativo = document.getElementById("resPdfHomologacao")?.parentElement;
+
+  const alternarLinha = (linha, mostrar) => {
+    if (!linha) return;
+    linha.style.display = mostrar ? "" : "none";
+  };
 
   if (!resposta.sucesso) {
-    resultadoDiv.style.display = "none";
-    mostrarModal(resposta.mensagem || "Submissão não encontrada");
+    resultadoDiv.style.display = "block";
+    if (mensagemEl) {
+      mensagemEl.textContent = "Nenhuma submissão encontrada para este número.";
+      mensagemEl.style.display = "block";
+    }
+
+    alternarLinha(linhaNome, false);
+    alternarLinha(linhaNumero, false);
+    alternarLinha(linhaSubmissao, false);
+    alternarLinha(linhaParecer, false);
+    alternarLinha(linhaObservacoes, false);
+    alternarLinha(linhaAtribuicao, false);
+    alternarLinha(linhaHomologacao, false);
+    alternarLinha(linhaComprovativo, false);
+    if (pdfBox) {
+      pdfBox.style.display = "none";
+    }
     return;
   }
 
   resultadoDiv.style.display = "block";
+  if (mensagemEl) {
+    mensagemEl.textContent = "";
+    mensagemEl.style.display = "none";
+  }
 
   const dados = resposta.dados || {};
   const situacaoEl = document.getElementById("resParecer");
   const comprovativoEl = document.getElementById("resPdfHomologacao");
+  const tipoConsulta = document.getElementById("tipoConsulta")?.value;
 
   const isCredencial =
     !dados.dataDefesa &&
@@ -742,6 +778,79 @@ function mostrarResultadoConsulta(resposta) {
   const isVersaoFinal = !!dados.dataDefesa;
   const isAprovado =
     dados.parecer && dados.parecer.toLowerCase() === "aprovado";
+
+  if (tipoConsulta === "monografia") {
+    const parecerNormalizado = (dados.parecer || "").toString().trim().toLowerCase();
+    const parecerRecusado = ["recusado", "reprovado"].includes(parecerNormalizado);
+    const parecerAprovado = parecerNormalizado === "aprovado";
+    const textoParecer = parecerNormalizado
+      ? (parecerRecusado ? "Recusado" : dados.parecer)
+      : "Pendente";
+
+    situacaoEl.textContent = textoParecer;
+    aplicarEstiloSituacao(situacaoEl, textoParecer);
+
+    alternarLinha(linhaNome, true);
+    alternarLinha(linhaNumero, true);
+    alternarLinha(linhaSubmissao, true);
+    alternarLinha(linhaParecer, true);
+
+    if (parecerRecusado) {
+      document.getElementById("resObservacoes").textContent =
+        dados.observacoes && dados.observacoes.trim() !== ""
+          ? dados.observacoes
+          : "Sem observações adicionais.";
+      alternarLinha(linhaObservacoes, true);
+    } else {
+      alternarLinha(linhaObservacoes, false);
+    }
+
+    if (!parecerAprovado) {
+      alternarLinha(linhaAtribuicao, false);
+      alternarLinha(linhaHomologacao, false);
+      comprovativoEl.innerHTML = "";
+      alternarLinha(linhaComprovativo, false);
+      if (pdfBox) {
+        pdfBox.style.display = "none";
+      }
+      return;
+    }
+
+    const atribuicaoValor = (dados.atribuicaoSupervisor || "").toString().trim();
+    const homologacaoRaw = (homologacaoValor || "").toString().trim();
+    const homologacaoNormalizada = homologacaoRaw.toLowerCase();
+    const atribuicaoOk = atribuicaoValor !== "";
+    const homologacaoOk = ["homologado", "aprovado", "ok"].includes(homologacaoNormalizada);
+
+    const textoAtribuicao = atribuicaoOk ? "OK" : "Pendente";
+    const textoHomologacao = homologacaoOk ? "OK" : "Pendente";
+
+    document.getElementById("resAtribuicao").textContent = textoAtribuicao;
+    document.getElementById("resHomologacao").textContent = textoHomologacao;
+    aplicarEstiloSituacao(document.getElementById("resAtribuicao"), textoAtribuicao);
+    aplicarEstiloSituacao(document.getElementById("resHomologacao"), textoHomologacao);
+
+    alternarLinha(linhaAtribuicao, true);
+    alternarLinha(linhaHomologacao, true);
+
+    if (homologacaoOk) {
+      const linkComprovativo = obterPrimeiroLinkPdf(resposta.dados, dados);
+      if (linkComprovativo) {
+        renderLinkDownload(comprovativoEl, linkComprovativo, "Baixar comprovativo");
+      } else {
+        comprovativoEl.textContent = "—";
+      }
+      alternarLinha(linhaComprovativo, true);
+    } else {
+      comprovativoEl.innerHTML = "";
+      alternarLinha(linhaComprovativo, false);
+    }
+
+    if (pdfBox) {
+      pdfBox.style.display = "none";
+    }
+    return;
+  }
 
   if (isCredencial) {
     const estado = (dados.parecer || "").toLowerCase();
