@@ -352,28 +352,12 @@ async function enviarMonografiaFinal() {
 
 window.enviarMonografiaFinal = enviarMonografiaFinal;
 
-function limparAnoOrdinario(input) {
-  if (!input) return;
-
-  if (input.value.trim().toLowerCase() === 'ordinário') {
-    input.value = '';
-  }
-}
-
-function restaurarAnoOrdinario(input) {
-  if (!input) return;
-
-  if (input.value.trim() === '') {
-    input.value = 'ordinário';
-  }
-}
-
 function actualizarAnoOrdinal(input) {
   if (!input) return;
 
   const valor = input.value.trim();
 
-  if (valor === '' || valor.toLowerCase() === 'ordinário') {
+  if (valor === '') {
     return;
   }
 
@@ -392,8 +376,6 @@ function actualizarAnoOrdinal(input) {
   input.value = `${numero}º`;
 }
 
-window.limparAnoOrdinario = limparAnoOrdinario;
-window.restaurarAnoOrdinario = restaurarAnoOrdinario;
 window.actualizarAnoOrdinal = actualizarAnoOrdinal;
 
 function enviarPedidoCredencial() {
