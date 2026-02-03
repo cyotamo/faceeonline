@@ -1310,7 +1310,21 @@ document.addEventListener("click", async (e) => {
         const resultado = await resposta.json();
 
         if (!resultado || resultado.sucesso === false) {
-            throw new Error("Resposta de erro do servidor");
+            const detalhesFalhas = Array.isArray(resultado?.falhas)
+                ? resultado.falhas
+                      .map(falha => {
+                          const rowInfo = falha?.row ? `row ${falha.row}` : "row desconhecida";
+                          const campoInfo = falha?.campo ? `campo ${falha.campo}` : "campo desconhecido";
+                          const erroInfo = falha?.erro || falha?.mensagem || "erro desconhecido";
+                          return `${rowInfo} (${campoInfo}): ${erroInfo}`;
+                      })
+                      .join("\n")
+                : "";
+            const mensagemBase = resultado?.mensagem || "Resposta de erro do servidor";
+            const mensagemDetalhada = detalhesFalhas ? `${mensagemBase}\n${detalhesFalhas}` : mensagemBase;
+            console.error("Erro ao guardar dados:", resultado);
+            alert(mensagemDetalhada);
+            throw new Error(mensagemBase);
         }
 
         payload.forEach(item => {
