@@ -820,10 +820,12 @@ function mostrarResultadoConsulta(resposta) {
     const homologacaoRaw = (homologacaoValor || "").toString().trim();
     const homologacaoNormalizada = homologacaoRaw.toLowerCase();
     const atribuicaoOk = atribuicaoValor !== "";
-    const homologacaoOk = ["homologado", "aprovado", "ok"].includes(homologacaoNormalizada);
+    const homologacaoOk =
+      atribuicaoOk &&
+      ["homologado", "aprovado", "ok"].includes(homologacaoNormalizada);
 
-    const textoAtribuicao = atribuicaoOk ? "OK" : "Pendente";
-    const textoHomologacao = homologacaoOk ? "OK" : "Pendente";
+    const textoAtribuicao = atribuicaoOk ? "Atribuído" : "Pendente";
+    const textoHomologacao = homologacaoOk ? "Homologado" : "Pendente";
 
     document.getElementById("resAtribuicao").textContent = textoAtribuicao;
     document.getElementById("resHomologacao").textContent = textoHomologacao;
