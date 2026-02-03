@@ -415,7 +415,7 @@ window.enviarPedidoCredencial = enviarPedidoCredencial;
 
 function enviarPedidoCredencialEstagio() {
   const dados = new FormData();
-  dados.append('action', 'submeterCredencialEstagio');
+  dados.append('action', 'credencial_estagio');
 
   const campos = ['nome', 'numeroEstudante', 'curso', 'titulo', 'ano', 'organizacao', 'supervisor'];
 
@@ -436,9 +436,14 @@ function enviarPedidoCredencialEstagio() {
     .then((r) => r.json())
     .then((res) => {
       desativarLoading(botao);
-      document.getElementById("form-container").innerHTML = "";
-      mostrarModal("Os seus dados foram enviados com sucesso. Acompanhe o andamento do processo na aba Consulta.");
-      // Qualquer link de PDF retornado pelo servidor é intencionalmente ignorado.
+      if (res?.sucesso === true) {
+        document.getElementById("form-container").innerHTML = "";
+        mostrarModal("Os seus dados foram enviados com sucesso. Acompanhe o andamento do processo na aba Consulta.");
+        return;
+      }
+
+      const mensagem = res?.mensagem || "Ocorreu um erro ao enviar os dados. Por favor, tente novamente.";
+      mostrarModal(mensagem);
     })
     .catch((err) => {
       desativarLoading(botao);
