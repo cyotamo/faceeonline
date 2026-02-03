@@ -526,7 +526,7 @@ function mostrarConsultaEstado() {
             <option value="monografia">Tema de Monografia</option>
             <option value="versaoFinal">Versão Final Monografia</option>
             <option value="credencial">Credencial Pesquisa</option>
-            <option value="consulta_credencial_estagio">Credencial de Estágio</option>
+            <option value="credencial_estagio">Credencial de Estágio</option>
           </select>
         </div>
 
