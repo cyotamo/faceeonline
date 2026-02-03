@@ -1511,6 +1511,8 @@ async function guardarCredencialEstagio() {
 
     const updates = Array.from(linhas.values()).filter(item => item.parecer || item.observacoes);
 
+    console.log("updates:", updates);
+
     if (updates.length === 0) {
         desactivarLoadingGuardar(botao);
         return;
@@ -1527,12 +1529,18 @@ async function guardarCredencialEstagio() {
         dados.append("action", "atualizarCredencialEstagio");
         dados.append("linhas", JSON.stringify(updates));
 
+        console.log("action enviada:", dados.get("action"));
+        console.log("linhas enviada:", dados.get("linhas"));
+
         const resposta = await fetch(WEB_URL, {
             method: "POST",
             body: dados
         });
 
-        const resultado = await resposta.json();
+        console.log("HTTP status:", resposta.status);
+        const txt = await resposta.text();
+        console.log("Resposta bruta:", txt);
+        const resultado = txt ? JSON.parse(txt) : null;
 
         if (!resultado || resultado.sucesso !== true) {
             const detalhe = resultado?.detalhe ? `\n${resultado.detalhe}` : "";
