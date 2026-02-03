@@ -354,7 +354,7 @@
             </select>
 
             <label for="ano">Ano:</label>
-            <input type="text" id="ano" inputmode="numeric" pattern="\\d" maxlength="1" placeholder="0-9" required oninput="this.value = this.value.replace(/\\D/g, '').slice(0, 1)">
+            <input type="text" id="ano" inputmode="numeric" placeholder="1 a 4" value="ordinário" required onfocus="limparAnoOrdinario(this)" onblur="restaurarAnoOrdinario(this)" oninput="actualizarAnoOrdinal(this)">
 
             <label for="organizacao">Organização:</label>
             <input type="text" id="organizacao" required>
