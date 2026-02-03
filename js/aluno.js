@@ -39,6 +39,28 @@ function validarContacto(valor) {
   return digitos.length === 9;
 }
 
+function normalizarAtribuicaoSupervisor(valor) {
+  return String(valor || "").trim().toLowerCase();
+}
+
+function supervisorEstaAtribuido(valor) {
+  const atrib = normalizarAtribuicaoSupervisor(valor);
+  if (!atrib) return false;
+
+  const pendentes = [
+    "pendente",
+    "-",
+    "—",
+    "n/a",
+    "na",
+    "por atribuir",
+    "não atribuído",
+    "nao atribuido",
+  ];
+
+  return !pendentes.includes(atrib);
+}
+
 function opcaoSelecionadaValida(valor) {
   if (!valor) return false;
   const normalizado = valor.trim().toLowerCase();
@@ -742,6 +764,8 @@ function mostrarResultadoConsulta(resposta) {
   const situacaoEl = document.getElementById("resParecer");
   const comprovativoEl = document.getElementById("resPdfHomologacao");
   const tipoConsulta = document.getElementById("tipoConsulta")?.value;
+  const supervisorAtribuido = supervisorEstaAtribuido(dados.atribuicaoSupervisor);
+  const textoAtribuicaoBase = supervisorAtribuido ? "Atribuído" : "Pendente";
 
   const isCredencial =
     !dados.dataDefesa &&
@@ -770,9 +794,9 @@ function mostrarResultadoConsulta(resposta) {
     document.getElementById("resSubmissao").textContent = "";
   }
   const homologacaoValor = dados.homologacao || dados.homologado || "";
-  document.getElementById("resAtribuicao").textContent = dados.atribuicaoSupervisor || "";
+  document.getElementById("resAtribuicao").textContent = textoAtribuicaoBase;
   document.getElementById("resHomologacao").textContent = homologacaoValor;
-  aplicarEstiloSituacao(document.getElementById("resAtribuicao"), dados.atribuicaoSupervisor);
+  aplicarEstiloSituacao(document.getElementById("resAtribuicao"), textoAtribuicaoBase);
   aplicarEstiloSituacao(document.getElementById("resHomologacao"), homologacaoValor);
 
   const isVersaoFinal = !!dados.dataDefesa;
@@ -816,10 +840,9 @@ function mostrarResultadoConsulta(resposta) {
       return;
     }
 
-    const atribuicaoValor = (dados.atribuicaoSupervisor || "").toString().trim();
     const homologacaoRaw = (homologacaoValor || "").toString().trim();
     const homologacaoNormalizada = homologacaoRaw.toLowerCase();
-    const atribuicaoOk = atribuicaoValor !== "";
+    const atribuicaoOk = supervisorAtribuido;
     const homologacaoOk =
       atribuicaoOk &&
       ["homologado", "aprovado", "ok"].includes(homologacaoNormalizada);
