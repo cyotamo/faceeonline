@@ -1085,8 +1085,12 @@ async function carregarCredenciaisEstagioGestor() {
         `;
 
         lista.forEach((item, index) => {
-            const idCredencial = String(item.id || item.idEstagio || item.idCredencial || "").trim();
+            const idCredencial = String(item.id || "").trim();
             const linkPDF = item.linkPDF ?? "";
+            const idEmFalta = !idCredencial;
+            if (idEmFalta) {
+                console.warn("Linha sem ID:", item);
+            }
             const linkPDFHtml = linkPDF
                 ? `<a class="pdf-icon" href="${linkPDF}" target="_blank" rel="noopener noreferrer">PDF</a>`
                 : "—";
@@ -1099,7 +1103,7 @@ async function carregarCredenciaisEstagioGestor() {
                     <td class="col-curso">${item.curso ?? ""}</td>
                     <td class="col-organizacao">${item.organizacao ?? ""}</td>
                     <td class="col-parecer">
-                        <select class="parecerEstagio" data-id="${idCredencial}">
+                        <select class="parecerEstagio" data-id="${idCredencial}" ${idEmFalta ? "disabled" : ""}>
                             <option value="">Seleccione…</option>
                             <option value="Aprovado">Aprovado</option>
                             <option value="Recusado">Recusado</option>
@@ -1107,7 +1111,7 @@ async function carregarCredenciaisEstagioGestor() {
                     </td>
                     <td class="col-pdf">${linkPDFHtml}</td>
                     <td class="col-observacoes">
-                        <textarea class="observacoesEstagio" data-id="${idCredencial}" rows="4" aria-label="Observações"></textarea>
+                        <textarea class="observacoesEstagio" data-id="${idCredencial}" rows="4" aria-label="Observações" ${idEmFalta ? "disabled" : ""}></textarea>
                     </td>
                 </tr>
             `;
@@ -1121,8 +1125,9 @@ async function carregarCredenciaisEstagioGestor() {
 
         document.getElementById("tabelaGestaoGeral").innerHTML = html;
         lista.forEach(item => {
-            const idCredencial = String(item.id || item.idEstagio || item.idCredencial || "").trim();
+            const idCredencial = String(item.id || "").trim();
             if (!idCredencial) {
+                console.warn("Linha sem ID:", item);
                 return;
             }
             const parecerValor = String(item.parecer ?? "").trim();
@@ -1523,8 +1528,9 @@ async function guardarCredencialEstagio() {
     }
 
     if (idInvalido) {
-        alert("Não foi possível identificar o estágio. Recarregue a página e tente novamente.");
         desactivarLoadingGuardar(botao);
+        mostrarModal?.("Não foi possível guardar: algumas linhas não têm ID (coluna K). Recarregue a lista ou corrija o backend para devolver o ID.")
+            || alert("Não foi possível guardar: algumas linhas não têm ID (coluna K).");
         return;
     }
 
