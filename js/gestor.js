@@ -1187,15 +1187,15 @@ document.addEventListener("click", async (e) => {
     const linhas = new Map();
     let idInvalido = false;
 
-    const obterIdEstudante = (elemento) => {
-        const id = (elemento?.dataset?.id || elemento?.closest("tr")?.dataset?.id || "").trim();
+    const obterIdTema = (elemento) => {
+        const idTema = (elemento?.dataset?.id || elemento?.closest("tr")?.dataset?.id || "").trim();
 
-        if (!id) {
+        if (!idTema) {
             idInvalido = true;
             return "";
         }
 
-        return id;
+        return idTema;
     };
 
     if (!idBotao && !document.querySelector("tr[data-id]")) {
@@ -1206,16 +1206,16 @@ document.addEventListener("click", async (e) => {
 
     const processarSelects = (selects, chave) => {
         selects.forEach(select => {
-            const idEstudante = obterIdEstudante(select);
+            const idTema = obterIdTema(select);
             const valor = select.value.trim();
 
-            if (!idEstudante || valor === "") {
+            if (!idTema || valor === "") {
                 return;
             }
 
-            if (!linhas.has(idEstudante)) {
-                linhas.set(idEstudante, {
-                    idEstudante,
+            if (!linhas.has(idTema)) {
+                linhas.set(idTema, {
+                    idTema,
                     parecer: "",
                     homologacao: "",
                     observacoes: "",
@@ -1223,23 +1223,23 @@ document.addEventListener("click", async (e) => {
                 });
             }
 
-            const linha = linhas.get(idEstudante);
+            const linha = linhas.get(idTema);
             linha[chave] = valor;
         });
     };
 
     const processarSupervisores = (selects) => {
         selects.forEach(select => {
-            const idEstudante = obterIdEstudante(select);
+            const idTema = obterIdTema(select);
             const valor = select.value.trim();
 
-            if (!idEstudante || valor === "") {
+            if (!idTema || valor === "") {
                 return;
             }
 
-            if (!linhas.has(idEstudante)) {
-                linhas.set(idEstudante, {
-                    idEstudante,
+            if (!linhas.has(idTema)) {
+                linhas.set(idTema, {
+                    idTema,
                     parecer: "",
                     homologacao: "",
                     observacoes: "",
@@ -1247,22 +1247,22 @@ document.addEventListener("click", async (e) => {
                 });
             }
 
-            const linha = linhas.get(idEstudante);
+            const linha = linhas.get(idTema);
             linha.supervisor = valor;
         });
     };
 
     const processarObservacoes = (inputs) => {
         inputs.forEach(input => {
-            const idEstudante = obterIdEstudante(input);
+            const idTema = obterIdTema(input);
 
-            if (!idEstudante) {
+            if (!idTema) {
                 return;
             }
 
-            if (!linhas.has(idEstudante)) {
-                linhas.set(idEstudante, {
-                    idEstudante,
+            if (!linhas.has(idTema)) {
+                linhas.set(idTema, {
+                    idTema,
                     parecer: "",
                     homologacao: "",
                     observacoes: "",
@@ -1270,7 +1270,7 @@ document.addEventListener("click", async (e) => {
                 });
             }
 
-            const linha = linhas.get(idEstudante);
+            const linha = linhas.get(idTema);
             linha.observacoes = input.value.trim();
         });
     };
@@ -1328,19 +1328,19 @@ document.addEventListener("click", async (e) => {
         }
 
         payload.forEach(item => {
-            document.querySelectorAll(`select.parecer[data-id="${item.idEstudante}"]`).forEach(select => {
+            document.querySelectorAll(`select.parecer[data-id="${item.idTema}"]`).forEach(select => {
                 select.disabled = true;
             });
-            document.querySelectorAll(`select.homologacao[data-id="${item.idEstudante}"]`).forEach(select => {
+            document.querySelectorAll(`select.homologacao[data-id="${item.idTema}"]`).forEach(select => {
                 select.disabled = true;
             });
             if (item.supervisor) {
-                document.querySelectorAll(`select.supervisorProposto[data-id="${item.idEstudante}"]`).forEach(select => {
+                document.querySelectorAll(`select.supervisorProposto[data-id="${item.idTema}"]`).forEach(select => {
                     select.disabled = true;
                 });
             }
             if (item.observacoes) {
-                document.querySelectorAll(`textarea.observacoesTema[data-id="${item.idEstudante}"]`).forEach(textarea => {
+                document.querySelectorAll(`textarea.observacoesTema[data-id="${item.idTema}"]`).forEach(textarea => {
                     textarea.disabled = true;
                 });
             }
