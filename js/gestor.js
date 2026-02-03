@@ -1081,23 +1081,30 @@ async function carregarCredenciaisEstagioGestor() {
         `;
 
         lista.forEach((item, index) => {
-            const parecer = item.parecer ?? "";
-            const observacoes = item.observacoes ?? "";
+            const idCredencial = String(item.id || item.idEstagio || item.idCredencial || "").trim();
             const linkPDF = item.linkPDF ?? "";
             const linkPDFHtml = linkPDF
                 ? `<a class="pdf-icon" href="${linkPDF}" target="_blank" rel="noopener noreferrer">PDF</a>`
                 : "—";
 
             html += `
-                <tr>
+                <tr data-id="${idCredencial}">
                     <td class="col-ord">${index + 1}</td>
                     <td class="col-data">${formatarDataCurta(item.data)}</td>
                     <td class="col-nome">${item.nome ?? ""}</td>
                     <td class="col-curso">${item.curso ?? ""}</td>
                     <td class="col-organizacao">${item.organizacao ?? ""}</td>
-                    <td class="col-parecer">${parecer}</td>
+                    <td class="col-parecer">
+                        <select class="parecerPesquisa" data-id="${idCredencial}">
+                            <option value="">Seleccione…</option>
+                            <option value="Aprovado">Aprovado</option>
+                            <option value="Recusado">Recusado</option>
+                        </select>
+                    </td>
                     <td class="col-pdf">${linkPDFHtml}</td>
-                    <td class="col-observacoes">${observacoes}</td>
+                    <td class="col-observacoes">
+                        <textarea class="observacoes" data-id="${idCredencial}" rows="4" aria-label="Observações"></textarea>
+                    </td>
                 </tr>
             `;
         });
@@ -1109,6 +1116,22 @@ async function carregarCredenciaisEstagioGestor() {
         `;
 
         document.getElementById("tabelaGestaoGeral").innerHTML = html;
+        lista.forEach(item => {
+            const idCredencial = String(item.id || item.idEstagio || item.idCredencial || "").trim();
+            if (!idCredencial) {
+                return;
+            }
+            const parecerValor = String(item.parecer ?? "").trim();
+            const observacoesValor = String(item.observacoes ?? "").trim();
+            const select = document.querySelector(`select.parecerPesquisa[data-id="${idCredencial}"]`);
+            if (select && parecerValor !== "") {
+                select.value = parecerValor;
+            }
+            const textarea = document.querySelector(`textarea.observacoes[data-id="${idCredencial}"]`);
+            if (textarea && observacoesValor !== "") {
+                textarea.value = observacoesValor;
+            }
+        });
         esconderCarregamento();
         reaplicarRestricoesUI();
     } catch (err) {
