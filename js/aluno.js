@@ -413,7 +413,7 @@ function enviarPedidoCredencial() {
 
 window.enviarPedidoCredencial = enviarPedidoCredencial;
 
-function enviarPedidoCredencialEstagio() {
+async function enviarPedidoCredencialEstagio() {
   const dados = new FormData();
   dados.append('action', 'credencial_estagio');
 
@@ -427,28 +427,40 @@ function enviarPedidoCredencialEstagio() {
   });
 
   const botao = document.activeElement;
+  const url = WEB_URL;
+  console.log("URL:", url);
+  console.log("action:", dados.get("action"));
+  for (const [k, v] of dados.entries()) {
+    console.log("FD", k, v);
+  }
   activarLoading(botao);
 
-  fetch(WEB_URL, {
-    method: 'POST',
-    body: dados,
-  })
-    .then((r) => r.json())
-    .then((res) => {
-      desativarLoading(botao);
-      if (res?.sucesso === true) {
-        document.getElementById("form-container").innerHTML = "";
-        mostrarModal("Os seus dados foram enviados com sucesso. Acompanhe o andamento do processo na aba Consulta.");
-        return;
-      }
+  try {
+    const res = await fetch(url, { method: "POST", body: dados });
+    console.log("HTTP status:", res.status);
+    const txt = await res.text();
+    console.log("Resposta bruta:", txt);
 
-      const mensagem = res?.mensagem || "Ocorreu um erro ao enviar os dados. Por favor, tente novamente.";
-      mostrarModal(mensagem);
-    })
-    .catch((err) => {
-      desativarLoading(botao);
-      mostrarModal("Ocorreu um erro ao enviar os dados. Por favor, tente novamente.");
-    });
+    let resposta;
+    try {
+      resposta = JSON.parse(txt);
+    } catch (parseError) {
+      resposta = null;
+    }
+
+    desativarLoading(botao);
+    if (resposta?.sucesso === true) {
+      document.getElementById("form-container").innerHTML = "";
+      mostrarModal("Os seus dados foram enviados com sucesso. Acompanhe o andamento do processo na aba Consulta.");
+      return;
+    }
+
+    const mensagem = resposta?.mensagem || "Ocorreu um erro ao enviar os dados. Por favor, tente novamente.";
+    mostrarModal(mensagem);
+  } catch (err) {
+    desativarLoading(botao);
+    mostrarModal("Ocorreu um erro ao enviar os dados. Por favor, tente novamente.");
+  }
 }
 
 window.enviarPedidoCredencialEstagio = enviarPedidoCredencialEstagio;
