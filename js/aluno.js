@@ -489,6 +489,7 @@ window.enviarPedidoCredencialEstagio = enviarPedidoCredencialEstagio;
 
 const btnConsultaEstado = document.getElementById('btnConsultaEstado');
 const formContainer = document.getElementById('form-container');
+let consultaEstadoAction = "";
 const containerDocumentos = document.getElementById('containerDocumentos');
 const listaDocumentos = document.getElementById('listaDocumentos');
 const btnBaixarFormulario = document.getElementById('btnBaixarFormulario');
@@ -542,14 +543,21 @@ function mostrarConsultaEstado() {
 
       <div class="form-grid">
         <div class="form-field full-row">
-          <label for="tipoConsulta">Tipo de consulta</label>
-          <select id="tipoConsulta">
-            <option value="">Selecione...</option>
-            <option value="monografia">Tema de Monografia</option>
-            <option value="versaoFinal">Versão Final Monografia</option>
-            <option value="credencial">Credencial Pesquisa</option>
-            <option value="credencial_estagio">Credencial de Estágio</option>
-          </select>
+          <label>Tipo de consulta</label>
+          <div class="consulta-tipo-botoes">
+            <button type="button" class="btn-simples consulta-tipo-btn" data-consulta-action="consulta_tema">
+              Tema
+            </button>
+            <button type="button" class="btn-simples consulta-tipo-btn" data-consulta-action="consulta_monografia">
+              Monografia
+            </button>
+            <button type="button" class="btn-simples consulta-tipo-btn" data-consulta-action="consulta_credencial_pesquisa">
+              Credencial Pesquisa
+            </button>
+            <button type="button" class="btn-simples consulta-tipo-btn" data-consulta-action="consulta_credencial_estagio">
+              Credencial Estágio
+            </button>
+          </div>
         </div>
 
         <div class="form-field full-row">
@@ -564,21 +572,31 @@ function mostrarConsultaEstado() {
     </div>
   `;
 
-  const tipoConsulta = document.getElementById('tipoConsulta');
   const numeroEstudanteConsulta = document.getElementById('numeroEstudanteConsulta');
+  const botoesConsulta = formContainer.querySelectorAll('.consulta-tipo-btn');
+  const botaoBuscar = document.getElementById('btnBuscarEstado');
 
   // manter desativado até escolher o tipo de consulta
   numeroEstudanteConsulta.disabled = true;
+  if (botaoBuscar) {
+    botaoBuscar.disabled = true;
+  }
+  consultaEstadoAction = "";
 
   // activar/desactivar conforme a seleção
-  tipoConsulta.addEventListener('change', () => {
-    if (tipoConsulta.value) {
-      numeroEstudanteConsulta.disabled = false;
-      numeroEstudanteConsulta.focus();
-    } else {
-      numeroEstudanteConsulta.value = '';
-      numeroEstudanteConsulta.disabled = true;
-    }
+  botoesConsulta.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      botoesConsulta.forEach((outro) => outro.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      consultaEstadoAction = btn.dataset.consultaAction || "";
+      numeroEstudanteConsulta.disabled = !consultaEstadoAction;
+      if (botaoBuscar) {
+        botaoBuscar.disabled = !consultaEstadoAction;
+      }
+      if (consultaEstadoAction) {
+        numeroEstudanteConsulta.focus();
+      }
+    });
   });
 }
 
@@ -763,15 +781,16 @@ function mostrarResultadoConsulta(resposta) {
   const dados = resposta.dados || {};
   const situacaoEl = document.getElementById("resParecer");
   const comprovativoEl = document.getElementById("resPdfHomologacao");
-  const tipoConsulta = document.getElementById("tipoConsulta")?.value;
+  const consultaAction = consultaEstadoAction;
   const supervisorAtribuido = supervisorEstaAtribuido(dados.atribuicaoSupervisor);
   const textoAtribuicaoBase = supervisorAtribuido ? "Atribuído" : "Pendente";
 
-  const isCredencial =
-    !dados.dataDefesa &&
-    !("atribuicaoSupervisor" in dados) &&
-    !("homologacao" in dados) &&
-    !("homologado" in dados);
+  const isCredencial = consultaAction
+    ? ["consulta_credencial_pesquisa", "consulta_credencial_estagio"].includes(consultaAction)
+    : (!dados.dataDefesa &&
+      !("atribuicaoSupervisor" in dados) &&
+      !("homologacao" in dados) &&
+      !("homologado" in dados));
 
   // Esconder antes de avaliar
   pdfBox.style.display = "none";
@@ -799,11 +818,11 @@ function mostrarResultadoConsulta(resposta) {
   aplicarEstiloSituacao(document.getElementById("resAtribuicao"), textoAtribuicaoBase);
   aplicarEstiloSituacao(document.getElementById("resHomologacao"), homologacaoValor);
 
-  const isVersaoFinal = !!dados.dataDefesa;
+  const isVersaoFinal = consultaAction === "consulta_monografia" || !!dados.dataDefesa;
   const isAprovado =
     dados.parecer && dados.parecer.toLowerCase() === "aprovado";
 
-  if (tipoConsulta === "monografia") {
+  if (consultaAction === "consulta_tema") {
     const parecerNormalizado = (dados.parecer || "").toString().trim().toLowerCase();
     const parecerRecusado = ["recusado", "reprovado"].includes(parecerNormalizado);
     const parecerAprovado = parecerNormalizado === "aprovado";
@@ -1019,14 +1038,15 @@ function mostrarResultadoConsulta(resposta) {
 document.addEventListener('click', (event) => {
   if (event.target?.id !== 'btnBuscarEstado') return;
 
-  const tipoConsulta = document.getElementById("tipoConsulta").value;
   const numero = document.getElementById("numeroEstudanteConsulta").value;
 
+  if (!consultaEstadoAction) {
+    return;
+  }
+
   const payload = {
-    action: "consulta_credencial_estagio",
-    tipo: tipoConsulta,
+    action: consultaEstadoAction,
     numero: numero,
-    tipoConsulta: tipoConsulta,
     numeroEstudante: numero,
   };
 
