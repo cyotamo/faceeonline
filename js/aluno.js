@@ -1077,8 +1077,40 @@ async function carregarDocumentos() {
         titulo: 'Formulários',
         documentos: [
           {
-            nome: 'Mudança de Regime',
-            link: 'https://drive.google.com/file/d/1vWT6c4smuGL8LClgJt7yjb1H4EZoh-O-/view?usp=drive_link',
+            nome: 'Pedido de anulação de inscrição',
+            link: 'https://drive.google.com/file/d/16Vcj2bRramarXfXYnSk4cXs-XXkpdoQ4/view?usp=drive_link',
+          },
+          {
+            nome: 'Pedido de avaliação em atraso',
+            link: 'https://drive.google.com/file/d/1WGCi2v9xz-a1q2ybcuJFcBjVq4Muhgg2/view?usp=drive_link',
+          },
+          {
+            nome: 'Pedido de declaração de frequência',
+            link: 'https://drive.google.com/file/d/1oVm4XV-l3mesmEHAIXDD2BDjdC3zQA8/view?usp=drive_link',
+          },
+          {
+            nome: 'Pedido de equivalência',
+            link: 'https://drive.google.com/file/d/1IeAtq1hcRWLW3S_-VZC2mlEn_YgzJ6qv/view?usp=drive_link',
+          },
+          {
+            nome: 'Pedido de mudança de regime',
+            link: 'https://drive.google.com/file/d/1-c6y28-Ovb9iKOlvhtbqsnx0S765Gudk/view?usp=drive_link',
+          },
+          {
+            nome: 'Pedido de mudança de universidade',
+            link: 'https://drive.google.com/file/d/1M7Pso49DQ3bbjEp5sIs8WcpsTOrHYf_c/view?usp=drive_link',
+          },
+          {
+            nome: 'Pedido de declaração com notas',
+            link: 'https://drive.google.com/file/d/1zfSDuzps0p1dXzElAgyIKWtbj36fvfLG/view?usp=drive_link',
+          },
+          {
+            nome: 'Pedido de defesa de TCC',
+            link: 'https://drive.google.com/file/d/1xTzjEfKf8eSuAKhWKoQf_fOn7ToL_u2Q/view?usp=drive_link',
+          },
+          {
+            nome: 'Pedido de mudança de curso',
+            link: '#',
           },
         ],
       },
@@ -1086,8 +1118,20 @@ async function carregarDocumentos() {
         titulo: 'Planos Curriculares',
         documentos: [
           {
-            nome: 'Plano Curricular Contabilidade e Fiscalidade',
-            link: 'https://drive.google.com/file/d/1LjFyqn8FUc9AWlNvK0CRjUTxtQ9Lgl2U/view?usp=drive_link',
+            nome: 'Licenciatura em contabilidade e auditoria',
+            link: 'https://drive.google.com/file/d/106YCjaqn8fC347euGRnbJxcfXM79_-7i/view?usp=drive_link',
+          },
+          {
+            nome: 'Licenciatura em economia',
+            link: 'https://drive.google.com/file/d/1yuk5zI3xcKUlqOmSNMSvJZevS738ahqB/view?usp=drive_link',
+          },
+          {
+            nome: 'Licenciatura em gestao de recursos humanos',
+            link: 'https://drive.google.com/file/d/1hr-vsMaTe6T2Sx9SPhnbnAwikza9PavU/view?usp=drive_link',
+          },
+          {
+            nome: 'Contabilidade e Fiscalidade',
+            link: 'https://drive.google.com/file/d/1acEL2M-yv1Cw2LV57NXeKz8u7f2zsAHl/view?usp=drive_link',
           },
         ],
       },
@@ -1095,8 +1139,12 @@ async function carregarDocumentos() {
         titulo: 'Regulamentos',
         documentos: [
           {
-            nome: 'Estrutura TCC',
-            link: 'https://drive.google.com/file/d/1vHbgPPDpU3yrNBDUMYGPIcoP3L-eYKGZ/view?usp=drive_link',
+            nome: 'Estrutura TCC FACEE',
+            link: 'https://drive.google.com/file/d/1qdJxDCmprwSkxU4HxQyVK9cME2tOufla/view?usp=drive_link',
+          },
+          {
+            nome: 'Normas UniRovuma',
+            link: 'https://drive.google.com/file/d/1_fZHGAZEakJxEezdK0wGHVueoeKVbGb-/view?usp=drive_link',
           },
         ],
       },
@@ -1105,7 +1153,7 @@ async function carregarDocumentos() {
         documentos: [
           {
             nome: 'Linhas de Pesquisa',
-            link: 'https://drive.google.com/file/d/17wXc1iY4AjpB445KEMx2S9ygItvxK6uN/view?usp=drive_link',
+            link: 'https://drive.google.com/file/d/1f8c9u-H-D1AzRyB-3hqhuiq-nOJNA4UM/view?usp=drive_link',
           },
         ],
       },
