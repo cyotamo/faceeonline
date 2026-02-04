@@ -1059,8 +1059,13 @@ async function carregarCredenciaisEstagioGestor() {
         }
 
         const lista = Array.isArray(resultado.dados) ? resultado.dados : [];
+        const listaFiltrada = lista.filter((item) => {
+            const parecerVazio = String(item?.parecer || "").trim() === "";
+            const observacoesVazio = String(item?.observacoes || "").trim() === "";
+            return parecerVazio && observacoesVazio;
+        });
 
-        if (lista.length === 0) {
+        if (listaFiltrada.length === 0) {
             document.getElementById("tabelaGestaoGeral").innerHTML =
                 '<p class="sem-dados">Sem registos de estágio.</p>';
             esconderCarregamento();
@@ -1086,7 +1091,7 @@ async function carregarCredenciaisEstagioGestor() {
                 <tbody>
         `;
 
-        lista.forEach((item, index) => {
+        listaFiltrada.forEach((item, index) => {
             const idCredencial = String(item.id || "").trim();
             const linkPDF = item.linkPDF ?? "";
             const idEmFalta = !idCredencial;
@@ -1126,7 +1131,7 @@ async function carregarCredenciaisEstagioGestor() {
         `;
 
         document.getElementById("tabelaGestaoGeral").innerHTML = html;
-        lista.forEach(item => {
+        listaFiltrada.forEach(item => {
             const idCredencial = String(item.id || "").trim();
             if (!idCredencial) {
                 console.warn("Linha sem ID:", item);
