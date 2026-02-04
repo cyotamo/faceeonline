@@ -140,7 +140,7 @@ main {
   align-items: center;
   justify-content: flex-start;
   margin-top: 0;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
 .actions-gestor .btn-navegacao,
@@ -163,7 +163,7 @@ main {
   align-items: center;
   justify-content: flex-start;
   gap: 12px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
 .loading-local {
