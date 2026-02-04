@@ -1227,6 +1227,17 @@ footer {
   background: #e4e4e4;
 }
 
+.consulta-tipo-botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.consulta-tipo-btn.is-active {
+  background: #dbe7ff;
+  border-color: #9db7f5;
+}
+
 .btn-padrao-portal {
   display: inline-flex;
   align-items: center;
