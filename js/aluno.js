@@ -1021,9 +1021,15 @@ document.addEventListener('click', (event) => {
 
   const tipoConsulta = document.getElementById("tipoConsulta").value;
   const numero = document.getElementById("numeroEstudanteConsulta").value;
+  const actionPorTipo = {
+    monografia: "consultarEstadoTemas",
+    versaoFinal: "consultarEstadoMonografiaFinal",
+    credencial: "consulta_credencial",
+    credencial_estagio: "consulta_credencial_estagio",
+  };
 
   const payload = {
-    action: "consulta_credencial_estagio",
+    action: actionPorTipo[tipoConsulta] || "consulta_credencial_estagio",
     tipo: tipoConsulta,
     numero: numero,
     tipoConsulta: tipoConsulta,
