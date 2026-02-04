@@ -733,7 +733,7 @@ function mostrarResultadoConsulta(resposta) {
     linha.style.display = mostrar ? "" : "none";
   };
 
-  if (!resposta.sucesso) {
+  if (resposta.sucesso !== true) {
     resultadoDiv.style.display = "block";
     if (mensagemEl) {
       mensagemEl.textContent = "Nenhuma submissão encontrada para este número.";
@@ -1023,7 +1023,7 @@ document.addEventListener('click', (event) => {
   const numero = document.getElementById("numeroEstudanteConsulta").value;
 
   const payload = {
-    action: "consultaEstado",
+    action: "consulta_credencial_estagio",
     tipo: tipoConsulta,
     numero: numero,
     tipoConsulta: tipoConsulta,
