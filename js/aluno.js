@@ -543,21 +543,14 @@ function mostrarConsultaEstado() {
 
       <div class="form-grid">
         <div class="form-field full-row">
-          <label>Tipo de consulta</label>
-          <div class="consulta-tipo-botoes">
-            <button type="button" class="btn-simples consulta-tipo-btn" data-consulta-action="consulta_tema">
-              Tema
-            </button>
-            <button type="button" class="btn-simples consulta-tipo-btn" data-consulta-action="consulta_monografia">
-              Monografia
-            </button>
-            <button type="button" class="btn-simples consulta-tipo-btn" data-consulta-action="consulta_credencial_pesquisa">
-              Credencial Pesquisa
-            </button>
-            <button type="button" class="btn-simples consulta-tipo-btn" data-consulta-action="consulta_credencial_estagio">
-              Credencial Estágio
-            </button>
-          </div>
+          <label for="tipoConsulta">Tipo de consulta</label>
+          <select id="tipoConsulta">
+            <option value="">Selecione...</option>
+            <option value="consulta_monografia">Monografia</option>
+            <option value="consulta_credencial_pesquisa">Credencial Pesquisa</option>
+            <option value="consulta_credencial_estagio">Credencial Estágio</option>
+            <option value="consulta_tema">Tema de Monografia</option>
+          </select>
         </div>
 
         <div class="form-field full-row">
@@ -573,7 +566,7 @@ function mostrarConsultaEstado() {
   `;
 
   const numeroEstudanteConsulta = document.getElementById('numeroEstudanteConsulta');
-  const botoesConsulta = formContainer.querySelectorAll('.consulta-tipo-btn');
+  const selectTipoConsulta = document.getElementById('tipoConsulta');
   const botaoBuscar = document.getElementById('btnBuscarEstado');
 
   // manter desativado até escolher o tipo de consulta
@@ -583,12 +576,9 @@ function mostrarConsultaEstado() {
   }
   consultaEstadoAction = "";
 
-  // activar/desactivar conforme a seleção
-  botoesConsulta.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      botoesConsulta.forEach((outro) => outro.classList.remove('is-active'));
-      btn.classList.add('is-active');
-      consultaEstadoAction = btn.dataset.consultaAction || "";
+  if (selectTipoConsulta) {
+    selectTipoConsulta.addEventListener('change', () => {
+      consultaEstadoAction = selectTipoConsulta.value || "";
       numeroEstudanteConsulta.disabled = !consultaEstadoAction;
       if (botaoBuscar) {
         botaoBuscar.disabled = !consultaEstadoAction;
@@ -597,7 +587,7 @@ function mostrarConsultaEstado() {
         numeroEstudanteConsulta.focus();
       }
     });
-  });
+  }
 }
 
 btnConsultaEstado?.addEventListener('click', mostrarConsultaEstado);
