@@ -1050,9 +1050,18 @@ function carregarCredencialPesquisa() {
     });
 }
 
-function renderTabelaPlanosAnaliticos(dados = []) {
+const PLANOS_ANALITICOS_POR_PAGINA = 10;
+let planosAnaliticosPaginaAtual = 1;
+let planosAnaliticosDados = [];
+
+function renderTabelaPlanosAnaliticos(dados = [], pagina = 1) {
     const container = document.getElementById("tabelaGestaoGeral");
     if (!container) return;
+    const totalPaginas = Math.max(1, Math.ceil(dados.length / PLANOS_ANALITICOS_POR_PAGINA));
+    const paginaAtual = Math.min(Math.max(pagina, 1), totalPaginas);
+    const inicio = (paginaAtual - 1) * PLANOS_ANALITICOS_POR_PAGINA;
+    const fim = inicio + PLANOS_ANALITICOS_POR_PAGINA;
+    const dadosPagina = dados.slice(inicio, fim);
 
     let html = `
         <div class="tabela-scroll">
@@ -1072,7 +1081,7 @@ function renderTabelaPlanosAnaliticos(dados = []) {
                 <tbody>
         `;
 
-    dados.forEach((item, index) => {
+    dadosPagina.forEach((item, index) => {
         const linkPDF = item.linkPDF ?? item.pdfURL ?? item.urlPDF ?? "";
         const linkPDFHtml = linkPDF
             ? `<a class="pdf-icon" href="${linkPDF}" target="_blank" rel="noopener">📄</a>`
@@ -1095,7 +1104,7 @@ function renderTabelaPlanosAnaliticos(dados = []) {
 
         html += `
             <tr>
-                <td class="col-ord">${index + 1}</td>
+                <td class="col-ord">${inicio + index + 1}</td>
                 <td class="col-nome">${item.nome ?? ""}</td>
                 <td class="col-disciplina">${item.disciplina ?? ""}</td>
                 <td class="col-curso">${item.curso ?? ""}</td>
@@ -1111,9 +1120,33 @@ function renderTabelaPlanosAnaliticos(dados = []) {
                 </tbody>
             </table>
         </div>
+        <div class="paginacao-analiticos" role="navigation" aria-label="Paginação Planos Analíticos">
+            <button class="button btn-paginacao" type="button" data-pagina="anterior" ${paginaAtual === 1 ? "disabled" : ""} aria-label="Página anterior">&lt;</button>
+            <span class="paginacao-info">${paginaAtual} de ${totalPaginas}</span>
+            <button class="button btn-paginacao" type="button" data-pagina="seguinte" ${paginaAtual === totalPaginas ? "disabled" : ""} aria-label="Página seguinte">&gt;</button>
+        </div>
     `;
 
     container.innerHTML = html;
+    const btnAnterior = container.querySelector("[data-pagina='anterior']");
+    const btnSeguinte = container.querySelector("[data-pagina='seguinte']");
+
+    if (btnAnterior) {
+        btnAnterior.addEventListener("click", () => {
+            atualizarTabelaPlanosAnaliticos(planosAnaliticosPaginaAtual - 1);
+        });
+    }
+
+    if (btnSeguinte) {
+        btnSeguinte.addEventListener("click", () => {
+            atualizarTabelaPlanosAnaliticos(planosAnaliticosPaginaAtual + 1);
+        });
+    }
+}
+
+function atualizarTabelaPlanosAnaliticos(pagina) {
+    planosAnaliticosPaginaAtual = pagina;
+    renderTabelaPlanosAnaliticos(planosAnaliticosDados, pagina);
 }
 
 function carregarPlanosAnaliticos() {
@@ -1144,10 +1177,14 @@ function carregarPlanosAnaliticos() {
                 };
             });
 
-            renderTabelaPlanosAnaliticos(dados);
+            planosAnaliticosDados = dados;
+            planosAnaliticosPaginaAtual = 1;
+            renderTabelaPlanosAnaliticos(dados, planosAnaliticosPaginaAtual);
         })
         .catch(err => {
             console.error("Erro ao carregar planos analíticos:", err);
+            planosAnaliticosDados = [];
+            planosAnaliticosPaginaAtual = 1;
             renderTabelaPlanosAnaliticos([]);
             alert(err?.message || "Erro ao carregar planos analíticos.");
         })
