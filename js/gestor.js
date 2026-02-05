@@ -560,6 +560,9 @@ async function gerarRelatorioPlanosAnaliticos(botao) {
     const link = container.querySelector("[data-relatorio-link]");
 
     definirLoadingRelatorioAnaliticos(container, true);
+    if (link) {
+        link.hidden = true;
+    }
     atualizarEstadoRelatorioAnaliticos(container, "A gerar relatório...");
 
     try {
@@ -597,7 +600,8 @@ async function gerarRelatorioPlanosAnaliticos(botao) {
             link.href = url;
             link.target = "_blank";
             link.rel = "noopener";
-            link.textContent = data?.total ? `Baixar relatório (${data.total})` : "Baixar relatório";
+            link.textContent = "Baixe aqui o relatório";
+            link.hidden = false;
         }
 
         atualizarEstadoRelatorioAnaliticos(container, "Relatório gerado com sucesso!");
@@ -608,6 +612,9 @@ async function gerarRelatorioPlanosAnaliticos(botao) {
             erro?.message || "Ocorreu um erro ao gerar o relatório.",
             true
         );
+        if (link) {
+            link.hidden = true;
+        }
     } finally {
         definirLoadingRelatorioAnaliticos(container, false);
         reaplicarRestricoesUI();
@@ -1243,6 +1250,7 @@ function renderTabelaPlanosAnaliticos(dados = [], pagina = 1) {
     if (linkRelatorio) {
         linkRelatorio.href = "#";
         linkRelatorio.textContent = "Baixe aqui o relatório";
+        linkRelatorio.hidden = true;
         linkRelatorio.removeAttribute("target");
         linkRelatorio.removeAttribute("rel");
     }
