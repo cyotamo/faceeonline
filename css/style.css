@@ -978,6 +978,11 @@ footer {
   width: 160px;
 }
 
+.tabela-analiticos .col-plano {
+  width: 120px;
+  text-align: center;
+}
+
 .tabela-analiticos .col-data {
   width: 180px;
   white-space: nowrap;
