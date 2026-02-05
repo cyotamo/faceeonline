@@ -519,6 +519,107 @@ function mostrarLinkRelatorio(url) {
     reaplicarRestricoesUI();
 }
 
+function normalizarTipoRelatorioAnaliticos(tipo) {
+    if (!tipo) return "";
+    return tipo.replace(/-/g, "_");
+}
+
+function atualizarEstadoRelatorioAnaliticos(container, mensagem, isErro = false) {
+    if (!container) return;
+    const estado = container.querySelector("[data-relatorio-estado]");
+    if (!estado) return;
+    estado.textContent = mensagem;
+    estado.style.color = isErro ? "red" : "inherit";
+}
+
+function definirLoadingRelatorioAnaliticos(container, emLoading) {
+    if (!container) return;
+    const botoes = container.querySelectorAll(".btn-relatorio-analiticos");
+    botoes.forEach(botao => {
+        if (emLoading) {
+            if (!botao.disabled) {
+                botao.dataset.textoOriginal = botao.textContent;
+            }
+            botao.disabled = true;
+            botao.textContent = "A gerar...";
+        } else {
+            botao.disabled = false;
+            botao.textContent = botao.dataset.textoOriginal || botao.textContent;
+        }
+    });
+}
+
+async function gerarRelatorioPlanosAnaliticos(botao) {
+    const container = botao.closest(".relatorio-analiticos");
+    if (!container) return;
+
+    const tipo = botao.dataset.relatorio || "";
+    const tipoNormalizado = normalizarTipoRelatorioAnaliticos(tipo);
+    if (!tipoNormalizado) return;
+
+    const link = container.querySelector("[data-relatorio-link]");
+
+    definirLoadingRelatorioAnaliticos(container, true);
+    atualizarEstadoRelatorioAnaliticos(container, "A gerar relatório...");
+
+    try {
+        const parametros = new URLSearchParams();
+        parametros.append("action", "gerarRelatoriosPlanoAnalitico");
+        parametros.append("tipo", tipoNormalizado);
+
+        const resposta = await fetch(WEB_URL, { method: "POST", body: parametros });
+        const raw = await resposta.text();
+        let data = null;
+
+        try {
+            data = JSON.parse(raw);
+        } catch (erro) {
+            data = null;
+        }
+
+        if (!resposta.ok || data?.sucesso === false) {
+            throw new Error(data?.mensagem || raw || "Erro ao gerar relatório.");
+        }
+
+        const url =
+            extrairUrlRelatorio(data) ||
+            data?.url ||
+            data?.link ||
+            data?.urlPDF ||
+            data?.linkPDF ||
+            "";
+
+        if (!url) {
+            throw new Error("Nenhum link do relatório foi retornado.");
+        }
+
+        if (link) {
+            link.href = url;
+            link.target = "_blank";
+            link.rel = "noopener";
+            link.textContent = data?.total ? `Baixar relatório (${data.total})` : "Baixar relatório";
+        }
+
+        atualizarEstadoRelatorioAnaliticos(container, "Relatório gerado com sucesso!");
+    } catch (erro) {
+        console.error("Erro ao gerar relatório de planos analíticos:", erro);
+        atualizarEstadoRelatorioAnaliticos(
+            container,
+            erro?.message || "Ocorreu um erro ao gerar o relatório.",
+            true
+        );
+    } finally {
+        definirLoadingRelatorioAnaliticos(container, false);
+        reaplicarRestricoesUI();
+    }
+}
+
+document.addEventListener("click", event => {
+    const botao = event.target.closest(".btn-relatorio-analiticos");
+    if (!botao) return;
+    gerarRelatorioPlanosAnaliticos(botao);
+});
+
 function ordenarDadosPorDataAscendente(lista) {
     return [...lista].sort((a, b) => {
         const dataA = new Date(a.data);
@@ -1133,10 +1234,18 @@ function renderTabelaPlanosAnaliticos(dados = [], pagina = 1) {
                 <button class="button btn-relatorio-analiticos btn-relatorio-todos" type="button" data-relatorio="todos">Todos</button>
             </div>
             <a class="relatorio-analiticos__link" href="#" data-relatorio-link>Baixe aqui o relatório</a>
+            <span class="relatorio-analiticos__estado" data-relatorio-estado></span>
         </div>
     `;
 
     container.innerHTML = html;
+    const linkRelatorio = container.querySelector("[data-relatorio-link]");
+    if (linkRelatorio) {
+        linkRelatorio.href = "#";
+        linkRelatorio.textContent = "Baixe aqui o relatório";
+        linkRelatorio.removeAttribute("target");
+        linkRelatorio.removeAttribute("rel");
+    }
     const btnAnterior = container.querySelector("[data-pagina='anterior']");
     const btnSeguinte = container.querySelector("[data-pagina='seguinte']");
 
