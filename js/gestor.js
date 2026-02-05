@@ -1078,6 +1078,20 @@ function renderTabelaPlanosAnaliticos(dados = []) {
             ? `<a class="pdf-icon" href="${linkPDF}" target="_blank" rel="noopener">📄</a>`
             : "—";
         const situacao = (item.situacao ?? "").toString().trim() || "Não Submetido";
+        const situacaoNormalizada = situacao
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+        let classeSituacao = "";
+
+        if (situacaoNormalizada === "submetido") {
+            classeSituacao = "status-submetido";
+        } else if (situacaoNormalizada === "nao submetido") {
+            classeSituacao = "status-nao-submetido";
+        }
+        const situacaoHtml = classeSituacao
+            ? `<span class="status ${classeSituacao}">${situacao}</span>`
+            : situacao;
 
         html += `
             <tr>
@@ -1086,7 +1100,7 @@ function renderTabelaPlanosAnaliticos(dados = []) {
                 <td class="col-disciplina">${item.disciplina ?? ""}</td>
                 <td class="col-curso">${item.curso ?? ""}</td>
                 <td class="col-regime">${item.regime ?? ""}</td>
-                <td class="col-situacao">${situacao}</td>
+                <td class="col-situacao">${situacaoHtml}</td>
                 <td class="col-plano">${linkPDFHtml}</td>
                 <td class="col-data">${formatarDataCurta(item.dataSubmissao)}</td>
             </tr>

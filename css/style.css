@@ -1702,13 +1702,15 @@ input[type='file'] {
 
 .status-aprovado,
 .status-homologado,
-.status-atribuido {
-  color: #0b5ed7;
-  background: rgba(11, 94, 215, 0.10);
+.status-atribuido,
+.status-submetido {
+  color: #146c43;
+  background: rgba(25, 135, 84, 0.12);
 }
 .status-pendente { color: #b58100; background: rgba(255, 193, 7, 0.18); }
 .status-reprovado,
-.status-recusado {
+.status-recusado,
+.status-nao-submetido {
   color: #b02a37;
   background: rgba(176, 42, 55, 0.12);
 }
