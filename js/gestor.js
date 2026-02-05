@@ -691,17 +691,17 @@ function renderizarControlesGestaoGeral() {
     barraPaginacao.style.justifyContent = "center";
 
     const btnAnterior = document.createElement("button");
-    btnAnterior.className = "button btn-navegacao btn-padrao-portal";
+    btnAnterior.className = "btn-guardar";
     btnAnterior.textContent = "<";
     btnAnterior.onclick = () => mudarPagina(-1);
     btnAnterior.disabled = paginaAtual === 1;
 
     const infoPagina = document.createElement("span");
-    infoPagina.textContent = `${paginaAtual} de ${totalPaginas}`;
+    infoPagina.textContent = `Página ${paginaAtual} de ${totalPaginas}`;
     infoPagina.style.textAlign = "center";
 
     const btnSeguinte = document.createElement("button");
-    btnSeguinte.className = "button btn-navegacao btn-padrao-portal";
+    btnSeguinte.className = "btn-guardar";
     btnSeguinte.textContent = ">";
     btnSeguinte.onclick = () => mudarPagina(1);
     btnSeguinte.disabled = paginaAtual === totalPaginas;
@@ -1955,46 +1955,14 @@ function renderTabelaParecer() {
 }
 
 function renderizarControlesParecer() {
-    const container = document.getElementById("tabelaGestaoGeral");
-    if (!container) return;
+    const controles = document.getElementById("controlesPaginacao");
+    if (!controles) return;
 
-    let controles = document.getElementById("controlesPaginacao");
-    if (!controles) {
-        controles = document.createElement("div");
-        controles.id = "controlesPaginacao";
-        container.appendChild(controles);
-    }
-
-    controles.innerHTML = "";
-
-    const barraPaginacao = document.createElement("div");
-    barraPaginacao.style.display = "flex";
-    barraPaginacao.style.alignItems = "center";
-    barraPaginacao.style.gap = "10px";
-    barraPaginacao.style.justifyContent = "center";
-    barraPaginacao.style.marginTop = "15px";
-
-    const btnAnterior = document.createElement("button");
-    btnAnterior.className = "button btn-navegacao btn-padrao-portal";
-    btnAnterior.textContent = "<";
-    btnAnterior.onclick = () => mudarPaginaParecer(-1);
-    btnAnterior.disabled = paginaAtual === 1;
-
-    const infoPagina = document.createElement("span");
-    infoPagina.textContent = `${paginaAtual} de ${totalPaginas}`;
-    infoPagina.style.textAlign = "center";
-
-    const btnSeguinte = document.createElement("button");
-    btnSeguinte.className = "button btn-navegacao btn-padrao-portal";
-    btnSeguinte.textContent = ">";
-    btnSeguinte.onclick = () => mudarPaginaParecer(1);
-    btnSeguinte.disabled = paginaAtual === totalPaginas;
-
-    barraPaginacao.appendChild(btnAnterior);
-    barraPaginacao.appendChild(infoPagina);
-    barraPaginacao.appendChild(btnSeguinte);
-
-    controles.appendChild(barraPaginacao);
+    controles.innerHTML = `
+        <button onclick="mudarPaginaParecer(-1)">&lt;</button>
+        <span>Página ${paginaAtual} de ${totalPaginas}</span>
+        <button onclick="mudarPaginaParecer(1)">&gt;</button>
+    `;
     reaplicarRestricoesUI();
 }
 function mudarPaginaParecer(delta) {
