@@ -1125,6 +1125,15 @@ function renderTabelaPlanosAnaliticos(dados = [], pagina = 1) {
             <span class="paginacao-info">${paginaAtual} de ${totalPaginas}</span>
             <button class="button btn-paginacao" type="button" data-pagina="seguinte" ${paginaAtual === totalPaginas ? "disabled" : ""} aria-label="Página seguinte">&gt;</button>
         </div>
+        <div class="relatorio-analiticos">
+            <h3>Gerar relatório de planos analíticos:</h3>
+            <div class="relatorio-analiticos__acoes">
+                <button class="button btn-relatorio-analiticos btn-relatorio-submetidos" type="button" data-relatorio="submetidos">Submetidos</button>
+                <button class="button btn-relatorio-analiticos btn-relatorio-nao-submetidos" type="button" data-relatorio="nao-submetidos">Não Submetidos</button>
+                <button class="button btn-relatorio-analiticos btn-relatorio-todos" type="button" data-relatorio="todos">Todos</button>
+            </div>
+            <a class="relatorio-analiticos__link" href="#" data-relatorio-link>Baixe aqui o relatório</a>
+        </div>
     `;
 
     container.innerHTML = html;

@@ -1026,6 +1026,56 @@ footer {
   cursor: not-allowed;
 }
 
+.relatorio-analiticos {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 18px 0 8px;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.relatorio-analiticos h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #003366;
+}
+
+.relatorio-analiticos__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.btn-relatorio-analiticos {
+  border: none;
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-relatorio-submetidos {
+  background: #27ae60;
+}
+
+.btn-relatorio-nao-submetidos {
+  background: #e74c3c;
+}
+
+.btn-relatorio-todos {
+  background: #1e6fd9;
+}
+
+.relatorio-analiticos__link {
+  color: #1e6fd9;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.relatorio-analiticos__link:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 768px) {
   header {
     height: auto;
