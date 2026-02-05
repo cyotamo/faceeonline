@@ -911,6 +911,87 @@ footer {
   transition: 0.2s;
 }
 
+/* Estilo da tabela Planos Analíticos */
+.tabela-analiticos {
+  width: 100%;
+  min-width: 1200px;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-top: 25px;
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: hidden;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.tabela-analiticos th,
+.tabela-analiticos td {
+  padding: 6px 10px;
+  vertical-align: top;
+  text-align: left;
+  overflow: hidden;
+  border-right: 1px solid rgba(0, 85, 165, 0.15);
+  line-height: 1.2;
+}
+
+.tabela-analiticos th:last-child,
+.tabela-analiticos td:last-child {
+  border-right: none;
+}
+
+.tabela-analiticos th {
+  background: #dbe9ff;
+  font-weight: 600;
+  color: #003366;
+  border-bottom: 2px solid #b8cfff;
+  letter-spacing: 0.3px;
+}
+
+.tabela-analiticos td {
+  border-bottom: 1px solid #ececec;
+  color: #333;
+}
+
+.tabela-analiticos .col-ord {
+  width: 50px;
+  text-align: center;
+}
+
+.tabela-analiticos .col-nome {
+  width: 240px;
+}
+
+.tabela-analiticos .col-disciplina {
+  width: 260px;
+}
+
+.tabela-analiticos .col-curso {
+  width: 220px;
+}
+
+.tabela-analiticos .col-regime {
+  width: 140px;
+}
+
+.tabela-analiticos .col-situacao {
+  width: 160px;
+}
+
+.tabela-analiticos .col-data {
+  width: 180px;
+  white-space: nowrap;
+}
+
+.tabela-analiticos tbody tr:nth-child(even) {
+  background: #f8faff;
+}
+
+.tabela-analiticos tbody tr:hover {
+  background: #eef4ff;
+  transition: 0.2s;
+}
+
 @media (max-width: 768px) {
   header {
     height: auto;
