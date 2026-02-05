@@ -1110,7 +1110,7 @@ function carregarPlanosAnaliticos() {
         headers: {
             "Content-Type": "text/plain;charset=utf-8"
         },
-        body: JSON.stringify({ acao: "listarPlanosAnaliticos" })
+        body: JSON.stringify({ action: "listarPlanosAnaliticos" })
     })
         .then(resposta => resposta.json())
         .then(json => {
