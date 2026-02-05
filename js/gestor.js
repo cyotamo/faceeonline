@@ -532,7 +532,7 @@ function atualizarEstadoRelatorioAnaliticos(container, mensagem, isErro = false)
     estado.style.color = isErro ? "red" : "inherit";
 }
 
-function definirLoadingRelatorioAnaliticos(container, emLoading) {
+function definirLoadingRelatorioAnaliticos(container, emLoading, botaoAtivo = null) {
     if (!container) return;
     const botoes = container.querySelectorAll(".btn-relatorio-analiticos");
     botoes.forEach(botao => {
@@ -541,7 +541,9 @@ function definirLoadingRelatorioAnaliticos(container, emLoading) {
                 botao.dataset.textoOriginal = botao.textContent;
             }
             botao.disabled = true;
-            botao.textContent = "A gerar...";
+            if (botao === botaoAtivo) {
+                botao.textContent = "A gerar...";
+            }
         } else {
             botao.disabled = false;
             botao.textContent = botao.dataset.textoOriginal || botao.textContent;
@@ -559,7 +561,7 @@ async function gerarRelatorioPlanosAnaliticos(botao) {
 
     const link = container.querySelector("[data-relatorio-link]");
 
-    definirLoadingRelatorioAnaliticos(container, true);
+    definirLoadingRelatorioAnaliticos(container, true, botao);
     if (link) {
         link.hidden = true;
     }
