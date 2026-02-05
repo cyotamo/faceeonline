@@ -1075,8 +1075,9 @@ function renderTabelaPlanosAnaliticos(dados = []) {
     dados.forEach((item, index) => {
         const linkPDF = item.linkPDF ?? item.pdfURL ?? item.urlPDF ?? "";
         const linkPDFHtml = linkPDF
-            ? `<a class="pdf-icon" href="${linkPDF}" target="_blank" rel="noopener noreferrer">Plano</a>`
+            ? `<a class="pdf-icon" href="${linkPDF}" target="_blank" rel="noopener">📄</a>`
             : "—";
+        const situacao = (item.situacao ?? "").toString().trim() || "Não Submetido";
 
         html += `
             <tr>
@@ -1085,7 +1086,7 @@ function renderTabelaPlanosAnaliticos(dados = []) {
                 <td class="col-disciplina">${item.disciplina ?? ""}</td>
                 <td class="col-curso">${item.curso ?? ""}</td>
                 <td class="col-regime">${item.regime ?? ""}</td>
-                <td class="col-situacao">${item.situacao ?? ""}</td>
+                <td class="col-situacao">${situacao}</td>
                 <td class="col-plano">${linkPDFHtml}</td>
                 <td class="col-data">${formatarDataCurta(item.dataSubmissao)}</td>
             </tr>
@@ -1102,10 +1103,44 @@ function renderTabelaPlanosAnaliticos(dados = []) {
 }
 
 function carregarPlanosAnaliticos() {
-    const dados = [];
-    renderTabelaPlanosAnaliticos(dados);
-    esconderCarregamento();
-    reaplicarRestricoesUI();
+    mostrarLoadingPainelGestor("A carregar…");
+
+    fetch(WEB_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ acao: "listarPlanosAnaliticos" })
+    })
+        .then(resposta => resposta.json())
+        .then(json => {
+            if (json?.sucesso !== true) {
+                throw new Error(json?.mensagem || "Erro ao carregar planos analíticos.");
+            }
+
+            const lista = Array.isArray(json.dados) ? json.dados : [];
+            const dados = lista.map(item => {
+                const situacaoRaw = (item?.situacao ?? "").toString().trim();
+                const linkPDF = item?.linkPDF ?? item?.pdfURL ?? item?.urlPDF ?? "";
+
+                return {
+                    ...item,
+                    situacao: situacaoRaw || "Não Submetido",
+                    linkPDF
+                };
+            });
+
+            renderTabelaPlanosAnaliticos(dados);
+        })
+        .catch(err => {
+            console.error("Erro ao carregar planos analíticos:", err);
+            renderTabelaPlanosAnaliticos([]);
+            alert(err?.message || "Erro ao carregar planos analíticos.");
+        })
+        .finally(() => {
+            esconderCarregamento();
+            reaplicarRestricoesUI();
+        });
 }
 
 async function carregarCredenciaisEstagioGestor() {
