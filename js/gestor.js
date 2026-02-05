@@ -270,6 +270,16 @@ document.getElementById("btnHomologarSuperv").addEventListener("click", function
     }
 });
 
+// Botão Planos Analíticos
+document.getElementById("btnPlanosAnaliticos").addEventListener("click", () => {
+    esconderEstatisticas();
+    mostrarLoadingPainelGestor("A carregar…");
+    carregarPlanosAnaliticos();
+    if (window.aplicarRestricoesUI && window.userEmail) {
+        aplicarRestricoesUI(window.userEmail);
+    }
+});
+
 
 
 // Credencial Pesquisa
@@ -1038,6 +1048,57 @@ function carregarCredencialPesquisa() {
             "<p>Erro ao carregar os dados da credencial de pesquisa.</p>";
         reaplicarRestricoesUI();
     });
+}
+
+function renderTabelaPlanosAnaliticos(dados = []) {
+    const container = document.getElementById("tabelaGestaoGeral");
+    if (!container) return;
+
+    let html = `
+        <div class="tabela-scroll">
+            <table class="tabela-analiticos">
+                <thead>
+                    <tr>
+                        <th class="col-ord">Ord</th>
+                        <th class="col-nome">Nome</th>
+                        <th class="col-disciplina">Disciplina</th>
+                        <th class="col-curso">Curso</th>
+                        <th class="col-regime">Regime</th>
+                        <th class="col-situacao">Situação</th>
+                        <th class="col-data">Data de Submissão</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+    dados.forEach((item, index) => {
+        html += `
+            <tr>
+                <td class="col-ord">${index + 1}</td>
+                <td class="col-nome">${item.nome ?? ""}</td>
+                <td class="col-disciplina">${item.disciplina ?? ""}</td>
+                <td class="col-curso">${item.curso ?? ""}</td>
+                <td class="col-regime">${item.regime ?? ""}</td>
+                <td class="col-situacao">${item.situacao ?? ""}</td>
+                <td class="col-data">${formatarDataCurta(item.dataSubmissao)}</td>
+            </tr>
+        `;
+    });
+
+    html += `
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+function carregarPlanosAnaliticos() {
+    const dados = [];
+    renderTabelaPlanosAnaliticos(dados);
+    esconderCarregamento();
+    reaplicarRestricoesUI();
 }
 
 async function carregarCredenciaisEstagioGestor() {
