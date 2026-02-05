@@ -1065,7 +1065,7 @@ function renderTabelaPlanosAnaliticos(dados = []) {
                         <th class="col-curso">Curso</th>
                         <th class="col-regime">Regime</th>
                         <th class="col-situacao">Situação</th>
-                        <th class="col-pdf">PDF</th>
+                        <th class="col-plano">Plano</th>
                         <th class="col-data">Data de Submissão</th>
                     </tr>
                 </thead>
@@ -1075,7 +1075,7 @@ function renderTabelaPlanosAnaliticos(dados = []) {
     dados.forEach((item, index) => {
         const linkPDF = item.linkPDF ?? item.pdfURL ?? item.urlPDF ?? "";
         const linkPDFHtml = linkPDF
-            ? `<a class="pdf-icon" href="${linkPDF}" target="_blank" rel="noopener noreferrer">PDF</a>`
+            ? `<a class="pdf-icon" href="${linkPDF}" target="_blank" rel="noopener noreferrer">Plano</a>`
             : "—";
 
         html += `
@@ -1086,7 +1086,7 @@ function renderTabelaPlanosAnaliticos(dados = []) {
                 <td class="col-curso">${item.curso ?? ""}</td>
                 <td class="col-regime">${item.regime ?? ""}</td>
                 <td class="col-situacao">${item.situacao ?? ""}</td>
-                <td class="col-pdf">${linkPDFHtml}</td>
+                <td class="col-plano">${linkPDFHtml}</td>
                 <td class="col-data">${formatarDataCurta(item.dataSubmissao)}</td>
             </tr>
         `;
