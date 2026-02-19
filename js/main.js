@@ -120,6 +120,55 @@ function iniciarMascaras() {
   camposContacto.forEach(campo => aplicarMascaraContacto(campo));
 }
 
+function obterCamposNavegaveis(form) {
+  if (!form) return [];
+
+  return Array.from(
+    form.querySelectorAll("input, select, textarea, button")
+  ).filter((campo) => {
+    const tag = campo.tagName;
+    const tipo = campo.type;
+
+    if (campo.disabled) return false;
+    if (campo.hidden) return false;
+    if (tipo === "hidden") return false;
+    if (tag === "BUTTON") return false;
+
+    return true;
+  });
+}
+
+function iniciarNavegacaoFormulariosAluno() {
+  document.addEventListener("keydown", (event) => {
+    const teclaPressionada = event.key === "Enter" || event.key === "ArrowRight";
+    if (!teclaPressionada) return;
+
+    const campoAtual = event.target;
+    if (!(campoAtual instanceof HTMLElement)) return;
+
+    const formulario = campoAtual.closest("form");
+    if (!formulario) return;
+
+    const formulariosAluno = [
+      "formTema",
+      "formMonografiaFinal",
+      "formPedidoCredencial",
+    ];
+
+    if (!formulariosAluno.includes(formulario.id)) return;
+
+    const campos = obterCamposNavegaveis(formulario);
+    const indiceAtual = campos.indexOf(campoAtual);
+    if (indiceAtual === -1) return;
+
+    const proximoCampo = campos[indiceAtual + 1];
+    if (!proximoCampo) return;
+
+    event.preventDefault();
+    proximoCampo.focus();
+  });
+}
+
 
 
 
@@ -131,6 +180,7 @@ observer.observe(document.body, { childList: true, subtree: true });
 
 // Ativa máscaras ao carregar página
 document.addEventListener("DOMContentLoaded", iniciarMascaras);
+document.addEventListener("DOMContentLoaded", iniciarNavegacaoFormulariosAluno);
 
 // Modal de sucesso reutilizável
 function mostrarModal(mensagem) {
