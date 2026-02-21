@@ -532,19 +532,28 @@ function atualizarEstadoRelatorioAnaliticos(container, mensagem, isErro = false)
     estado.style.color = isErro ? "red" : "inherit";
 }
 
-function definirLoadingRelatorioAnaliticos(container, emLoading) {
+function definirLoadingRelatorioAnaliticos(container, botaoAtivo, emLoading) {
     if (!container) return;
     const botoes = container.querySelectorAll(".btn-relatorio-analiticos");
+
     botoes.forEach(botao => {
+        const isBotaoAtivo = botao === botaoAtivo;
+
         if (emLoading) {
-            if (!botao.disabled) {
+            if (isBotaoAtivo && !botao.disabled) {
                 botao.dataset.textoOriginal = botao.textContent;
             }
             botao.disabled = true;
-            botao.textContent = "A gerar...";
+
+            if (isBotaoAtivo) {
+                botao.textContent = "A gerar...";
+            }
         } else {
             botao.disabled = false;
-            botao.textContent = botao.dataset.textoOriginal || botao.textContent;
+
+            if (isBotaoAtivo) {
+                botao.textContent = botao.dataset.textoOriginal || botao.textContent;
+            }
         }
     });
 }
@@ -559,7 +568,7 @@ async function gerarRelatorioPlanosAnaliticos(botao) {
 
     const link = container.querySelector("[data-relatorio-link]");
 
-    definirLoadingRelatorioAnaliticos(container, true);
+    definirLoadingRelatorioAnaliticos(container, botao, true);
     if (link) {
         link.hidden = true;
     }
@@ -616,7 +625,7 @@ async function gerarRelatorioPlanosAnaliticos(botao) {
             link.hidden = true;
         }
     } finally {
-        definirLoadingRelatorioAnaliticos(container, false);
+        definirLoadingRelatorioAnaliticos(container, botao, false);
         reaplicarRestricoesUI();
     }
 }
