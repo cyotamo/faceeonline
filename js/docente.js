@@ -166,7 +166,7 @@ const mostrarSecaoHorarios = () => {
   );
 
   const formRow = criarElemento('div', 'form-row');
-  const label = criarElemento('label', '', 'Lista de horários');
+  const label = criarElemento('label', '', 'Selecione o seu nome:');
   label.setAttribute('for', 'horariosSelect');
 
   const select = criarElemento('select', 'input');
@@ -176,7 +176,7 @@ const mostrarSecaoHorarios = () => {
     <option value="placeholder">Horário (placeholder)</option>
   `;
 
-  const btnBuscar = criarElemento('button', 'button', 'Buscar');
+  const btnBuscar = criarElemento('button', '', 'Buscar');
   btnBuscar.type = 'button';
 
   formRow.appendChild(label);
