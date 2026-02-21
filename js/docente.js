@@ -4,7 +4,9 @@
 // ===============================
 
 const btnPlano = document.getElementById('btnPlano');
+const btnHorarios = document.getElementById('btnHorarios');
 const formPlanoContainer = document.getElementById('formPlanoContainer');
+const horariosContainer = document.getElementById('horariosContainer');
 
 // ===============================
 // FUNÇÃO ÚNICA DE COMUNICAÇÃO COM GS
@@ -150,6 +152,44 @@ const mostrarFormularioInicial = async () => {
   });
 };
 
+const mostrarSecaoHorarios = () => {
+  if (!horariosContainer) return;
+
+  horariosContainer.innerHTML = '';
+
+  const card = criarElemento('div', 'card');
+  const titulo = criarElemento('h3', 'card-title', 'Horários');
+  const subtitulo = criarElemento(
+    'p',
+    'card-text',
+    'Selecione uma opção abaixo para buscar horários (dados serão integrados futuramente).'
+  );
+
+  const formRow = criarElemento('div', 'form-row');
+  const label = criarElemento('label', '', 'Lista de horários');
+  label.setAttribute('for', 'horariosSelect');
+
+  const select = criarElemento('select', 'input');
+  select.id = 'horariosSelect';
+  select.innerHTML = `
+    <option value="">Selecione uma opção</option>
+    <option value="placeholder">Horário (placeholder)</option>
+  `;
+
+  const btnBuscar = criarElemento('button', 'button', 'Buscar');
+  btnBuscar.type = 'button';
+
+  formRow.appendChild(label);
+  formRow.appendChild(select);
+
+  card.appendChild(titulo);
+  card.appendChild(subtitulo);
+  card.appendChild(formRow);
+  card.appendChild(btnBuscar);
+
+  horariosContainer.appendChild(card);
+};
+
 // ===============================
 // RENDERIZAR DISCIPLINAS
 // ===============================
@@ -280,4 +320,8 @@ const renderizarDisciplinas = (docente, disciplinas) => {
 // ===============================
 if (btnPlano) {
   btnPlano.addEventListener('click', mostrarFormularioInicial);
+}
+
+if (btnHorarios) {
+  btnHorarios.addEventListener('click', mostrarSecaoHorarios);
 }
