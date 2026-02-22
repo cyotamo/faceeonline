@@ -74,6 +74,102 @@ const normalizarDocentes = (dados) => {
   return [...new Set(dados.map(String).filter(Boolean))];
 };
 
+const DIA_MAPA = {
+  SEG: '2ª Feira',
+  TER: '3ª Feira',
+  QUA: '4ª Feira',
+  QUI: '5ª Feira',
+  SEX: '6ª Feira',
+};
+
+const DIAS_UTEIS = ['SEG', 'TER', 'QUA', 'QUI', 'SEX'];
+
+const normalizarDia = (dia) => {
+  if (!dia) return null;
+
+  const base = String(dia)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '');
+
+  if (base.includes('seg') || base.includes('2a') || base.includes('2feira')) return 'SEG';
+  if (base.includes('ter') || base.includes('3a') || base.includes('3feira')) return 'TER';
+  if (base.includes('qua') || base.includes('4a') || base.includes('4feira')) return 'QUA';
+  if (base.includes('qui') || base.includes('5a') || base.includes('5feira')) return 'QUI';
+  if (base.includes('sex') || base.includes('6a') || base.includes('6feira')) return 'SEX';
+
+  return null;
+};
+
+const extrairInicioHora = (periodo) => {
+  if (!periodo) return Number.MAX_SAFE_INTEGER;
+  const inicio = String(periodo).split('-')[0]?.trim() || '';
+  const [h = '99', m = '99'] = inicio.split(':');
+  const hora = Number.parseInt(h, 10);
+  const min = Number.parseInt(m, 10);
+  if (Number.isNaN(hora) || Number.isNaN(min)) return Number.MAX_SAFE_INTEGER;
+  return hora * 60 + min;
+};
+
+const montarDescricaoAula = (item) => {
+  const bloco = criarElemento('div', 'horario-item');
+  bloco.appendChild(criarElemento('div', 'horario-disciplina', item.disciplina || 'Disciplina'));
+
+  if (item.sala) {
+    bloco.appendChild(criarElemento('div', 'horario-sala', item.sala));
+  }
+
+  const detalhes = [item.curso, item.ano, item.regime].filter(Boolean).join(' — ');
+  if (detalhes) {
+    bloco.appendChild(criarElemento('div', 'horario-detalhes', detalhes));
+  }
+
+  return bloco;
+};
+
+const renderizarGradeHorarios = (resultadoEl, itens) => {
+  const horasUnicas = [...new Set(itens.map((item) => item.horas).filter(Boolean))]
+    .sort((a, b) => extrairInicioHora(a) - extrairInicioHora(b));
+
+  const tabela = criarElemento('table', 'horario-tabela');
+  const thead = document.createElement('thead');
+  const cabecalho = document.createElement('tr');
+  cabecalho.appendChild(criarElemento('th', '', 'Horário'));
+
+  DIAS_UTEIS.forEach((diaKey) => {
+    cabecalho.appendChild(criarElemento('th', '', DIA_MAPA[diaKey]));
+  });
+
+  thead.appendChild(cabecalho);
+  tabela.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+
+  horasUnicas.forEach((hora) => {
+    const row = document.createElement('tr');
+    row.appendChild(criarElemento('td', 'horario-hora', hora));
+
+    DIAS_UTEIS.forEach((diaKey) => {
+      const cell = criarElemento('td', 'horario-celula');
+      const aulas = itens.filter((item) => normalizarDia(item.dia) === diaKey && item.horas === hora);
+
+      if (aulas.length) {
+        aulas.forEach((aula) => cell.appendChild(montarDescricaoAula(aula)));
+      } else {
+        cell.appendChild(criarElemento('span', 'horario-vazio', '—'));
+      }
+
+      row.appendChild(cell);
+    });
+
+    tbody.appendChild(row);
+  });
+
+  tabela.appendChild(tbody);
+  resultadoEl.appendChild(tabela);
+};
+
 // ===============================
 // FORMULÁRIO INICIAL
 // ===============================
@@ -152,7 +248,7 @@ const mostrarFormularioInicial = async () => {
   });
 };
 
-const mostrarSecaoHorarios = () => {
+const mostrarSecaoHorarios = async () => {
   if (!horariosContainer) return;
 
   horariosContainer.innerHTML = '';
@@ -162,7 +258,7 @@ const mostrarSecaoHorarios = () => {
   const subtitulo = criarElemento(
     'p',
     'card-text',
-    'Selecione uma opção abaixo para buscar horários (dados serão integrados futuramente).'
+    'Selecione o docente e clique em buscar para visualizar o horário semanal.'
   );
 
   const formRow = criarElemento('div', 'form-row');
@@ -171,13 +267,14 @@ const mostrarSecaoHorarios = () => {
 
   const select = criarElemento('select', 'input');
   select.id = 'horariosSelect';
-  select.innerHTML = `
-    <option value="">Selecione uma opção</option>
-    <option value="placeholder">Horário (placeholder)</option>
-  `;
+  select.disabled = true;
+  select.innerHTML = '<option value="">A carregar docentes...</option>';
 
   const btnBuscar = criarElemento('button', '', 'Buscar');
   btnBuscar.type = 'button';
+
+  const resultado = criarElemento('div', 'card-grid');
+  resultado.id = 'horariosResultado';
 
   formRow.appendChild(label);
   formRow.appendChild(select);
@@ -186,8 +283,61 @@ const mostrarSecaoHorarios = () => {
   card.appendChild(subtitulo);
   card.appendChild(formRow);
   card.appendChild(btnBuscar);
+  card.appendChild(resultado);
 
   horariosContainer.appendChild(card);
+
+  btnBuscar.addEventListener('click', async () => {
+    const docente = document.getElementById('horariosSelect')?.value.trim() || '';
+    if (!docente) {
+      resultado.innerHTML = '<p>Seleccione um docente.</p>';
+      return;
+    }
+
+    resultado.innerHTML = '<p>A carregar horário...</p>';
+
+    try {
+      const resposta = await chamarGS('buscarHorarioDocente', { docente });
+      if (!resposta?.sucesso) {
+        resultado.innerHTML = `<p>${resposta?.erro || 'Erro ao buscar horário do docente.'}</p>`;
+        return;
+      }
+
+      const itens = Array.isArray(resposta.itens) ? resposta.itens : [];
+      resultado.innerHTML = '';
+
+      if (!itens.length) {
+        resultado.innerHTML = '<p>Nenhum horário encontrado para o docente seleccionado.</p>';
+        return;
+      }
+
+      renderizarGradeHorarios(resultado, itens);
+    } catch (erro) {
+      console.error('Erro ao buscar horário do docente', erro);
+      resultado.innerHTML = '<p>Não foi possível buscar o horário neste momento.</p>';
+    }
+  });
+
+  try {
+    const data = await chamarGS('listarDocentesHorarios');
+    if (!data?.sucesso) {
+      throw new Error(data?.erro || 'Falha ao carregar docentes');
+    }
+
+    const docentes = normalizarDocentes(data.docentes);
+    select.innerHTML = '<option value="">Seleccione o docente</option>';
+    docentes.forEach((docente) => {
+      const option = document.createElement('option');
+      option.value = docente;
+      option.textContent = docente;
+      select.appendChild(option);
+    });
+    select.disabled = false;
+  } catch (erro) {
+    console.error('Erro ao carregar docentes para horários', erro);
+    select.innerHTML = '<option value="">Não foi possível carregar docentes</option>';
+    resultado.innerHTML = '<p>Não foi possível carregar a lista de docentes.</p>';
+  }
 };
 
 // ===============================
