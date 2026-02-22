@@ -1063,9 +1063,22 @@ footer {
   display: block;
 }
 
+.horario-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+}
+
 .horario-titulo {
-  margin: 8px 0 4px;
+  margin: 0;
   color: #003366;
+}
+
+.horario-pdf-btn:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
 }
 
 .horario-legenda {
