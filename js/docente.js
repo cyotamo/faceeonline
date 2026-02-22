@@ -93,13 +93,23 @@ const normalizarDia = (dia) => {
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]/g, '');
 
-  if (base.includes('seg') || base.includes('2a') || base.includes('2feira')) return 'SEG';
-  if (base.includes('ter') || base.includes('3a') || base.includes('3feira')) return 'TER';
-  if (base.includes('qua') || base.includes('4a') || base.includes('4feira')) return 'QUA';
-  if (base.includes('qui') || base.includes('5a') || base.includes('5feira')) return 'QUI';
-  if (base.includes('sex') || base.includes('6a') || base.includes('6feira')) return 'SEX';
+  if (base.includes('seg') || base.includes('2a') || base.includes('2f') || base.includes('2feira')) return 'SEG';
+  if (base.includes('ter') || base.includes('3a') || base.includes('3f') || base.includes('3feira')) return 'TER';
+  if (base.includes('qua') || base.includes('4a') || base.includes('4f') || base.includes('4feira')) return 'QUA';
+  if (base.includes('qui') || base.includes('5a') || base.includes('5f') || base.includes('5feira')) return 'QUI';
+  if (base.includes('sex') || base.includes('6a') || base.includes('6f') || base.includes('6feira')) return 'SEX';
 
   return null;
+};
+
+const normalizarHoras = (horas) => {
+  if (!horas) return null;
+
+  return String(horas)
+    .replace(/[–—]/g, '-')
+    .replace(/\s*-\s*/g, ' - ')
+    .replace(/\s+/g, ' ')
+    .trim();
 };
 
 const extrairInicioHora = (periodo) => {
@@ -117,19 +127,34 @@ const montarDescricaoAula = (item) => {
   bloco.appendChild(criarElemento('div', 'horario-disciplina', item.disciplina || 'Disciplina'));
 
   if (item.sala) {
-    bloco.appendChild(criarElemento('div', 'horario-sala', item.sala));
+    bloco.appendChild(criarElemento('div', 'horario-sala', `Sala: ${item.sala}`));
   }
 
   const detalhes = [item.curso, item.ano, item.regime].filter(Boolean).join(' — ');
   if (detalhes) {
-    bloco.appendChild(criarElemento('div', 'horario-detalhes', detalhes));
+    bloco.appendChild(criarElemento('div', 'horario-detalhes', `(${detalhes})`));
   }
 
   return bloco;
 };
 
 const renderizarGradeHorarios = (resultadoEl, itens) => {
-  const horasUnicas = [...new Set(itens.map((item) => item.horas).filter(Boolean))]
+  const itensNormalizados = itens
+    .map((item) => {
+      const diaNormalizado = normalizarDia(item.dia);
+      const horaNormalizada = normalizarHoras(item.horas);
+
+      if (!diaNormalizado || !horaNormalizada) return null;
+
+      return {
+        ...item,
+        diaNormalizado,
+        horaNormalizada,
+      };
+    })
+    .filter(Boolean);
+
+  const horasUnicas = [...new Set(itensNormalizados.map((item) => item.horaNormalizada).filter(Boolean))]
     .sort((a, b) => extrairInicioHora(a) - extrairInicioHora(b));
 
   const tabela = criarElemento('table', 'horario-tabela');
@@ -152,7 +177,9 @@ const renderizarGradeHorarios = (resultadoEl, itens) => {
 
     DIAS_UTEIS.forEach((diaKey) => {
       const cell = criarElemento('td', 'horario-celula');
-      const aulas = itens.filter((item) => normalizarDia(item.dia) === diaKey && item.horas === hora);
+      const aulas = itensNormalizados.filter(
+        (item) => item.diaNormalizado === diaKey && item.horaNormalizada === hora
+      );
 
       if (aulas.length) {
         aulas.forEach((aula) => cell.appendChild(montarDescricaoAula(aula)));
