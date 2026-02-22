@@ -123,22 +123,22 @@ const extrairInicioHora = (periodo) => {
 };
 
 const montarDescricaoAula = (item) => {
-  const bloco = criarElemento('div', 'horario-item');
-  bloco.appendChild(criarElemento('div', 'horario-disciplina', item.disciplina || 'Disciplina'));
+  const bloco = criarElemento('div', 'aula-item');
+  bloco.appendChild(criarElemento('div', 'aula-disciplina', item.disciplina || 'Disciplina'));
 
   if (item.sala) {
-    bloco.appendChild(criarElemento('div', 'horario-sala', `Sala: ${item.sala}`));
+    bloco.appendChild(criarElemento('div', 'aula-meta', `Sala: ${item.sala}`));
   }
 
   const detalhes = [item.curso, item.ano, item.regime].filter(Boolean).join(' — ');
   if (detalhes) {
-    bloco.appendChild(criarElemento('div', 'horario-detalhes', `(${detalhes})`));
+    bloco.appendChild(criarElemento('div', 'aula-meta', detalhes));
   }
 
   return bloco;
 };
 
-const renderizarGradeHorarios = (resultadoEl, itens) => {
+const renderizarGradeHorarios = (resultadoEl, itens, docente) => {
   const itensNormalizados = itens
     .map((item) => {
       const diaNormalizado = normalizarDia(item.dia);
@@ -156,6 +156,11 @@ const renderizarGradeHorarios = (resultadoEl, itens) => {
 
   const horasUnicas = [...new Set(itensNormalizados.map((item) => item.horaNormalizada).filter(Boolean))]
     .sort((a, b) => extrairInicioHora(a) - extrairInicioHora(b));
+
+  const titulo = criarElemento('h4', 'horario-titulo', `Horário Semanal do Docente: ${docente}`);
+  const legenda = criarElemento('p', 'horario-legenda', '(Todas as turmas e disciplinas)');
+  resultadoEl.appendChild(titulo);
+  resultadoEl.appendChild(legenda);
 
   const tabela = criarElemento('table', 'horario-tabela');
   const thead = document.createElement('thead');
@@ -300,7 +305,7 @@ const mostrarSecaoHorarios = async () => {
   const btnBuscar = criarElemento('button', '', 'Buscar');
   btnBuscar.type = 'button';
 
-  const resultado = criarElemento('div', 'card-grid');
+  const resultado = criarElemento('div', 'horarios-resultado');
   resultado.id = 'horariosResultado';
 
   formRow.appendChild(label);
@@ -338,7 +343,7 @@ const mostrarSecaoHorarios = async () => {
         return;
       }
 
-      renderizarGradeHorarios(resultado, itens);
+      renderizarGradeHorarios(resultado, itens, docente);
     } catch (erro) {
       console.error('Erro ao buscar horário do docente', erro);
       resultado.innerHTML = '<p>Não foi possível buscar o horário neste momento.</p>';
