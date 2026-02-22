@@ -25,6 +25,22 @@ async function chamarGS(action, dados = {}) {
   return res.json();
 }
 
+async function chamarGSPDF(payload) {
+  const resposta = await fetch(WEB_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!resposta.ok) {
+    throw new Error('Falha ao gerar PDF.');
+  }
+
+  return resposta.blob();
+}
+
 // ===============================
 // UTILITÁRIOS
 // ===============================
@@ -157,9 +173,44 @@ const renderizarGradeHorarios = (resultadoEl, itens, docente) => {
   const horasUnicas = [...new Set(itensNormalizados.map((item) => item.horaNormalizada).filter(Boolean))]
     .sort((a, b) => extrairInicioHora(a) - extrairInicioHora(b));
 
+  const cabecalhoTopo = criarElemento('div', 'horario-cabecalho');
   const titulo = criarElemento('h4', 'horario-titulo', `Horário Semanal do Docente: ${docente}`);
+  const btnPDF = criarElemento('button', 'button btn-padrao-portal horario-pdf-btn', '🖨️ Imprimir (PDF)');
+  btnPDF.type = 'button';
+
+  btnPDF.addEventListener('click', async () => {
+    const docenteSelecionado = document.getElementById('horariosSelect')?.value.trim() || '';
+    if (!docenteSelecionado) {
+      alert('Seleccione um docente.');
+      return;
+    }
+
+    const textoOriginal = btnPDF.textContent;
+    btnPDF.disabled = true;
+    btnPDF.textContent = 'A gerar PDF...';
+
+    try {
+      const blob = await chamarGSPDF({
+        action: 'gerarPDFHorarioDocente',
+        docente: docenteSelecionado,
+      });
+
+      const blobUrl = URL.createObjectURL(blob);
+      window.open(blobUrl, '_blank');
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    } catch (erro) {
+      console.error('Erro ao gerar PDF do horário', erro);
+      alert('Falha ao gerar PDF.');
+    } finally {
+      btnPDF.disabled = false;
+      btnPDF.textContent = textoOriginal;
+    }
+  });
+
+  cabecalhoTopo.appendChild(titulo);
+  cabecalhoTopo.appendChild(btnPDF);
   const legenda = criarElemento('p', 'horario-legenda', '(Todas as turmas e disciplinas)');
-  resultadoEl.appendChild(titulo);
+  resultadoEl.appendChild(cabecalhoTopo);
   resultadoEl.appendChild(legenda);
 
   const tabela = criarElemento('table', 'horario-tabela');
