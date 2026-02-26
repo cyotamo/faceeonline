@@ -26,7 +26,46 @@
           <button class="button btn-navegacao btn-padrao-portal" id="btnMonografia" type="button">Monografia Final</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnPedidoCredencial">Colecta de dados</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnConsultaEstado" type="button">Consulta de Estado</button>
+          <button class="button btn-navegacao btn-padrao-portal" id="btnHorarios" type="button">Horários</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnBaixarFormulario" type="button">Baixar Documentos</button>
+        </div>
+
+        <div id="containerHorarios" class="horarios-container" style="display:none;">
+          <h2 class="horarios-titulo">Consulta de Horários</h2>
+          <div class="horarios-filtros">
+            <div class="horarios-campo">
+              <label for="cursoHorario">Curso</label>
+              <select id="cursoHorario" name="cursoHorario">
+                <option value="">Seleccione...</option>
+                <option value="informatica">Informática</option>
+                <option value="gestao">Gestão</option>
+                <option value="contabilidade">Contabilidade</option>
+              </select>
+            </div>
+
+            <div class="horarios-campo">
+              <label for="anoHorario">Ano</label>
+              <select id="anoHorario" name="anoHorario">
+                <option value="">Seleccione...</option>
+                <option value="1">1º Ano</option>
+                <option value="2">2º Ano</option>
+                <option value="3">3º Ano</option>
+                <option value="4">4º Ano</option>
+              </select>
+            </div>
+
+            <div class="horarios-campo">
+              <label for="regimeHorario">Regime</label>
+              <select id="regimeHorario" name="regimeHorario">
+                <option value="">Seleccione...</option>
+                <option value="laboral">Laboral</option>
+                <option value="pos-laboral">Pós-laboral</option>
+                <option value="distancia">À distância</option>
+              </select>
+            </div>
+
+            <button class="button btn-navegacao btn-padrao-portal" id="btnBuscarHorarios" type="button">Buscar</button>
+          </div>
         </div>
       </section>
 
@@ -86,7 +125,16 @@
     const btnMonografia = document.getElementById('btnMonografia');
     const btnPedidoCredencial = document.getElementById('btnPedidoCredencial');
     const btnPedidoCredencialEstagio = document.getElementById('btnPedidoCredencialEstagio');
+    const btnHorarios = document.getElementById('btnHorarios');
+    const containerHorarios = document.getElementById('containerHorarios');
     const obterFormContainer = () => document.getElementById('form-container');
+
+    btnHorarios?.addEventListener('click', () => {
+      if (!containerHorarios) return;
+
+      const estaVisivel = containerHorarios.style.display !== 'none';
+      containerHorarios.style.display = estaVisivel ? 'none' : 'block';
+    });
 
     btnTema?.addEventListener('click', () => {
       const formContainer = obterFormContainer();
@@ -95,7 +143,7 @@
       formContainer.innerHTML = `
         <h2>Submissão de Tema de Monografia</h2>
         <div class="alert-obrigatorio">
-          ⚠️ Atenção: É obrigatório o preenchimento de todos os campos.  
+          ⚠️ Atenção: É obrigatório o preenchimento de todos os campos.
           Caso contrário, os dados não serão enviados.
         </div>
 
@@ -156,7 +204,7 @@
       formContainer.innerHTML = `
         <h2>Submissão da Versão Final da Monografia</h2>
         <div class="alert-obrigatorio">
-          ⚠️ Atenção: É obrigatório o preenchimento de todos os campos.  
+          ⚠️ Atenção: É obrigatório o preenchimento de todos os campos.
           Caso contrário, os dados não serão enviados.
         </div>
 
@@ -253,7 +301,7 @@
       formContainer.innerHTML = `
         <h2>Pedido de Credencial – Colecta de dados</h2>
         <div class="alert-obrigatorio">
-          ⚠️ Atenção: É obrigatório o preenchimento de todos os campos.  
+          ⚠️ Atenção: É obrigatório o preenchimento de todos os campos.
           Caso contrário, os dados não serão enviados.
         </div>
 
@@ -332,7 +380,7 @@
       formContainer.innerHTML = `
         <h2>Pedido de Credencial – Estágios</h2>
         <div class="alert-obrigatorio">
-          ⚠️ Atenção: É obrigatório o preenchimento de todos os campos.  
+          ⚠️ Atenção: É obrigatório o preenchimento de todos os campos.
           Caso contrário, os dados não serão enviados.
         </div>
 
