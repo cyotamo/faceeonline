@@ -25,21 +25,16 @@ async function chamarGS(action, dados = {}) {
   return res.json();
 }
 
-async function chamarGSPDF(payload) {
-  const resposta = await fetch(WEB_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
+const base64ParaBlobPDF = (base64) => {
+  const bytes = atob(base64);
+  const array = new Uint8Array(bytes.length);
 
-  if (!resposta.ok) {
-    throw new Error('Falha ao gerar PDF.');
+  for (let i = 0; i < bytes.length; i += 1) {
+    array[i] = bytes.charCodeAt(i);
   }
 
-  return resposta.blob();
-}
+  return new Blob([array], { type: 'application/pdf' });
+};
 
 // ===============================
 // UTILITÁRIOS
@@ -185,25 +180,49 @@ const renderizarGradeHorarios = (resultadoEl, itens, docente) => {
       return;
     }
 
-    const textoOriginal = btnPDF.textContent;
     btnPDF.disabled = true;
     btnPDF.textContent = 'A gerar PDF...';
 
     try {
-      const blob = await chamarGSPDF({
-        action: 'gerarPDFHorarioDocente',
-        docente: docenteSelecionado,
+      const resposta = await fetch(WEB_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'gerarPDFHorarioDocente',
+          docente: docenteSelecionado,
+        }),
       });
 
+      if (!resposta.ok) {
+        throw new Error('Falha ao gerar PDF.');
+      }
+
+      const data = await resposta.json();
+      if (!data?.sucesso) {
+        throw new Error(data?.mensagem || 'Falha ao gerar PDF.');
+      }
+
+      if (data.fileUrl) {
+        window.open(data.fileUrl, '_blank');
+        return;
+      }
+
+      if (!data.base64) {
+        throw new Error('PDF não disponível na resposta.');
+      }
+
+      const blob = base64ParaBlobPDF(data.base64);
       const blobUrl = URL.createObjectURL(blob);
       window.open(blobUrl, '_blank');
       setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
     } catch (erro) {
       console.error('Erro ao gerar PDF do horário', erro);
-      alert('Falha ao gerar PDF.');
+      alert(erro?.message || 'Falha ao gerar PDF.');
     } finally {
       btnPDF.disabled = false;
-      btnPDF.textContent = textoOriginal;
+      btnPDF.textContent = '🖨️ Imprimir (PDF)';
     }
   });
 
