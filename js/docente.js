@@ -25,17 +25,6 @@ async function chamarGS(action, dados = {}) {
   return res.json();
 }
 
-const base64ParaBlobPDF = (base64) => {
-  const bytes = atob(base64);
-  const array = new Uint8Array(bytes.length);
-
-  for (let i = 0; i < bytes.length; i += 1) {
-    array[i] = bytes.charCodeAt(i);
-  }
-
-  return new Blob([array], { type: 'application/pdf' });
-};
-
 // ===============================
 // UTILITÁRIOS
 // ===============================
@@ -173,57 +162,12 @@ const renderizarGradeHorarios = (resultadoEl, itens, docente) => {
   const btnPDF = criarElemento('button', 'button btn-padrao-portal horario-pdf-btn', '🖨️ Imprimir (PDF)');
   btnPDF.type = 'button';
 
-  btnPDF.addEventListener('click', async () => {
-    const docenteSelecionado = document.getElementById('horariosSelect')?.value.trim() || '';
-    if (!docenteSelecionado) {
-      alert('Seleccione um docente.');
-      return;
-    }
+  btnPDF.addEventListener('click', () => {
+    const docente = (document.getElementById('horariosSelect')?.value || '').trim();
+    if (!docente) return alert('Seleccione um docente.');
 
-    btnPDF.disabled = true;
-    btnPDF.textContent = 'A gerar PDF...';
-
-    try {
-      const resposta = await fetch(WEB_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: 'gerarPDFHorarioDocente',
-          docente: docenteSelecionado,
-        }),
-      });
-
-      if (!resposta.ok) {
-        throw new Error('Falha ao gerar PDF.');
-      }
-
-      const data = await resposta.json();
-      if (!data?.sucesso) {
-        throw new Error(data?.mensagem || 'Falha ao gerar PDF.');
-      }
-
-      if (data.fileUrl) {
-        window.open(data.fileUrl, '_blank');
-        return;
-      }
-
-      if (!data.base64) {
-        throw new Error('PDF não disponível na resposta.');
-      }
-
-      const blob = base64ParaBlobPDF(data.base64);
-      const blobUrl = URL.createObjectURL(blob);
-      window.open(blobUrl, '_blank');
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
-    } catch (erro) {
-      console.error('Erro ao gerar PDF do horário', erro);
-      alert(erro?.message || 'Falha ao gerar PDF.');
-    } finally {
-      btnPDF.disabled = false;
-      btnPDF.textContent = '🖨️ Imprimir (PDF)';
-    }
+    const url = `${WEB_URL}?action=gerarPDFHorarioDocente&docente=${encodeURIComponent(docente)}`;
+    window.open(url, '_blank');
   });
 
   cabecalhoTopo.appendChild(titulo);
