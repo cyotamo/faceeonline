@@ -200,6 +200,46 @@ main {
   margin-top: 18px;
 }
 
+.horarios-container {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fff;
+}
+
+.horarios-titulo {
+  margin: 0 0 14px;
+  font-size: 1.1rem;
+  color: var(--primary);
+}
+
+.horarios-filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+
+.horarios-campo label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.horarios-campo select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d8e3f3;
+  border-radius: 8px;
+  background: #f7faff;
+}
+
+#btnBuscarHorarios {
+  width: 100%;
+}
+
 /* ---- FORMULÁRIOS MAIS PROFISSIONAIS ---- */
 
 /* Container do formulário (onde é inserido pelo JS) */
