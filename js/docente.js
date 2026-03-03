@@ -127,10 +127,10 @@ const montarDescricaoAula = (item) => {
   bloco.appendChild(criarElemento('div', 'aula-disciplina', item.disciplina || 'Disciplina'));
 
   if (item.sala) {
-    bloco.appendChild(criarElemento('div', 'aula-meta', `Sala: ${item.sala}`));
+    bloco.appendChild(criarElemento('div', 'aula-meta aula-sala', `Sala: ${item.sala}`));
   }
 
-  const detalhes = [item.curso, item.ano, item.regime].filter(Boolean).join(' — ');
+  const detalhes = [item.curso, item.ano].filter(Boolean).join(' — ');
   if (detalhes) {
     bloco.appendChild(criarElemento('div', 'aula-meta', detalhes));
   }
@@ -157,9 +157,16 @@ const renderizarGradeHorarios = (resultadoEl, itens, docente) => {
   const horasUnicas = [...new Set(itensNormalizados.map((item) => item.horaNormalizada).filter(Boolean))]
     .sort((a, b) => extrairInicioHora(a) - extrairInicioHora(b));
 
+  const diasComAula = DIAS_UTEIS.filter((diaKey) =>
+    itensNormalizados.some((item) => item.diaNormalizado === diaKey)
+  );
+
   const cabecalhoTopo = criarElemento('div', 'horario-cabecalho');
-  const titulo = criarElemento('h4', 'horario-titulo', `Horário Semanal do Docente: ${docente}`);
-  const btnPDF = criarElemento('button', 'button btn-padrao-portal horario-pdf-btn', '🖨️ Imprimir (PDF)');
+  const titulo = criarElemento('h4', 'horario-titulo', 'Horario Semanal: ');
+  const nomeDocente = criarElemento('span', 'horario-docente-nome', docente);
+  titulo.appendChild(nomeDocente);
+
+  const btnPDF = criarElemento('button', 'btn-simples horario-pdf-btn', 'Baixar');
   btnPDF.type = 'button';
 
   btnPDF.addEventListener('click', () => {
@@ -172,16 +179,14 @@ const renderizarGradeHorarios = (resultadoEl, itens, docente) => {
 
   cabecalhoTopo.appendChild(titulo);
   cabecalhoTopo.appendChild(btnPDF);
-  const legenda = criarElemento('p', 'horario-legenda', '(Todas as turmas e disciplinas)');
   resultadoEl.appendChild(cabecalhoTopo);
-  resultadoEl.appendChild(legenda);
 
   const tabela = criarElemento('table', 'horario-tabela');
   const thead = document.createElement('thead');
   const cabecalho = document.createElement('tr');
   cabecalho.appendChild(criarElemento('th', '', 'Horário'));
 
-  DIAS_UTEIS.forEach((diaKey) => {
+  diasComAula.forEach((diaKey) => {
     cabecalho.appendChild(criarElemento('th', '', DIA_MAPA[diaKey]));
   });
 
@@ -194,7 +199,7 @@ const renderizarGradeHorarios = (resultadoEl, itens, docente) => {
     const row = document.createElement('tr');
     row.appendChild(criarElemento('td', 'horario-hora', hora));
 
-    DIAS_UTEIS.forEach((diaKey) => {
+    diasComAula.forEach((diaKey) => {
       const cell = criarElemento('td', 'horario-celula');
       const aulas = itensNormalizados.filter(
         (item) => item.diaNormalizado === diaKey && item.horaNormalizada === hora
@@ -411,9 +416,6 @@ const renderizarDisciplinas = (docente, disciplinas) => {
     );
     info.appendChild(
       criarElemento('p', 'card-text', `Curso: ${item.curso || '-'}`)
-    );
-    info.appendChild(
-      criarElemento('p', 'card-text', `Regime: ${item.regime || '-'}`)
     );
 
     card.appendChild(info);
