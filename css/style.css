@@ -1116,6 +1116,11 @@ footer {
   color: #003366;
 }
 
+.horario-docente-nome {
+  color: #0a4f9c;
+  font-weight: 700;
+}
+
 .horario-pdf-btn:disabled {
   opacity: 0.75;
   cursor: not-allowed;
@@ -1181,6 +1186,12 @@ footer {
 .aula-meta {
   font-size: 12px;
   opacity: 0.85;
+}
+
+.aula-sala {
+  color: #1f8f3d;
+  font-weight: 700;
+  opacity: 1;
 }
 
 .btn-relatorio-submetidos {
