@@ -249,6 +249,7 @@ const mostrarFormularioInicial = async () => {
 
   const select = criarElemento('select', 'input');
   select.id = 'docenteSelect';
+  select.disabled = true;
   select.innerHTML = '<option value="">Selecione o docente</option>';
 
   // Botão Buscar (SEM formatação)
@@ -287,6 +288,8 @@ const mostrarFormularioInicial = async () => {
       option.textContent = docente;
       select.appendChild(option);
     });
+
+    select.disabled = false;
   } catch (e) {
     console.error('Erro ao carregar docentes', e);
   } finally {
@@ -430,10 +433,10 @@ const renderizarDisciplinas = (docente, disciplinas) => {
     info.className = 'disciplina-info';
 
     info.appendChild(
-      criarElemento('h3', 'card-title', item.disciplina || 'Disciplina')
+      criarElemento('h3', 'card-title disciplina-nome', item.disciplina || 'Disciplina')
     );
     info.appendChild(
-      criarElemento('p', 'card-text', `Curso: ${item.curso || '-'}`)
+      criarElemento('p', 'card-text curso-nome', `Curso: ${item.curso || '-'}`)
     );
 
     card.appendChild(info);
