@@ -166,7 +166,7 @@ const renderizarGradeHorarios = (resultadoEl, itens, docente) => {
   const nomeDocente = criarElemento('span', 'horario-docente-nome', docente);
   titulo.appendChild(nomeDocente);
 
-  const btnPDF = criarElemento('button', 'btn-simples horario-pdf-btn', 'Baixar');
+  const btnPDF = criarElemento('button', 'btn-simples horario-pdf-btn', '⬇ Baixar');
   btnPDF.type = 'button';
 
   btnPDF.addEventListener('click', () => {

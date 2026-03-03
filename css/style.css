@@ -1121,6 +1121,20 @@ footer {
   font-weight: 700;
 }
 
+.horario-pdf-btn {
+  margin-right: 12px;
+  margin-bottom: 8px;
+  border-color: #1f8f3a;
+  background: #2fb24b;
+  color: #fff;
+  font-weight: 600;
+}
+
+.horario-pdf-btn:hover {
+  background: #278e3e;
+  border-color: #207735;
+}
+
 .horario-pdf-btn:disabled {
   opacity: 0.75;
   cursor: not-allowed;
