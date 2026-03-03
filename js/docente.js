@@ -316,19 +316,20 @@ const mostrarSecaoHorarios = async () => {
   select.disabled = true;
   select.innerHTML = '<option value="">A carregar docentes...</option>';
 
-  const btnBuscar = criarElemento('button', '', 'Buscar');
+  const btnBuscar = criarElemento('button', 'btn-simples', 'Buscar');
   btnBuscar.type = 'button';
+  btnBuscar.id = 'btnBuscarHorarioDocente';
 
   const resultado = criarElemento('div', 'horarios-resultado');
   resultado.id = 'horariosResultado';
 
   formRow.appendChild(label);
   formRow.appendChild(select);
+  formRow.appendChild(btnBuscar);
 
   card.appendChild(titulo);
   card.appendChild(subtitulo);
   card.appendChild(formRow);
-  card.appendChild(btnBuscar);
   card.appendChild(resultado);
 
   horariosContainer.appendChild(card);
