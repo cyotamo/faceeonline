@@ -1636,7 +1636,20 @@ select.input {
 .loading-docentes-info {
   margin: -8px 0 14px;
   font-size: 13px;
-  color: #5f6b7a;
+  color: #0057d9;
+  font-weight: 600;
+  animation: piscarDocentes 1s ease-in-out infinite;
+}
+
+@keyframes piscarDocentes {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.25;
+  }
 }
 
 input[type='file'] {
@@ -1741,6 +1754,16 @@ input[type='file'] {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+#resultadoDisciplinas .file-status.is-selected {
+  color: #1f8a3d;
+  font-weight: 600;
+}
+
+#resultadoDisciplinas .plano-enviado-status {
+  color: #0057d9;
+  font-weight: 600;
 }
 
 #resultadoDisciplinas .card-title:not(:last-child)::after,
