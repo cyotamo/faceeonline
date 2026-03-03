@@ -1673,7 +1673,7 @@ input[type='file'] {
   align-items: center;
   gap: 12px;
   flex-wrap: nowrap;
-  padding: 10px 0;
+  padding: 10px 8px;
   border: none;
   border-bottom: 1px solid var(--border);
   border-radius: 0;
@@ -1691,7 +1691,7 @@ input[type='file'] {
 #resultadoDisciplinas .disciplina-info {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   flex-wrap: nowrap;
   overflow: hidden;
   min-width: 0;
@@ -1719,6 +1719,10 @@ input[type='file'] {
   line-height: 1.2;
 }
 
+#resultadoDisciplinas .disciplina-nome {
+  color: #0a4fa8;
+}
+
 #resultadoDisciplinas .disciplina-info p {
   font-size: 0.85rem;
   display: inline-flex;
@@ -1729,6 +1733,10 @@ input[type='file'] {
   overflow: hidden;
   text-overflow: ellipsis;
   line-height: 1.2;
+}
+
+#resultadoDisciplinas .curso-nome {
+  color: #9a5d00;
 }
 
 #resultadoDisciplinas .card p,
