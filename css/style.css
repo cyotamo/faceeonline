@@ -1618,17 +1618,25 @@ select.input {
 }
 
 #btnBuscarDisciplinas {
-  padding: 10px 16px;
-  font-size: 14px;
+  padding: 7px 12px;
+  font-size: 13px;
   border: 1px solid #cfd8e3;
   background: #f7f9fc;
-  border-radius: 10px;
+  border-radius: 8px;
   color: var(--text);
   cursor: pointer;
+  min-width: 90px;
+  white-space: nowrap;
 }
 
 #btnBuscarDisciplinas:hover {
   background: #edf2f9;
+}
+
+.loading-docentes-info {
+  margin: -8px 0 14px;
+  font-size: 13px;
+  color: #5f6b7a;
 }
 
 input[type='file'] {
