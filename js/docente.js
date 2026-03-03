@@ -441,7 +441,7 @@ const renderizarDisciplinas = (docente, disciplinas) => {
     const estado = criarElemento('div');
 
     if (item.linkPlano) {
-      estado.appendChild(criarElemento('p', '', 'Plano submetido'));
+      estado.appendChild(criarElemento('p', 'plano-enviado-status', 'Plano enviado'));
       const link = document.createElement('a');
       link.href = item.linkPlano;
       link.target = '_blank';
@@ -467,8 +467,10 @@ const renderizarDisciplinas = (docente, disciplinas) => {
       input.addEventListener('change', () => {
         if (input.files.length > 0) {
           fileStatus.textContent = input.files[0].name;
+          fileStatus.classList.add('is-selected');
         } else {
           fileStatus.textContent = 'Nenhum ficheiro anexado';
+          fileStatus.classList.remove('is-selected');
         }
       });
 
@@ -502,7 +504,7 @@ const renderizarDisciplinas = (docente, disciplinas) => {
           });
 
           if (resposta?.sucesso === true) {
-            estado.innerHTML = '<p>Plano já submetido</p>';
+            estado.innerHTML = '<p class="plano-enviado-status">Plano enviado</p>';
 
             if (resposta.linkPlano) {
               const link = document.createElement('a');
