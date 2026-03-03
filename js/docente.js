@@ -7,6 +7,12 @@ const btnPlano = document.getElementById('btnPlano');
 const btnHorarios = document.getElementById('btnHorarios');
 const formPlanoContainer = document.getElementById('formPlanoContainer');
 const horariosContainer = document.getElementById('horariosContainer');
+const botoesNavegacao = document.querySelectorAll('.btn-navegacao');
+
+const limparSecoesDocente = () => {
+  if (formPlanoContainer) formPlanoContainer.innerHTML = '';
+  if (horariosContainer) horariosContainer.innerHTML = '';
+};
 
 // ===============================
 // FUNÇÃO ÚNICA DE COMUNICAÇÃO COM GS
@@ -226,6 +232,7 @@ const renderizarGradeHorarios = (resultadoEl, itens, docente) => {
 // ===============================
 const mostrarFormularioInicial = async () => {
   if (!formPlanoContainer) return;
+  if (horariosContainer) horariosContainer.innerHTML = '';
   formPlanoContainer.innerHTML = '';
 
   const card = criarElemento('div', 'card');
@@ -301,6 +308,7 @@ const mostrarFormularioInicial = async () => {
 
 const mostrarSecaoHorarios = async () => {
   if (!horariosContainer) return;
+  if (formPlanoContainer) formPlanoContainer.innerHTML = '';
 
   horariosContainer.innerHTML = '';
 
@@ -524,3 +532,8 @@ if (btnPlano) {
 if (btnHorarios) {
   btnHorarios.addEventListener('click', mostrarSecaoHorarios);
 }
+
+botoesNavegacao.forEach((botao) => {
+  if (botao.id === 'btnPlano' || botao.id === 'btnHorarios') return;
+  botao.addEventListener('click', limparSecoesDocente);
+});
