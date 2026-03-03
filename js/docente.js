@@ -255,17 +255,25 @@ const mostrarFormularioInicial = async () => {
   const btnBuscar = document.createElement('button');
   btnBuscar.textContent = 'Buscar';
   btnBuscar.id = 'btnBuscarDisciplinas';
+  btnBuscar.type = 'button';
+
+  const infoCarregamento = criarElemento(
+    'p',
+    'loading-docentes-info',
+    'Aguarde, carregando a lista.'
+  );
 
   const resultado = criarElemento('div', 'card-grid');
   resultado.id = 'resultadoDisciplinas';
 
   formRow.appendChild(label);
   formRow.appendChild(select);
+  formRow.appendChild(btnBuscar);
 
   card.appendChild(titulo);
   card.appendChild(subtitulo);
   card.appendChild(formRow);
-  card.appendChild(btnBuscar);
+  card.appendChild(infoCarregamento);
   card.appendChild(resultado);
 
   formPlanoContainer.appendChild(card);
@@ -281,6 +289,8 @@ const mostrarFormularioInicial = async () => {
     });
   } catch (e) {
     console.error('Erro ao carregar docentes', e);
+  } finally {
+    infoCarregamento.style.display = 'none';
   }
 
   // Buscar disciplinas
