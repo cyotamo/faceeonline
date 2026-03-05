@@ -438,6 +438,9 @@ const renderizarDisciplinas = (docente, disciplinas) => {
     info.appendChild(
       criarElemento('p', 'card-text curso-nome', `Curso: ${item.curso || '-'}`)
     );
+    info.appendChild(
+      criarElemento('p', 'card-text regime-nome', `Regime: ${item.regime || '-'}`)
+    );
 
     card.appendChild(info);
 
