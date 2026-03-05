@@ -1814,6 +1814,45 @@ input[type='file'] {
   background: #f3f5f8;
 }
 
+@media (max-width: 768px) {
+  #resultadoDisciplinas .card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  #resultadoDisciplinas .disciplina-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    overflow: visible;
+  }
+
+  #resultadoDisciplinas .disciplina-info h3,
+  #resultadoDisciplinas .disciplina-info p {
+    white-space: normal;
+    max-width: 100%;
+  }
+
+  #resultadoDisciplinas .card-title:not(:last-child)::after,
+  #resultadoDisciplinas .card-text:not(:last-child)::after {
+    content: '';
+    margin: 0;
+  }
+
+  #resultadoDisciplinas .card > div:last-child {
+    margin-left: 0;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  #resultadoDisciplinas .file-status {
+    max-width: 100%;
+    flex: 1 1 220px;
+  }
+}
+
 /* ===== MODAL DE LOGIN ===== */
 .login-modal-overlay {
   display: none;
