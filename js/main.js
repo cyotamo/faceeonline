@@ -112,11 +112,15 @@ function aplicarMascaraContacto(input) {
 // Função que aplica a máscara em elementos com id numero e numeroEstudante
 function iniciarMascaras() {
   // Máscaras para números de estudante
-  const camposNumero = document.querySelectorAll("#numero, #numeroEstudante, #numeroEstudanteConsulta");
+  const camposNumero = document.querySelectorAll(
+    "#numero, #numeroEstudante, #numeroEstudanteConsulta, #numeroDefesa"
+  );
   camposNumero.forEach(campo => aplicarMascaraNumeroEstudante(campo));
 
   // Máscaras para contactos
-  const camposContacto = document.querySelectorAll("#contacto1, #contacto2");
+  const camposContacto = document.querySelectorAll(
+    "#contacto1, #contacto2, #contacto1Defesa, #contacto2Defesa"
+  );
   camposContacto.forEach(campo => aplicarMascaraContacto(campo));
 }
 
@@ -151,6 +155,7 @@ function iniciarNavegacaoFormulariosAluno() {
 
     const formulariosAluno = [
       "formTema",
+      "formDefesaMonografia",
       "formMonografiaFinal",
       "formPedidoCredencial",
     ];
