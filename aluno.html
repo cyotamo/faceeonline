@@ -202,7 +202,7 @@
       if (!formContainer) return;
 
       formContainer.innerHTML = `
-        <h2>Submissão de Tema de Monografia</h2>
+        <h2>Solicitação de Defesa de Monografia</h2>
         <div class="alert-obrigatorio">
           ⚠️ Atenção: É obrigatório o preenchimento de todos os campos.
           Caso contrário, os dados não serão enviados.
@@ -237,12 +237,12 @@
               <option value="">Seleccione...</option>
             </select>
 
-            <label for="supervisorDefesa">Proposta de Supervisor:</label>
+            <label for="supervisorDefesa">Supervisor:</label>
             <select id="supervisorDefesa" required>
               <option value="">Seleccione...</option>
             </select>
 
-            <label for="temaDefesa">Título/Tema:</label>
+            <label for="temaDefesa">Titulo da Monografia:</label>
             <input type="text" id="temaDefesa" required>
 
             <button type="button" class="btn-submeter" id="btnEnviarDefesaMonografia">Enviar</button>
