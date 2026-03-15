@@ -389,10 +389,23 @@ function activarFiltrosFormularioDefesa() {
     preencherSupervisoresDefesa(linha.value);
   });
 
-  const formDefesa = document.getElementById('formDefesaMonografia');
-  if (formDefesa) {
-    actualizarEstadoBotao(formDefesa);
-  }
+  configurarSubmissaoDefesaMonografia();
+}
+
+function configurarSubmissaoDefesaMonografia() {
+  const form = document.getElementById('formDefesaMonografia');
+  const botao = document.getElementById('btnEnviarDefesaMonografia');
+
+  if (!form || !botao || form.dataset.submissaoDefesaConfigurada === 'true') return;
+
+  const accionarEnvio = (evento) => {
+    evento.preventDefault();
+    enviarDefesaMonografia();
+  };
+
+  botao.addEventListener('click', accionarEnvio);
+  form.addEventListener('submit', accionarEnvio);
+  form.dataset.submissaoDefesaConfigurada = 'true';
 }
 
 window.activarFiltrosFormularioDefesa = activarFiltrosFormularioDefesa;
@@ -699,6 +712,9 @@ function configurarMonitorizacaoFormulario() {
   if (!form || form.dataset.validationAttached) return;
 
   form.dataset.validationAttached = 'true';
+
+  const validacaoManual = form.dataset.validacaoBotao === 'manual';
+  if (validacaoManual) return;
 
   const botao = form.querySelector('.btn-submeter');
   if (botao) {

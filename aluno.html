@@ -208,7 +208,7 @@
           Caso contrário, os dados não serão enviados.
         </div>
 
-        <form id="formDefesaMonografia">
+        <form id="formDefesaMonografia" data-validacao-botao="manual">
 
             <label for="nomeDefesa">Nome (Iniciais maiúsculas):</label>
             <input type="text" id="nomeDefesa" required>
@@ -245,7 +245,7 @@
             <label for="temaDefesa">Título/Tema:</label>
             <input type="text" id="temaDefesa" required>
 
-            <button type="button" class="btn-submeter" onclick="enviarDefesaMonografia()">Enviar</button>
+            <button type="button" class="btn-submeter" id="btnEnviarDefesaMonografia">Enviar</button>
 
         </form>
       `;
