@@ -268,7 +268,9 @@ function renderTabelaDefesa(lista = []) {
             contacto1: item.contacto1 || "",
             contacto2: item.contacto2 || "",
             curso: item.curso || "",
-            supervisor: item.supervisor || ""
+            supervisor: item.supervisor || "",
+            situacao: item.situacao || "",
+            linkPDF: item.linkPDF || item.linkPdf || item.pdf || item.PDF || ""
         };
 
         return `
@@ -280,6 +282,8 @@ function renderTabelaDefesa(lista = []) {
                 <td>${escaparHTML(itemSeguro.contacto2)}</td>
                 <td class="col-curso">${escaparHTML(itemSeguro.curso)}</td>
                 <td class="col-supervisor">${escaparHTML(itemSeguro.supervisor)}</td>
+                <td>${escaparHTML(itemSeguro.situacao)}</td>
+                <td class="col-pdf">${itemSeguro.linkPDF ? `<a class="pdf-icon" href="${escaparHTML(itemSeguro.linkPDF)}" target="_blank" rel="noopener noreferrer">📄</a>` : "—"}</td>
                 <td class="col-acao">
                     <button
                         type="button"
@@ -1296,7 +1300,7 @@ async function carregarDefesas() {
 
     tbody.innerHTML = `
         <tr>
-            <td colspan="8">A carregar dados das defesas...</td>
+            <td colspan="10">A carregar dados das defesas...</td>
         </tr>
     `;
 
@@ -1308,7 +1312,7 @@ async function carregarDefesas() {
             defesasCache = [];
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="8">Não foi possível carregar os dados das defesas.</td>
+                    <td colspan="10">Não foi possível carregar os dados das defesas.</td>
                 </tr>
             `;
             return;
@@ -1320,7 +1324,7 @@ async function carregarDefesas() {
             defesasCache = [];
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="8">Nenhum registo de defesa encontrado.</td>
+                    <td colspan="10">Nenhum registo de defesa encontrado.</td>
                 </tr>
             `;
             return;
@@ -1337,7 +1341,7 @@ async function carregarDefesas() {
         defesasCache = [];
         tbody.innerHTML = `
             <tr>
-                <td colspan="8">Ocorreu um erro ao carregar as defesas.</td>
+                <td colspan="10">Ocorreu um erro ao carregar as defesas.</td>
             </tr>
         `;
     }
