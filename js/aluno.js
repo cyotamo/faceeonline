@@ -399,7 +399,7 @@ window.activarFiltrosFormularioDefesa = activarFiltrosFormularioDefesa;
 
 function enviarDefesaMonografia() {
   const dados = new FormData();
-  dados.append('action', 'submeterTema');
+  dados.append('action', 'submeterDefesa');
 
   const mapeamentoCampos = {
     nomeDefesa: 'nome',
