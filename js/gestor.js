@@ -200,6 +200,200 @@ function opcoesSupervisoresHTML(valorSelecionado, opcoes) {
 
 const estatisticasContainer = document.getElementById("estatisticasContainer");
 const secaoDefesas = document.getElementById("secaoDefesas");
+const modalEdicaoDefesa = document.getElementById("modalEdicaoDefesa");
+const selectSituacaoDefesa = document.getElementById("defesaSituacao");
+const selectPresidenteDefesa = document.getElementById("defesaPresidente");
+const selectArguenteDefesa = document.getElementById("defesaArguente");
+
+const SITUACOES_DEFESA = [
+    "Em avaliação no RA",
+    "Em avaliação pela banca",
+    "Em processo de marcação de defesa",
+    "Defesa agendada"
+];
+
+const DOCENTES_DEFESA_TESTE = [
+    "Prof. Alberto Manuel",
+    "Prof. Carla João",
+    "Prof. Ernesto Paulo",
+    "Prof. Lúcia Armando"
+];
+
+let registoDefesaEmEdicao = null;
+let defesasCache = [];
+
+function escaparHTML(valor) {
+    return String(valor ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function preencherSelectComOpcoes(select, opcoes, valorSelecionado = "") {
+    if (!select) {
+        return;
+    }
+
+    const opcoesNormalizadas = Array.isArray(opcoes) ? opcoes : [];
+    const valorAtual = String(valorSelecionado ?? "").trim();
+
+    select.innerHTML = opcoesNormalizadas
+        .map((opcao) => {
+            const valor = String(opcao ?? "").trim();
+            const selected = valorAtual && valorAtual === valor ? " selected" : "";
+            return `<option value="${escaparHTML(valor)}"${selected}>${escaparHTML(valor)}</option>`;
+        })
+        .join("");
+
+    if (!valorAtual && opcoesNormalizadas.length) {
+        select.selectedIndex = 0;
+    }
+}
+
+function renderTabelaDefesa(lista = []) {
+    const tbody = document.getElementById("listaDefesas");
+    if (!tbody) {
+        return;
+    }
+
+    const listaSegura = Array.isArray(lista) ? lista : [];
+
+    tbody.innerHTML = listaSegura.map((item, index) => {
+        const itemSeguro = {
+            data: item.data || "",
+            nome: item.nome || "",
+            numero: item.numero || "",
+            contacto1: item.contacto1 || "",
+            contacto2: item.contacto2 || "",
+            curso: item.curso || "",
+            supervisor: item.supervisor || ""
+        };
+
+        return `
+            <tr>
+                <td>${escaparHTML(itemSeguro.data)}</td>
+                <td class="col-nome">${escaparHTML(itemSeguro.nome)}</td>
+                <td>${escaparHTML(itemSeguro.numero)}</td>
+                <td>${escaparHTML(itemSeguro.contacto1)}</td>
+                <td>${escaparHTML(itemSeguro.contacto2)}</td>
+                <td class="col-curso">${escaparHTML(itemSeguro.curso)}</td>
+                <td class="col-supervisor">${escaparHTML(itemSeguro.supervisor)}</td>
+                <td class="col-acao">
+                    <button
+                        type="button"
+                        class="button button-small btn-padrao-portal btn-editar-defesa"
+                        data-index="${index}"
+                    >Editar</button>
+                </td>
+            </tr>
+        `;
+    }).join("");
+}
+
+function abrirModalEdicaoDefesa(registo = {}) {
+    if (!modalEdicaoDefesa) {
+        return;
+    }
+
+    registoDefesaEmEdicao = {
+        nome: registo.nome || "",
+        supervisor: registo.supervisor || "",
+        situacao: registo.situacao || SITUACOES_DEFESA[0],
+        presidente: registo.presidente || DOCENTES_DEFESA_TESTE[0],
+        arguente: registo.arguente || DOCENTES_DEFESA_TESTE[1] || DOCENTES_DEFESA_TESTE[0],
+        dataAgendada: registo.dataAgendada || ""
+    };
+
+    const inputNome = document.getElementById("defesaNome");
+    const inputSupervisor = document.getElementById("defesaSupervisor");
+    const inputDataAgendada = document.getElementById("defesaDataAgendada");
+
+    if (inputNome) inputNome.value = registoDefesaEmEdicao.nome;
+    if (inputSupervisor) inputSupervisor.value = registoDefesaEmEdicao.supervisor;
+    if (inputDataAgendada) inputDataAgendada.value = registoDefesaEmEdicao.dataAgendada;
+
+    preencherSelectComOpcoes(selectSituacaoDefesa, SITUACOES_DEFESA, registoDefesaEmEdicao.situacao);
+    preencherSelectComOpcoes(selectPresidenteDefesa, DOCENTES_DEFESA_TESTE, registoDefesaEmEdicao.presidente);
+    preencherSelectComOpcoes(selectArguenteDefesa, DOCENTES_DEFESA_TESTE, registoDefesaEmEdicao.arguente);
+
+    modalEdicaoDefesa.style.display = "flex";
+    modalEdicaoDefesa.setAttribute("aria-hidden", "false");
+}
+
+function fecharModalEdicaoDefesa() {
+    if (!modalEdicaoDefesa) {
+        return;
+    }
+
+    modalEdicaoDefesa.style.display = "none";
+    modalEdicaoDefesa.setAttribute("aria-hidden", "true");
+    registoDefesaEmEdicao = null;
+}
+
+function guardarEdicaoDefesa() {
+    if (!registoDefesaEmEdicao) {
+        return;
+    }
+
+    const inputDataAgendada = document.getElementById("defesaDataAgendada");
+
+    const dadosEditados = {
+        nome: registoDefesaEmEdicao.nome,
+        supervisor: registoDefesaEmEdicao.supervisor,
+        situacao: selectSituacaoDefesa?.value || "",
+        presidente: selectPresidenteDefesa?.value || "",
+        arguente: selectArguenteDefesa?.value || "",
+        dataAgendada: inputDataAgendada?.value || ""
+    };
+
+    console.log("[Defesa] Edição preparada:", dadosEditados);
+    fecharModalEdicaoDefesa();
+}
+
+function configurarEventosModalDefesa() {
+    const btnFechar = document.getElementById("btnFecharModalDefesa");
+    const btnCancelar = document.getElementById("btnCancelarEdicaoDefesa");
+    const btnGuardar = document.getElementById("btnGuardarEdicaoDefesa");
+    const tbodyDefesas = document.getElementById("listaDefesas");
+
+    btnFechar?.addEventListener("click", fecharModalEdicaoDefesa);
+    btnCancelar?.addEventListener("click", fecharModalEdicaoDefesa);
+    btnGuardar?.addEventListener("click", guardarEdicaoDefesa);
+
+    modalEdicaoDefesa?.addEventListener("click", (event) => {
+        if (event.target === modalEdicaoDefesa) {
+            fecharModalEdicaoDefesa();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && modalEdicaoDefesa?.style.display === "flex") {
+            fecharModalEdicaoDefesa();
+        }
+    });
+
+    tbodyDefesas?.addEventListener("click", (event) => {
+        const botaoEditar = event.target.closest(".btn-editar-defesa");
+        if (!botaoEditar) {
+            return;
+        }
+
+        const index = Number.parseInt(botaoEditar.dataset.index, 10);
+        if (Number.isNaN(index) || !defesasCache[index]) {
+            return;
+        }
+
+        abrirModalEdicaoDefesa(defesasCache[index]);
+    });
+}
+
+window.abrirModalEdicaoDefesa = abrirModalEdicaoDefesa;
+window.fecharModalEdicaoDefesa = fecharModalEdicaoDefesa;
+window.guardarEdicaoDefesa = guardarEdicaoDefesa;
+window.renderTabelaDefesa = renderTabelaDefesa;
+configurarEventosModalDefesa();
 
 function esconderEstatisticas() {
     estatisticasContainer.style.display = "none";
@@ -1102,7 +1296,7 @@ async function carregarDefesas() {
 
     tbody.innerHTML = `
         <tr>
-            <td colspan="7">A carregar dados das defesas...</td>
+            <td colspan="8">A carregar dados das defesas...</td>
         </tr>
     `;
 
@@ -1111,9 +1305,10 @@ async function carregarDefesas() {
         const res = await resposta.json();
 
         if (!res || !(res.sucesso === true || res.sucesso === "true")) {
+            defesasCache = [];
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="7">Não foi possível carregar os dados das defesas.</td>
+                    <td colspan="8">Não foi possível carregar os dados das defesas.</td>
                 </tr>
             `;
             return;
@@ -1122,30 +1317,27 @@ async function carregarDefesas() {
         const lista = Array.isArray(res.dados) ? res.dados : [];
 
         if (!lista.length) {
+            defesasCache = [];
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="7">Nenhum registo de defesa encontrado.</td>
+                    <td colspan="8">Nenhum registo de defesa encontrado.</td>
                 </tr>
             `;
             return;
         }
 
-        tbody.innerHTML = lista.map(item => `
-            <tr>
-                <td>${item.data || ""}</td>
-                <td class="col-nome">${item.nome || ""}</td>
-                <td>${item.numero || ""}</td>
-                <td>${item.contacto1 || ""}</td>
-                <td>${item.contacto2 || ""}</td>
-                <td class="col-curso">${item.curso || ""}</td>
-                <td class="col-supervisor">${item.supervisor || ""}</td>
-            </tr>
-        `).join("");
+        defesasCache = lista.map((item) => ({
+            ...item,
+            dataAgendada: item.dataAgendada || item.data_agendada || ""
+        }));
+
+        renderTabelaDefesa(defesasCache);
     } catch (erro) {
         console.error("Erro ao carregar defesas:", erro);
+        defesasCache = [];
         tbody.innerHTML = `
             <tr>
-                <td colspan="7">Ocorreu um erro ao carregar as defesas.</td>
+                <td colspan="8">Ocorreu um erro ao carregar as defesas.</td>
             </tr>
         `;
     }
