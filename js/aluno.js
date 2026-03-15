@@ -398,6 +398,14 @@ function activarFiltrosFormularioDefesa() {
 window.activarFiltrosFormularioDefesa = activarFiltrosFormularioDefesa;
 
 function enviarDefesaMonografia() {
+  const form = document.getElementById('formDefesaMonografia');
+  if (!form) return;
+
+  if (!validarFormulario(form)) {
+    mostrarModal('Preencha correctamente todos os campos obrigatórios antes de enviar.');
+    return;
+  }
+
   const dados = new FormData();
   dados.append('action', 'submeterDefesa');
 
@@ -420,7 +428,9 @@ function enviarDefesaMonografia() {
     }
   });
 
-  const botao = document.activeElement;
+  const botao = form.querySelector('.btn-submeter');
+  if (!botao) return;
+
   activarLoading(botao);
 
   fetch(WEB_URL, {
