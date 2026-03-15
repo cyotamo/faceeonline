@@ -902,6 +902,18 @@ footer {
   white-space: nowrap;
 }
 
+.tabela-gestao .col-acao {
+  width: 140px;
+  white-space: nowrap;
+}
+
+.btn-editar-defesa {
+  min-height: 36px;
+  padding: 8px 14px;
+  font-size: 13px;
+  box-shadow: 0 8px 20px rgba(0, 85, 165, 0.25);
+}
+
 .tabela-gestao .col-pdf,
 .tabela-gestao .pdf-col {
   width: 60px;
@@ -1502,6 +1514,143 @@ footer {
 
 .modal-ok-btn:hover {
   background: #003b8f;
+}
+
+.defesa-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  padding: 20px;
+  backdrop-filter: blur(2px);
+}
+
+.defesa-modal-box {
+  width: min(760px, 100%);
+  max-height: 92vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 18px 36px rgba(0, 38, 77, 0.24);
+  border: 1px solid #d9e5f7;
+}
+
+.defesa-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid #e6eefb;
+}
+
+.defesa-modal-title {
+  margin: 0;
+  color: #003366;
+  font-size: 1.1rem;
+}
+
+.defesa-modal-close {
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  color: #486b95;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.defesa-modal-content {
+  padding: 20px;
+}
+
+.defesa-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.defesa-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.defesa-form-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #003366;
+}
+
+.defesa-form-field input,
+.defesa-form-field select {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #c8d9f1;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  background: #fff;
+  font-family: inherit;
+}
+
+.defesa-form-field input[readonly] {
+  background: #f0f4fb;
+  color: #516883;
+  cursor: not-allowed;
+}
+
+.defesa-form-field.full-row {
+  grid-column: 1 / -1;
+}
+
+.defesa-modal-section {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #e6eefb;
+}
+
+.defesa-modal-section h4 {
+  margin: 0 0 14px;
+  color: #003366;
+  font-size: 1rem;
+}
+
+.defesa-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 20px 20px;
+  border-top: 1px solid #e6eefb;
+}
+
+@media (max-width: 768px) {
+  .defesa-modal-overlay {
+    padding: 12px;
+    align-items: flex-start;
+  }
+
+  .defesa-modal-box {
+    margin-top: 20px;
+    width: 100%;
+  }
+
+  .defesa-modal-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .defesa-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .defesa-modal-actions .button {
+    width: 100%;
+  }
 }
 
 @keyframes fadeInScale {

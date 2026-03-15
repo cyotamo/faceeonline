@@ -51,10 +51,62 @@
                   <th>Contacto 2</th>
                   <th class="col-curso">Curso</th>
                   <th class="col-supervisor">Supervisor</th>
+                  <th class="col-acao">Acção</th>
                 </tr>
               </thead>
               <tbody id="listaDefesas"></tbody>
             </table>
+          </div>
+        </div>
+
+        <div id="modalEdicaoDefesa" class="defesa-modal-overlay" style="display:none;" aria-hidden="true">
+          <div class="defesa-modal-box" role="dialog" aria-modal="true" aria-labelledby="defesaModalTitulo">
+            <div class="defesa-modal-header">
+              <h3 id="defesaModalTitulo" class="defesa-modal-title">Editar registo de defesa</h3>
+              <button id="btnFecharModalDefesa" type="button" class="defesa-modal-close" aria-label="Fechar">×</button>
+            </div>
+
+            <div class="defesa-modal-content">
+              <div class="defesa-modal-grid">
+                <div class="defesa-form-field full-row">
+                  <label for="defesaNome">Nome</label>
+                  <input id="defesaNome" type="text" readonly>
+                </div>
+
+                <div class="defesa-form-field full-row">
+                  <label for="defesaSupervisor">Supervisor</label>
+                  <input id="defesaSupervisor" type="text" readonly>
+                </div>
+
+                <div class="defesa-form-field full-row">
+                  <label for="defesaSituacao">Situação</label>
+                  <select id="defesaSituacao"></select>
+                </div>
+              </div>
+
+              <section class="defesa-modal-section">
+                <h4>Marcação de defesa</h4>
+                <div class="defesa-modal-grid">
+                  <div class="defesa-form-field">
+                    <label for="defesaPresidente">Presidente</label>
+                    <select id="defesaPresidente"></select>
+                  </div>
+                  <div class="defesa-form-field">
+                    <label for="defesaArguente">Arguente</label>
+                    <select id="defesaArguente"></select>
+                  </div>
+                  <div class="defesa-form-field full-row">
+                    <label for="defesaDataAgendada">Data agendada</label>
+                    <input id="defesaDataAgendada" type="date">
+                  </div>
+                </div>
+              </section>
+            </div>
+
+            <div class="defesa-modal-actions">
+              <button id="btnGuardarEdicaoDefesa" type="button" class="button btn-padrao-portal">Guardar</button>
+              <button id="btnCancelarEdicaoDefesa" type="button" class="button secondary btn-padrao-portal">Cancelar</button>
+            </div>
           </div>
         </div>
 
@@ -156,7 +208,6 @@
 
 
 </html>
-
 
 
 
