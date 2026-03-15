@@ -78,11 +78,11 @@ function validarFormulario(form) {
       return false;
     }
 
-    if (campo.id === 'numero' || campo.id === 'numeroEstudante') {
+    if (campo.id === 'numero' || campo.id === 'numeroEstudante' || campo.id === 'numeroDefesa') {
       if (!validarNumeroEstudante(campo.value)) return false;
     }
 
-    if (campo.id === 'contacto1' || campo.id === 'contacto2') {
+    if (campo.id === 'contacto1' || campo.id === 'contacto2' || campo.id === 'contacto1Defesa' || campo.id === 'contacto2Defesa') {
       if (!validarContacto(campo.value)) return false;
     }
   }
@@ -289,6 +289,165 @@ function enviarTema() {
 
 // Tornar a função acessível no HTML
 window.enviarTema = enviarTema;
+
+function preencherDepartamentosDefesa() {
+  const depSelect = document.getElementById('departamentoDefesa');
+  if (!depSelect) return;
+
+  depSelect.innerHTML = '<option value="">Seleccione...</option>';
+
+  const depsUnicos = [...new Set(dadosLinhas.map((l) => l.departamento))];
+
+  depsUnicos.forEach((dep) => {
+    const opt = document.createElement('option');
+    opt.value = dep;
+    opt.textContent = dep;
+    depSelect.appendChild(opt);
+  });
+}
+
+function preencherCursosDefesa(departamento) {
+  const cursoSelect = document.getElementById('cursoDefesa');
+  if (!cursoSelect) return;
+
+  cursoSelect.innerHTML = '<option value="">Seleccione...</option>';
+
+  const cursos = dadosLinhas.filter((l) => l.departamento === departamento).map((l) => l.curso);
+  const unicos = [...new Set(cursos)];
+
+  unicos.forEach((curso) => {
+    const opt = document.createElement('option');
+    opt.value = curso;
+    opt.textContent = curso;
+    cursoSelect.appendChild(opt);
+  });
+}
+
+function preencherLinhasDefesa(curso) {
+  const linhaSelect = document.getElementById('linhaDefesa');
+  if (!linhaSelect) return;
+
+  linhaSelect.innerHTML = '<option value="">Seleccione...</option>';
+
+  const linhas = dadosLinhas.filter((l) => l.curso === curso).map((l) => l.linha);
+  const unicos = [...new Set(linhas)];
+
+  unicos.forEach((linha) => {
+    const opt = document.createElement('option');
+    opt.value = linha;
+    opt.textContent = linha;
+    linhaSelect.appendChild(opt);
+  });
+}
+
+function preencherSupervisoresDefesa(linha) {
+  const supervisorSelect = document.getElementById('supervisorDefesa');
+  if (!supervisorSelect) return;
+
+  supervisorSelect.innerHTML = '<option value="">Seleccione...</option>';
+
+  const supervisores = dadosLinhas.filter((l) => l.linha === linha).map((l) => l.docente);
+  const unicos = [...new Set(supervisores)];
+
+  unicos.forEach((supervisor) => {
+    const opt = document.createElement('option');
+    opt.value = supervisor;
+    opt.textContent = supervisor;
+    supervisorSelect.appendChild(opt);
+  });
+}
+
+function activarFiltrosFormularioDefesa() {
+  const dep = document.getElementById('departamentoDefesa');
+  const curso = document.getElementById('cursoDefesa');
+  const linha = document.getElementById('linhaDefesa');
+
+  if (!dep || !curso || !linha) return;
+
+  preencherDepartamentosDefesa();
+
+  dep.addEventListener('change', () => {
+    preencherCursosDefesa(dep.value);
+    linha.innerHTML = '<option value="">Seleccione...</option>';
+
+    const supervisor = document.getElementById('supervisorDefesa');
+    if (supervisor) {
+      supervisor.innerHTML = '<option value="">Seleccione...</option>';
+    }
+  });
+
+  curso.addEventListener('change', () => {
+    preencherLinhasDefesa(curso.value);
+
+    const supervisor = document.getElementById('supervisorDefesa');
+    if (supervisor) {
+      supervisor.innerHTML = '<option value="">Seleccione...</option>';
+    }
+  });
+
+  linha.addEventListener('change', () => {
+    preencherSupervisoresDefesa(linha.value);
+  });
+
+  const formDefesa = document.getElementById('formDefesaMonografia');
+  if (formDefesa) {
+    actualizarEstadoBotao(formDefesa);
+  }
+}
+
+window.activarFiltrosFormularioDefesa = activarFiltrosFormularioDefesa;
+
+function enviarDefesaMonografia() {
+  const dados = new FormData();
+  dados.append('action', 'submeterTema');
+
+  const mapeamentoCampos = {
+    nomeDefesa: 'nome',
+    numeroDefesa: 'numero',
+    contacto1Defesa: 'contacto1',
+    contacto2Defesa: 'contacto2',
+    departamentoDefesa: 'departamento',
+    cursoDefesa: 'curso',
+    linhaDefesa: 'linha',
+    supervisorDefesa: 'supervisor',
+    temaDefesa: 'tema',
+    descricaoDefesa: 'descricao',
+  };
+
+  Object.entries(mapeamentoCampos).forEach(([idCampo, nomePayload]) => {
+    const elemento = document.getElementById(idCampo);
+    if (elemento) {
+      dados.append(nomePayload, elemento.value);
+    }
+  });
+
+  const botao = document.activeElement;
+  activarLoading(botao);
+
+  fetch(WEB_URL, {
+    method: 'POST',
+    body: dados,
+  })
+  .then((r) => r.json())
+  .then((res) => {
+    desativarLoading(botao);
+
+    if (res.sucesso === true || res.sucesso === 'true') {
+      document.getElementById('form-container').innerHTML = '';
+      mostrarModal(
+        'Os seus dados foram enviados com sucesso. Acompanhe o andamento do processo na aba Consulta.'
+      );
+    } else {
+      mostrarModal(res.mensagem || '❌ Submissão recusada.');
+    }
+  })
+  .catch(() => {
+    desativarLoading(botao);
+    mostrarModal('Ocorreu um erro ao enviar os dados. Por favor, tente novamente.');
+  });
+}
+
+window.enviarDefesaMonografia = enviarDefesaMonografia;
 
 
 async function enviarMonografiaFinal() {
@@ -1226,7 +1385,7 @@ btnBaixarFormulario?.addEventListener('click', () => {
   carregarDocumentos();
 });
 
-['btnTema', 'btnMonografia', 'btnPedidoCredencial', 'btnPedidoCredencialEstagio', 'btnConsultaEstado'].forEach((idBotao) => {
+['btnTema', 'btnDefesaMonografia', 'btnMonografia', 'btnPedidoCredencial', 'btnPedidoCredencialEstagio', 'btnConsultaEstado'].forEach((idBotao) => {
   const botao = document.getElementById(idBotao);
   botao?.addEventListener('click', mostrarContainerFormularios);
 });
