@@ -127,7 +127,6 @@
     const btnPedidoCredencial = document.getElementById('btnPedidoCredencial');
     const btnPedidoCredencialEstagio = document.getElementById('btnPedidoCredencialEstagio');
     const btnHorarios = document.getElementById('btnHorarios');
-    const btnDefesaMonografia = document.getElementById('btnDefesaMonografia');
     const containerHorarios = document.getElementById('containerHorarios');
     const obterFormContainer = () => document.getElementById('form-container');
 
@@ -195,62 +194,6 @@
       `;
 
       carregarDadosLinhas().then(() => activarFiltrosFormulario());
-    });
-
-    btnDefesaMonografia?.addEventListener('click', () => {
-      const formContainer = obterFormContainer();
-      if (!formContainer) return;
-
-      formContainer.innerHTML = `
-        <h2>Solicitação de Defesa de Monografia</h2>
-        <div class="alert-obrigatorio">
-          ⚠️ Atenção: É obrigatório o preenchimento de todos os campos.
-          Caso contrário, os dados não serão enviados.
-        </div>
-
-        <form id="formDefesaMonografia">
-
-            <label for="nomeDefesa">Nome (Iniciais maiúsculas):</label>
-            <input type="text" id="nomeDefesa" required>
-
-            <label for="numeroDefesa">Número de Estudante (sem pontos "." somente números):</label>
-            <input type="text" id="numeroDefesa" required>
-
-            <label for="contacto1Defesa">Contacto Telefónico 1:</label>
-            <input type="text" id="contacto1Defesa" required>
-
-            <label for="contacto2Defesa">Contacto Telefónico 2:</label>
-            <input type="text" id="contacto2Defesa">
-
-            <label for="departamentoDefesa">Departamento:</label>
-            <select id="departamentoDefesa" required>
-              <option value="">Seleccione...</option>
-            </select>
-
-            <label for="cursoDefesa">Curso:</label>
-            <select id="cursoDefesa" required>
-              <option value="">Seleccione...</option>
-            </select>
-
-            <label for="linhaDefesa">Linha de Pesquisa:</label>
-            <select id="linhaDefesa" required>
-              <option value="">Seleccione...</option>
-            </select>
-
-            <label for="supervisorDefesa">Supervisor:</label>
-            <select id="supervisorDefesa" required>
-              <option value="">Seleccione...</option>
-            </select>
-
-            <label for="temaDefesa">Título:</label>
-            <input type="text" id="temaDefesa" required>
-
-            <button type="button" class="btn-submeter" onclick="enviarDefesaMonografia()">Enviar</button>
-
-        </form>
-      `;
-
-      carregarDadosLinhas().then(() => activarFiltrosFormularioDefesa());
     });
 
     btnMonografia?.addEventListener('click', () => {
