@@ -204,6 +204,7 @@ const modalEdicaoDefesa = document.getElementById("modalEdicaoDefesa");
 const selectSituacaoDefesa = document.getElementById("defesaSituacao");
 const selectPresidenteDefesa = document.getElementById("defesaPresidente");
 const selectArguenteDefesa = document.getElementById("defesaArguente");
+const btnGuardarSituacaoDefesa = document.getElementById("btnGuardarSituacaoDefesa");
 
 const SITUACOES_DEFESA = [
     "Em avaliação no RA",
@@ -220,6 +221,7 @@ const DOCENTES_DEFESA_TESTE = [
 ];
 
 let registoDefesaEmEdicao = null;
+let indiceDefesaEmEdicao = null;
 let defesasCache = [];
 
 function escaparHTML(valor) {
@@ -296,12 +298,15 @@ function renderTabelaDefesa(lista = []) {
     }).join("");
 }
 
-function abrirModalEdicaoDefesa(registo = {}) {
+function abrirModalEdicaoDefesa(registo = {}, indice = null) {
     if (!modalEdicaoDefesa) {
         return;
     }
 
+    indiceDefesaEmEdicao = Number.isInteger(indice) ? indice : null;
+
     registoDefesaEmEdicao = {
+        ...registo,
         nome: registo.nome || "",
         supervisor: registo.supervisor || "",
         situacao: registo.situacao || SITUACOES_DEFESA[0],
@@ -334,6 +339,55 @@ function fecharModalEdicaoDefesa() {
     modalEdicaoDefesa.style.display = "none";
     modalEdicaoDefesa.setAttribute("aria-hidden", "true");
     registoDefesaEmEdicao = null;
+    indiceDefesaEmEdicao = null;
+}
+
+function actualizarSituacaoNaTabela(situacao) {
+    if (!Number.isInteger(indiceDefesaEmEdicao) || !defesasCache[indiceDefesaEmEdicao]) {
+        return;
+    }
+
+    defesasCache[indiceDefesaEmEdicao].situacao = situacao;
+    renderTabelaDefesa(defesasCache);
+}
+
+async function guardarSituacaoDefesa() {
+    if (!registoDefesaEmEdicao) {
+        return;
+    }
+
+    const situacao = selectSituacaoDefesa?.value || "";
+    const payload = new URLSearchParams({
+        action: "guardarSituacaoDefesa",
+        situacao,
+        id: registoDefesaEmEdicao.id || registoDefesaEmEdicao.idDefesa || "",
+        row: registoDefesaEmEdicao.row || "",
+        numero: registoDefesaEmEdicao.numero || "",
+        nome: registoDefesaEmEdicao.nome || ""
+    });
+
+    activarLoadingGuardar(btnGuardarSituacaoDefesa);
+
+    try {
+        const resposta = await fetch(WEB_URL, {
+            method: "POST",
+            body: payload
+        });
+
+        const resultado = await resposta.json();
+        if (!resultado || !(resultado.sucesso === true || resultado.sucesso === "true")) {
+            throw new Error(resultado?.mensagem || "Não foi possível guardar a situação.");
+        }
+
+        registoDefesaEmEdicao.situacao = situacao;
+        actualizarSituacaoNaTabela(situacao);
+        alert("Situação guardada com sucesso.");
+    } catch (erro) {
+        console.error("Erro ao guardar situação da defesa:", erro);
+        alert(erro.message || "Erro ao guardar situação da defesa.");
+    } finally {
+        desactivarLoadingGuardar(btnGuardarSituacaoDefesa);
+    }
 }
 
 function guardarEdicaoDefesa() {
@@ -365,6 +419,7 @@ function configurarEventosModalDefesa() {
     btnFechar?.addEventListener("click", fecharModalEdicaoDefesa);
     btnCancelar?.addEventListener("click", fecharModalEdicaoDefesa);
     btnGuardar?.addEventListener("click", guardarEdicaoDefesa);
+    btnGuardarSituacaoDefesa?.addEventListener("click", guardarSituacaoDefesa);
 
     modalEdicaoDefesa?.addEventListener("click", (event) => {
         if (event.target === modalEdicaoDefesa) {
@@ -389,12 +444,13 @@ function configurarEventosModalDefesa() {
             return;
         }
 
-        abrirModalEdicaoDefesa(defesasCache[index]);
+        abrirModalEdicaoDefesa(defesasCache[index], index);
     });
 }
 
 window.abrirModalEdicaoDefesa = abrirModalEdicaoDefesa;
 window.fecharModalEdicaoDefesa = fecharModalEdicaoDefesa;
+window.guardarSituacaoDefesa = guardarSituacaoDefesa;
 window.guardarEdicaoDefesa = guardarEdicaoDefesa;
 window.renderTabelaDefesa = renderTabelaDefesa;
 configurarEventosModalDefesa();
