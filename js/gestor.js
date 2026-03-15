@@ -1102,7 +1102,7 @@ async function carregarDefesas() {
 
     tbody.innerHTML = `
         <tr>
-            <td colspan="6">A carregar dados das defesas...</td>
+            <td colspan="7">A carregar dados das defesas...</td>
         </tr>
     `;
 
@@ -1113,7 +1113,7 @@ async function carregarDefesas() {
         if (!res || !(res.sucesso === true || res.sucesso === "true")) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="6">Não foi possível carregar os dados das defesas.</td>
+                    <td colspan="7">Não foi possível carregar os dados das defesas.</td>
                 </tr>
             `;
             return;
@@ -1124,7 +1124,7 @@ async function carregarDefesas() {
         if (!lista.length) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="6">Nenhum registo de defesa encontrado.</td>
+                    <td colspan="7">Nenhum registo de defesa encontrado.</td>
                 </tr>
             `;
             return;
@@ -1132,6 +1132,7 @@ async function carregarDefesas() {
 
         tbody.innerHTML = lista.map(item => `
             <tr>
+                <td>${item.data || ""}</td>
                 <td class="col-nome">${item.nome || ""}</td>
                 <td>${item.numero || ""}</td>
                 <td>${item.contacto1 || ""}</td>
@@ -1144,7 +1145,7 @@ async function carregarDefesas() {
         console.error("Erro ao carregar defesas:", erro);
         tbody.innerHTML = `
             <tr>
-                <td colspan="6">Ocorreu um erro ao carregar as defesas.</td>
+                <td colspan="7">Ocorreu um erro ao carregar as defesas.</td>
             </tr>
         `;
     }
