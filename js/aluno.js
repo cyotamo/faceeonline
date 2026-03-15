@@ -399,9 +399,17 @@ window.activarFiltrosFormularioDefesa = activarFiltrosFormularioDefesa;
 
 function enviarDefesaMonografia() {
   const form = document.getElementById('formDefesaMonografia');
-  if (!form) return;
+  if (!form) {
+    console.error('[DefesaMonografia] Formulário #formDefesaMonografia não encontrado no DOM.');
+    return;
+  }
+
+  console.log('[DefesaMonografia] Início do envio do formulário.');
 
   if (!validarFormulario(form)) {
+    const camposInvalidos = Array.from(form.querySelectorAll(':invalid'))
+      .map((campo) => campo.id || campo.name || campo.tagName);
+    console.warn('[DefesaMonografia] Validação falhou. Campos inválidos:', camposInvalidos);
     mostrarModal('Preencha correctamente todos os campos obrigatórios antes de enviar.');
     return;
   }
@@ -425,33 +433,48 @@ function enviarDefesaMonografia() {
     const elemento = document.getElementById(idCampo);
     if (elemento) {
       dados.append(nomePayload, elemento.value);
+    } else {
+      console.warn(`[DefesaMonografia] Campo não encontrado: ${idCampo}`);
     }
   });
 
+  console.log('[DefesaMonografia] Payload preparado com os campos:', Object.fromEntries(dados.entries()));
+
   const botao = form.querySelector('.btn-submeter');
-  if (!botao) return;
+  if (!botao) {
+    console.error('[DefesaMonografia] Botão .btn-submeter não encontrado no formulário.');
+    return;
+  }
 
   activarLoading(botao);
+  console.log('[DefesaMonografia] Enviando requisição para:', WEB_URL);
 
   fetch(WEB_URL, {
     method: 'POST',
     body: dados,
   })
-  .then((r) => r.json())
+  .then((r) => {
+    console.log('[DefesaMonografia] Resposta HTTP recebida:', { status: r.status, ok: r.ok });
+    return r.json();
+  })
   .then((res) => {
     desativarLoading(botao);
+    console.log('[DefesaMonografia] Resposta JSON:', res);
 
     if (res.sucesso === true || res.sucesso === 'true') {
+      console.log('[DefesaMonografia] Submissão concluída com sucesso.');
       document.getElementById('form-container').innerHTML = '';
       mostrarModal(
         'Os seus dados foram enviados com sucesso. Acompanhe o andamento do processo na aba Consulta.'
       );
     } else {
+      console.warn('[DefesaMonografia] Submissão recusada pelo backend:', res?.mensagem || res);
       mostrarModal(res.mensagem || '❌ Submissão recusada.');
     }
   })
-  .catch(() => {
+  .catch((erro) => {
     desativarLoading(botao);
+    console.error('[DefesaMonografia] Erro de rede/exceção ao enviar formulário:', erro);
     mostrarModal('Ocorreu um erro ao enviar os dados. Por favor, tente novamente.');
   });
 }
