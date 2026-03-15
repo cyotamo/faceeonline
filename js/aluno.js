@@ -411,7 +411,6 @@ function enviarDefesaMonografia() {
     linhaDefesa: 'linha',
     supervisorDefesa: 'supervisor',
     temaDefesa: 'tema',
-    descricaoDefesa: 'descricao',
   };
 
   Object.entries(mapeamentoCampos).forEach(([idCampo, nomePayload]) => {
