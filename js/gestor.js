@@ -199,9 +199,36 @@ function opcoesSupervisoresHTML(valorSelecionado, opcoes) {
 }
 
 const estatisticasContainer = document.getElementById("estatisticasContainer");
+const secaoDefesas = document.getElementById("secaoDefesas");
 
 function esconderEstatisticas() {
     estatisticasContainer.style.display = "none";
+}
+
+function esconderSecaoDefesas() {
+    if (secaoDefesas) {
+        secaoDefesas.style.display = "none";
+    }
+}
+
+function mostrarSecaoDefesas() {
+    if (secaoDefesas) {
+        secaoDefesas.style.display = "block";
+    }
+}
+
+function mostrarTabelaGestaoGeral() {
+    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
+    if (tabelaGestaoGeral) {
+        tabelaGestaoGeral.style.display = "block";
+    }
+}
+
+function esconderTabelaGestaoGeral() {
+    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
+    if (tabelaGestaoGeral) {
+        tabelaGestaoGeral.style.display = "none";
+    }
 }
 
 function reaplicarRestricoesUI() {
@@ -213,6 +240,8 @@ function reaplicarRestricoesUI() {
 // Tema Monografia
 document.getElementById("btnGestaoGeral").addEventListener("click", () => {
     esconderEstatisticas();
+    esconderSecaoDefesas();
+    mostrarTabelaGestaoGeral();
     modoTabelaGestao = "geral";
     const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
     if (tabelaGestaoGeral) {
@@ -228,8 +257,20 @@ document.getElementById("btnGestaoGeral").addEventListener("click", () => {
 // Monografia Final
 document.getElementById("btnMonografiaFinal").addEventListener("click", () => {
     esconderEstatisticas();
+    esconderSecaoDefesas();
+    mostrarTabelaGestaoGeral();
     mostrarLoadingPainelGestor("A carregar…");
     carregarMonografiaFinal();
+    if (window.aplicarRestricoesUI && window.userEmail) {
+        aplicarRestricoesUI(window.userEmail);
+    }
+});
+
+// Defesa
+document.getElementById("btnDefesa").addEventListener("click", () => {
+    esconderEstatisticas();
+    esconderTabelaGestaoGeral();
+    carregarDefesas();
     if (window.aplicarRestricoesUI && window.userEmail) {
         aplicarRestricoesUI(window.userEmail);
     }
@@ -240,6 +281,8 @@ document.getElementById("btnMonografiaFinal").addEventListener("click", () => {
 // Botão Parecer
 document.getElementById("btnParecerTec").addEventListener("click", () => {
     esconderEstatisticas();
+    esconderSecaoDefesas();
+    mostrarTabelaGestaoGeral();
     mostrarLoadingPainelGestor("A carregar…");
     carregarParecer();
     if (window.aplicarRestricoesUI && window.userEmail) {
@@ -251,6 +294,8 @@ document.getElementById("btnParecerTec").addEventListener("click", () => {
 // Botão Atribuir Supervisor
 document.getElementById("btnAtribuirSuperv").addEventListener("click", function () {
     esconderEstatisticas();
+    esconderSecaoDefesas();
+    mostrarTabelaGestaoGeral();
     modoTabelaGestao = "atribuirSupervisor";
     mostrarLoadingPainelGestor("A carregar…");
     carregarGestaoGeral();
@@ -262,6 +307,8 @@ document.getElementById("btnAtribuirSuperv").addEventListener("click", function 
 // Botão Homologar Supervisor
 document.getElementById("btnHomologarSuperv").addEventListener("click", function () {
     esconderEstatisticas();
+    esconderSecaoDefesas();
+    mostrarTabelaGestaoGeral();
     modoTabelaGestao = "homologarSupervisor";
     mostrarLoadingPainelGestor("A carregar…");
     carregarGestaoGeral();
@@ -273,6 +320,8 @@ document.getElementById("btnHomologarSuperv").addEventListener("click", function
 // Botão Planos Analíticos
 document.getElementById("btnPlanosAnaliticos").addEventListener("click", () => {
     esconderEstatisticas();
+    esconderSecaoDefesas();
+    mostrarTabelaGestaoGeral();
     mostrarLoadingPainelGestor("A carregar…");
     carregarPlanosAnaliticos();
     if (window.aplicarRestricoesUI && window.userEmail) {
@@ -285,6 +334,8 @@ document.getElementById("btnPlanosAnaliticos").addEventListener("click", () => {
 // Credencial Pesquisa
 document.getElementById("btnCredencialPesquisa").addEventListener("click", () => {
     esconderEstatisticas();
+    esconderSecaoDefesas();
+    mostrarTabelaGestaoGeral();
     mostrarLoadingPainelGestor("A carregar…");
     carregarCredencialPesquisa();
     if (window.aplicarRestricoesUI && window.userEmail) {
@@ -295,6 +346,8 @@ document.getElementById("btnCredencialPesquisa").addEventListener("click", () =>
 // Estágios
 document.getElementById("btnCredencialEstagio").addEventListener("click", () => {
     esconderEstatisticas();
+    esconderSecaoDefesas();
+    mostrarTabelaGestaoGeral();
     mostrarLoadingPainelGestor("A carregar…");
     carregarCredenciaisEstagioGestor();
     if (window.aplicarRestricoesUI && window.userEmail) {
@@ -304,6 +357,8 @@ document.getElementById("btnCredencialEstagio").addEventListener("click", () => 
 
 // Listas e Estatísticas (MOSTRA o container)
 document.getElementById("btnEstatisticas").addEventListener("click", () => {
+    esconderSecaoDefesas();
+    mostrarTabelaGestaoGeral();
     mostrarCarregamentoAtribuirSupervisor();
     const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
     if (tabelaGestaoGeral) tabelaGestaoGeral.innerHTML = "";
@@ -1035,6 +1090,64 @@ function carregarMonografiaFinal() {
             "<p>Erro ao carregar os dados da monografia final.</p>";
         reaplicarRestricoesUI();
     });
+}
+
+async function carregarDefesas() {
+    mostrarSecaoDefesas();
+
+    const tbody = document.getElementById("listaDefesas");
+    if (!tbody) {
+        return;
+    }
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="6">A carregar dados das defesas...</td>
+        </tr>
+    `;
+
+    try {
+        const resposta = await fetch(`${WEB_URL}?action=getDefesas`);
+        const res = await resposta.json();
+
+        if (!res || !(res.sucesso === true || res.sucesso === "true")) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6">Não foi possível carregar os dados das defesas.</td>
+                </tr>
+            `;
+            return;
+        }
+
+        const lista = Array.isArray(res.dados) ? res.dados : [];
+
+        if (!lista.length) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6">Nenhum registo de defesa encontrado.</td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = lista.map(item => `
+            <tr>
+                <td class="col-nome">${item.nome || ""}</td>
+                <td>${item.numero || ""}</td>
+                <td>${item.contacto1 || ""}</td>
+                <td>${item.contacto2 || ""}</td>
+                <td class="col-curso">${item.curso || ""}</td>
+                <td class="col-supervisor">${item.supervisor || ""}</td>
+            </tr>
+        `).join("");
+    } catch (erro) {
+        console.error("Erro ao carregar defesas:", erro);
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6">Ocorreu um erro ao carregar as defesas.</td>
+            </tr>
+        `;
+    }
 }
 
 function obterRowNumericoCredencial(valorRow, fallbackRow) {

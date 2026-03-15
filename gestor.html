@@ -27,6 +27,7 @@
         <div class="actions-gestor">
           <button class="button btn-navegacao btn-padrao-portal" id="btnGestaoGeral" data-permissao="ALL">Gestão Geral</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnMonografiaFinal" data-permissao="PARECER">Monografia Final</button>
+          <button class="button btn-navegacao btn-padrao-portal" id="btnDefesa" data-permissao="ALL">Defesa</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnCredencialPesquisa" data-permissao="CREDENCIAL">Colecta de Dados</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnCredencialEstagio" data-permissao="CREDENCIAL">Pedido de Estágios</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnEstatisticas" data-permissao="ESTATISTICAS">Gerar Relatórios</button>
@@ -35,6 +36,24 @@
             <button class="button btn-navegacao btn-padrao-portal" id="btnAtribuirSuperv" data-permissao="ATRIBUIR_SUPERVISOR">Atribuir Supervisores</button>
             <button class="button btn-navegacao btn-padrao-portal" id="btnHomologarSuperv" data-permissao="ALL">Homologar Listas</button>
             <button class="button btn-navegacao btn-padrao-portal" id="btnPlanosAnaliticos" data-permissao="ALL">Planos Analíticos</button>
+          </div>
+        </div>
+
+        <div id="secaoDefesas" style="display:none;">
+          <div class="tabela-scroll">
+            <table class="tabela-gestao">
+              <thead>
+                <tr>
+                  <th class="col-nome">Nome</th>
+                  <th>Número de Estudante</th>
+                  <th>Contacto 1</th>
+                  <th>Contacto 2</th>
+                  <th class="col-curso">Curso</th>
+                  <th class="col-supervisor">Supervisor</th>
+                </tr>
+              </thead>
+              <tbody id="listaDefesas"></tbody>
+            </table>
           </div>
         </div>
 
@@ -136,7 +155,6 @@
 
 
 </html>
-
 
 
 
