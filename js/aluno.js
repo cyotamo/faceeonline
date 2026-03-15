@@ -83,7 +83,12 @@ function validarFormulario(form) {
     }
 
     if (campo.id === 'contacto1' || campo.id === 'contacto2' || campo.id === 'contacto1Defesa' || campo.id === 'contacto2Defesa') {
-      if (!validarContacto(campo.value)) return false;
+      const valorContacto = campo.value ? campo.value.trim() : '';
+      const campoOpcionalVazio = !campo.required && valorContacto === '';
+
+      if (!campoOpcionalVazio && !validarContacto(valorContacto)) {
+        return false;
+      }
     }
   }
 
