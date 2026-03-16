@@ -214,6 +214,14 @@ const SITUACOES_DEFESA = [
     "Defendida"
 ];
 
+const MAPA_CAMPOS_SITUACAO_DEFESA = {
+    "Em avaliação no RA": ["enviadoRA", "enviadoAoRA", "avaliacaoRA"],
+    "Em avaliação pela banca": ["banca", "avaliacaoBanca"],
+    "Em processo de marcação de defesa": ["processo", "marcacaoDefesa", "processoMarcacao"],
+    "Defesa agendada": ["agendado", "dataAgendada", "defesaAgendada"],
+    Defendida: ["defendido"]
+};
+
 const DOCENTES_DEFESA_TESTE = [
     "Prof. Alberto Manuel",
     "Prof. Carla João",
@@ -261,23 +269,27 @@ function preencherSelectSituacaoDefesa(registo = {}, valorSelecionado = "") {
     }
 
     const temValor = (valor) => String(valor ?? "").trim() !== "";
-    const regrasBloqueio = {
-        "Em avaliação no RA": temValor(registo.enviadoRA),
-        "Em avaliação pela banca": temValor(registo.banca),
-        "Em processo de marcação de defesa": temValor(registo.processo),
-        "Defesa agendada": temValor(registo.agendado),
-        Defendida: false
+    const situacaoEstaBloqueada = (situacao) => {
+        const campos = MAPA_CAMPOS_SITUACAO_DEFESA[situacao] || [];
+        return campos.some((campo) => temValor(registo[campo]));
     };
 
     const valorActual = String(valorSelecionado ?? "").trim();
+    const valorValido = !valorActual || !situacaoEstaBloqueada(valorActual);
 
-    selectSituacaoDefesa.innerHTML = SITUACOES_DEFESA
-        .map((situacao) => {
-            const selected = valorActual && valorActual === situacao ? " selected" : "";
-            const disabled = regrasBloqueio[situacao] ? " disabled" : "";
-            return `<option value="${escaparHTML(situacao)}"${selected}${disabled}>${escaparHTML(situacao)}</option>`;
-        })
-        .join("");
+    const opcoes = [
+        `<option value=""${valorValido ? "" : " selected"}>Seleccione uma nova situação…</option>`
+    ];
+
+    SITUACOES_DEFESA.forEach((situacao) => {
+        const selected = valorValido && valorActual === situacao ? " selected" : "";
+        const disabled = situacaoEstaBloqueada(situacao) ? " disabled" : "";
+        opcoes.push(
+            `<option value="${escaparHTML(situacao)}"${selected}${disabled}>${escaparHTML(situacao)}</option>`
+        );
+    });
+
+    selectSituacaoDefesa.innerHTML = opcoes.join("");
 
     if (!valorActual && SITUACOES_DEFESA.length) {
         selectSituacaoDefesa.selectedIndex = 0;
@@ -387,6 +399,19 @@ async function guardarSituacaoDefesa() {
     }
 
     const situacao = selectSituacaoDefesa?.value || "";
+    if (!situacao) {
+        alert("Seleccione uma nova situação disponível antes de guardar.");
+        return;
+    }
+
+    const camposSituacao = MAPA_CAMPOS_SITUACAO_DEFESA[situacao] || [];
+    const situacaoJaGuardada = camposSituacao.some((campo) => String(registoDefesaEmEdicao?.[campo] ?? "").trim() !== "");
+    if (situacaoJaGuardada) {
+        alert("Esta situação já foi guardada para este estudante. Escolha outra situação disponível.");
+        preencherSelectSituacaoDefesa(registoDefesaEmEdicao, "");
+        return;
+    }
+
     const payload = new URLSearchParams({
         action: "guardarSituacaoDefesa",
         situacao,
@@ -410,7 +435,16 @@ async function guardarSituacaoDefesa() {
         }
 
         registoDefesaEmEdicao.situacao = situacao;
+        const marcador = new Date().toISOString();
+        camposSituacao.forEach((campo) => {
+            registoDefesaEmEdicao[campo] = marcador;
+            if (Number.isInteger(indiceDefesaEmEdicao) && defesasCache[indiceDefesaEmEdicao]) {
+                defesasCache[indiceDefesaEmEdicao][campo] = marcador;
+            }
+        });
+
         actualizarSituacaoNaTabela(situacao);
+        preencherSelectSituacaoDefesa(registoDefesaEmEdicao, "");
         alert("Situação guardada com sucesso.");
     } catch (erro) {
         console.error("Erro ao guardar situação da defesa:", erro);
