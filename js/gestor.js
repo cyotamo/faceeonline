@@ -255,6 +255,35 @@ function preencherSelectComOpcoes(select, opcoes, valorSelecionado = "") {
     }
 }
 
+function preencherSelectSituacaoDefesa(registo = {}, valorSelecionado = "") {
+    if (!selectSituacaoDefesa) {
+        return;
+    }
+
+    const temValor = (valor) => String(valor ?? "").trim() !== "";
+    const regrasBloqueio = {
+        "Em avaliação no RA": temValor(registo.enviadoRA),
+        "Em avaliação pela banca": temValor(registo.banca),
+        "Em processo de marcação de defesa": temValor(registo.processo),
+        "Defesa agendada": temValor(registo.agendado),
+        Defendida: false
+    };
+
+    const valorActual = String(valorSelecionado ?? "").trim();
+
+    selectSituacaoDefesa.innerHTML = SITUACOES_DEFESA
+        .map((situacao) => {
+            const selected = valorActual && valorActual === situacao ? " selected" : "";
+            const disabled = regrasBloqueio[situacao] ? " disabled" : "";
+            return `<option value="${escaparHTML(situacao)}"${selected}${disabled}>${escaparHTML(situacao)}</option>`;
+        })
+        .join("");
+
+    if (!valorActual && SITUACOES_DEFESA.length) {
+        selectSituacaoDefesa.selectedIndex = 0;
+    }
+}
+
 function renderTabelaDefesa(lista = []) {
     const tbody = document.getElementById("listaDefesas");
     if (!tbody) {
@@ -324,7 +353,7 @@ function abrirModalEdicaoDefesa(registo = {}, indice = null) {
     if (inputSupervisor) inputSupervisor.value = registoDefesaEmEdicao.supervisor;
     if (inputDataAgendada) inputDataAgendada.value = registoDefesaEmEdicao.dataAgendada;
 
-    preencherSelectComOpcoes(selectSituacaoDefesa, SITUACOES_DEFESA, registoDefesaEmEdicao.situacao);
+    preencherSelectSituacaoDefesa(registoDefesaEmEdicao, registoDefesaEmEdicao.situacao);
     preencherSelectComOpcoes(selectPresidenteDefesa, DOCENTES_DEFESA_TESTE, registoDefesaEmEdicao.presidente);
     preencherSelectComOpcoes(selectArguenteDefesa, DOCENTES_DEFESA_TESTE, registoDefesaEmEdicao.arguente);
 
@@ -1376,8 +1405,9 @@ async function carregarDefesas() {
         }
 
         const lista = Array.isArray(res.dados) ? res.dados : [];
+        const defesasVisiveis = lista.filter((item) => !item.defendido || String(item.defendido).trim() === "");
 
-        if (!lista.length) {
+        if (!defesasVisiveis.length) {
             defesasCache = [];
             tbody.innerHTML = `
                 <tr>
@@ -1387,7 +1417,7 @@ async function carregarDefesas() {
             return;
         }
 
-        defesasCache = lista.map((item) => ({
+        defesasCache = defesasVisiveis.map((item) => ({
             ...item,
             dataAgendada: item.dataAgendada || item.data_agendada || ""
         }));
