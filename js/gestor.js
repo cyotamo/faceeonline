@@ -210,7 +210,8 @@ const SITUACOES_DEFESA = [
     "Em avaliação no RA",
     "Em avaliação pela banca",
     "Em processo de marcação de defesa",
-    "Defesa agendada"
+    "Defesa agendada",
+    "Defendida"
 ];
 
 const DOCENTES_DEFESA_TESTE = [
