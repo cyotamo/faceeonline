@@ -64,7 +64,7 @@
         <div id="modalEdicaoDefesa" class="defesa-modal-overlay" style="display:none;" aria-hidden="true">
           <div class="defesa-modal-box" role="dialog" aria-modal="true" aria-labelledby="defesaModalTitulo">
             <div class="defesa-modal-header">
-              <h3 id="defesaModalTitulo" class="defesa-modal-title">Editar registo de defesa</h3>
+              <h3 id="defesaModalTitulo" class="defesa-modal-title">Registo de Defesas</h3>
               <button id="btnFecharModalDefesa" type="button" class="defesa-modal-close" aria-label="Fechar">×</button>
             </div>
 
@@ -80,10 +80,12 @@
                   <input id="defesaSupervisor" type="text" readonly>
                 </div>
 
-                <div class="defesa-form-field full-row">
-                  <label for="defesaSituacao">Situação</label>
-                  <select id="defesaSituacao"></select>
-                  <button id="btnGuardarSituacaoDefesa" type="button">Guardar</button>
+                <div class="defesa-form-field full-row defesa-form-field-situacao">
+                  <div class="defesa-form-field-situacao-select">
+                    <label for="defesaSituacao">Situação</label>
+                    <select id="defesaSituacao" required></select>
+                  </div>
+                  <button id="btnGuardarSituacaoDefesa" type="button">Actualizar</button>
                 </div>
               </div>
 
@@ -92,31 +94,30 @@
                 <div class="defesa-modal-grid">
                   <div class="defesa-form-field">
                     <label for="defesaPresidente">Presidente</label>
-                    <select id="defesaPresidente"></select>
+                    <select id="defesaPresidente" required></select>
                   </div>
                   <div class="defesa-form-field">
                     <label for="defesaArguente">Arguente</label>
-                    <select id="defesaArguente"></select>
+                    <select id="defesaArguente" required></select>
                   </div>
                   <div class="defesa-form-field">
                     <label for="defesaDataAgendada">Data agendada</label>
-                    <input id="defesaDataAgendada" type="date">
+                    <input id="defesaDataAgendada" type="date" required>
                   </div>
                   <div class="defesa-form-field">
                     <label for="defesaHora">Hora</label>
-                    <input id="defesaHora" type="time">
+                    <input id="defesaHora" type="time" required>
                   </div>
                   <div class="defesa-form-field full-row">
                     <label for="defesaSala">Sala</label>
-                    <input id="defesaSala" type="text" placeholder="Ex.: Sala 2">
+                    <input id="defesaSala" type="text" required>
                   </div>
                 </div>
               </section>
             </div>
 
             <div class="defesa-modal-actions">
-              <button id="btnGuardarEdicaoDefesa" type="button" class="button btn-padrao-portal">Guardar</button>
-              <button id="btnCancelarEdicaoDefesa" type="button" class="button secondary btn-padrao-portal">Cancelar</button>
+              <button id="btnGuardarEdicaoDefesa" type="button">Agendar</button>
             </div>
           </div>
         </div>
@@ -219,5 +220,3 @@
 
 
 </html>
-
-
