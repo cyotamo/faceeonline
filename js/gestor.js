@@ -339,16 +339,17 @@ function renderTabelaDefesa(lista = []) {
         const dataAgendada = item.dataAgendada || "";
         const linkPdfFinal = linkPdf || item.linkPDF || item.linkPdf || item.pdf || item.PDF || "";
         const dataAgendadaFinal = dataAgendada || item.data_agendada || "";
+        const situacaoTabela = String(itemSeguro.situacao || "").trim() || "Aguardando actualização";
         const situacaoHtml = dataAgendadaFinal
             ? `Agendado para o dia: ${escaparHTML(formatarDataDiaMesAno(dataAgendadaFinal))}`
-            : escaparHTML(itemSeguro.situacao);
+            : escaparHTML(situacaoTabela);
         const linkPdfHtml = linkPdfFinal
             ? `<a class="pdf-icon" href="${escaparHTML(linkPdfFinal)}" target="_blank" rel="noopener noreferrer" aria-label="Ver PDF">📄</a>`
             : "—";
 
         return `
             <tr>
-                <td>${escaparHTML(itemSeguro.data)}</td>
+                <td>${escaparHTML(formatarDataCurta(itemSeguro.data))}</td>
                 <td class="col-nome">${escaparHTML(itemSeguro.nome)}</td>
                 <td>${escaparHTML(itemSeguro.numero)}</td>
                 <td>${escaparHTML(itemSeguro.contacto1)}</td>
@@ -360,9 +361,9 @@ function renderTabelaDefesa(lista = []) {
                 <td class="col-acao">
                     <button
                         type="button"
-                        class="button button-small btn-padrao-portal btn-editar-defesa"
+                        class="btn-editar-defesa"
                         data-index="${index}"
-                    >Editar</button>
+                    >Actualizar</button>
                 </td>
             </tr>
         `;
@@ -376,14 +377,16 @@ function abrirModalEdicaoDefesa(registo = {}, indice = null) {
 
     indiceDefesaEmEdicao = Number.isInteger(indice) ? indice : null;
 
+    const dataAgendadaRegisto = registo.dataAgendada || registo.data_agendada || "";
+
     registoDefesaEmEdicao = {
         ...registo,
         nome: registo.nome || "",
         supervisor: registo.supervisor || "",
-        situacao: registo.situacao || SITUACOES_DEFESA[0],
+        situacao: registo.situacao || "",
         presidente: registo.presidente || DOCENTES_DEFESA_TESTE[0],
         arguente: registo.arguente || DOCENTES_DEFESA_TESTE[1] || DOCENTES_DEFESA_TESTE[0],
-        dataAgendada: registo.dataAgendada || "",
+        dataAgendada: dataAgendadaRegisto,
         sala: registo.sala || registo.Sala || "",
         hora: registo.hora || registo.Hora || ""
     };
@@ -393,12 +396,25 @@ function abrirModalEdicaoDefesa(registo = {}, indice = null) {
     const inputDataAgendada = document.getElementById("defesaDataAgendada");
     const inputSala = document.getElementById("defesaSala");
     const inputHora = document.getElementById("defesaHora");
+    const btnAgendar = document.getElementById("btnGuardarEdicaoDefesa");
+
+    const defesaJaAgendada = String(registoDefesaEmEdicao.dataAgendada || "").trim() !== "";
 
     if (inputNome) inputNome.value = registoDefesaEmEdicao.nome;
     if (inputSupervisor) inputSupervisor.value = registoDefesaEmEdicao.supervisor;
     if (inputDataAgendada) inputDataAgendada.value = registoDefesaEmEdicao.dataAgendada;
     if (inputSala) inputSala.value = registoDefesaEmEdicao.sala;
     if (inputHora) inputHora.value = registoDefesaEmEdicao.hora;
+
+    if (inputDataAgendada) inputDataAgendada.disabled = defesaJaAgendada;
+    if (inputSala) inputSala.disabled = defesaJaAgendada;
+    if (inputHora) inputHora.disabled = defesaJaAgendada;
+    if (selectPresidenteDefesa) selectPresidenteDefesa.disabled = defesaJaAgendada;
+    if (selectArguenteDefesa) selectArguenteDefesa.disabled = defesaJaAgendada;
+    if (btnAgendar) {
+        btnAgendar.disabled = defesaJaAgendada;
+        btnAgendar.textContent = defesaJaAgendada ? "Já agendada" : "Agendar";
+    }
 
     preencherSelectSituacaoDefesa(registoDefesaEmEdicao, registoDefesaEmEdicao.situacao);
     preencherSelectComOpcoes(selectPresidenteDefesa, DOCENTES_DEFESA_TESTE, registoDefesaEmEdicao.presidente);
@@ -1495,18 +1511,14 @@ function carregarMonografiaFinal() {
 }
 
 async function carregarDefesas() {
-    mostrarSecaoDefesas();
+    esconderSecaoDefesas();
+    mostrarTabelaGestaoGeral();
+    mostrarLoadingPainelGestor("A carregar…");
 
     const tbody = document.getElementById("listaDefesas");
     if (!tbody) {
         return;
     }
-
-    tbody.innerHTML = `
-        <tr>
-            <td colspan="10">A carregar dados das defesas...</td>
-        </tr>
-    `;
 
     try {
         const resposta = await fetch(`${WEB_URL}?action=getDefesas`);
@@ -1514,6 +1526,8 @@ async function carregarDefesas() {
 
         if (!res || !(res.sucesso === true || res.sucesso === "true")) {
             defesasCache = [];
+            mostrarSecaoDefesas();
+            esconderTabelaGestaoGeral();
             tbody.innerHTML = `
                 <tr>
                     <td colspan="10">Não foi possível carregar os dados das defesas.</td>
@@ -1527,6 +1541,8 @@ async function carregarDefesas() {
 
         if (!defesasVisiveis.length) {
             defesasCache = [];
+            mostrarSecaoDefesas();
+            esconderTabelaGestaoGeral();
             tbody.innerHTML = `
                 <tr>
                     <td colspan="10">Nenhum registo de defesa encontrado.</td>
@@ -1540,10 +1556,14 @@ async function carregarDefesas() {
             dataAgendada: item.dataAgendada || item.data_agendada || ""
         }));
 
+        mostrarSecaoDefesas();
+        esconderTabelaGestaoGeral();
         renderTabelaDefesa(defesasCache);
     } catch (erro) {
         console.error("Erro ao carregar defesas:", erro);
         defesasCache = [];
+        mostrarSecaoDefesas();
+        esconderTabelaGestaoGeral();
         tbody.innerHTML = `
             <tr>
                 <td colspan="10">Ocorreu um erro ao carregar as defesas.</td>
