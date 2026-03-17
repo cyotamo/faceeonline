@@ -157,6 +157,28 @@ function formatarDataCompleta(valor) {
     return `${dia}-${mes}-${ano}`;
 }
 
+function formatarDataDiaMesAno(valor) {
+    if (!valor) return "";
+
+    const valorTexto = String(valor).trim();
+    const data = new Date(valorTexto);
+
+    if (!Number.isNaN(data.getTime())) {
+        const dia = String(data.getDate()).padStart(2, "0");
+        const mes = String(data.getMonth() + 1).padStart(2, "0");
+        const ano = data.getFullYear();
+        return `${dia}/${mes}/${ano}`;
+    }
+
+    const correspondencia = valorTexto.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (correspondencia) {
+        const [, ano, mes, dia] = correspondencia;
+        return `${dia}/${mes}/${ano}`;
+    }
+
+    return valorTexto;
+}
+
 function normalizarCampo(valor) {
     return String(valor ?? "")
         .normalize("NFD")
@@ -313,9 +335,18 @@ function renderTabelaDefesa(lista = []) {
             contacto2: item.contacto2 || "",
             curso: item.curso || "",
             supervisor: item.supervisor || "",
-            situacao: item.situacao || "",
-            linkPDF: item.linkPDF || item.linkPdf || item.pdf || item.PDF || ""
+            situacao: item.situacao || ""
         };
+        const linkPdf = item.link || "";
+        const dataAgendada = item.dataAgendada || "";
+        const linkPdfFinal = linkPdf || item.linkPDF || item.linkPdf || item.pdf || item.PDF || "";
+        const dataAgendadaFinal = dataAgendada || item.data_agendada || "";
+        const situacaoHtml = dataAgendadaFinal
+            ? `Agendado para o dia: ${escaparHTML(formatarDataDiaMesAno(dataAgendadaFinal))}`
+            : escaparHTML(itemSeguro.situacao);
+        const linkPdfHtml = linkPdfFinal
+            ? `<a class="pdf-icon" href="${escaparHTML(linkPdfFinal)}" target="_blank" rel="noopener noreferrer" aria-label="Ver PDF">📄</a>`
+            : "—";
 
         return `
             <tr>
@@ -326,8 +357,8 @@ function renderTabelaDefesa(lista = []) {
                 <td>${escaparHTML(itemSeguro.contacto2)}</td>
                 <td class="col-curso">${escaparHTML(itemSeguro.curso)}</td>
                 <td class="col-supervisor">${escaparHTML(itemSeguro.supervisor)}</td>
-                <td>${escaparHTML(itemSeguro.situacao)}</td>
-                <td class="col-pdf">${itemSeguro.linkPDF ? `<a class="pdf-icon" href="${escaparHTML(itemSeguro.linkPDF)}" target="_blank" rel="noopener noreferrer">📄</a>` : "—"}</td>
+                <td>${situacaoHtml}</td>
+                <td class="col-pdf">${linkPdfHtml}</td>
                 <td class="col-acao">
                     <button
                         type="button"
