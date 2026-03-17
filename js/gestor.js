@@ -253,6 +253,15 @@ let registoDefesaEmEdicao = null;
 let indiceDefesaEmEdicao = null;
 let defesasCache = [];
 
+function actualizarEstadoBotaoSituacaoDefesa() {
+    if (!btnGuardarSituacaoDefesa || !selectSituacaoDefesa) {
+        return;
+    }
+
+    const temSituacaoSelecionada = String(selectSituacaoDefesa.value || "").trim() !== "";
+    btnGuardarSituacaoDefesa.disabled = !temSituacaoSelecionada;
+}
+
 function escaparHTML(valor) {
     return String(valor ?? "")
         .replace(/&/g, "&amp;")
@@ -314,6 +323,8 @@ function preencherSelectSituacaoDefesa(registo = {}, valorSelecionado = "") {
     if (!valorActual && SITUACOES_DEFESA.length) {
         selectSituacaoDefesa.selectedIndex = 0;
     }
+
+    actualizarEstadoBotaoSituacaoDefesa();
 }
 
 function renderTabelaDefesa(lista = []) {
@@ -451,7 +462,7 @@ async function guardarSituacaoDefesa() {
 
     const situacao = selectSituacaoDefesa?.value || "";
     if (!situacao) {
-        alert("Seleccione uma nova situação disponível antes de guardar.");
+        actualizarEstadoBotaoSituacaoDefesa();
         return;
     }
 
@@ -460,6 +471,7 @@ async function guardarSituacaoDefesa() {
     if (situacaoJaGuardada) {
         alert("Esta situação já foi guardada para este estudante. Escolha outra situação disponível.");
         preencherSelectSituacaoDefesa(registoDefesaEmEdicao, "");
+        actualizarEstadoBotaoSituacaoDefesa();
         return;
     }
 
@@ -496,7 +508,7 @@ async function guardarSituacaoDefesa() {
 
         actualizarSituacaoNaTabela(situacao);
         preencherSelectSituacaoDefesa(registoDefesaEmEdicao, "");
-        alert("Situação guardada com sucesso.");
+        actualizarEstadoBotaoSituacaoDefesa();
     } catch (erro) {
         console.error("Erro ao guardar situação da defesa:", erro);
         alert(erro.message || "Erro ao guardar situação da defesa.");
@@ -584,6 +596,8 @@ function configurarEventosModalDefesa() {
     btnFechar?.addEventListener("click", fecharModalEdicaoDefesa);
     btnGuardar?.addEventListener("click", guardarEdicaoDefesa);
     btnGuardarSituacaoDefesa?.addEventListener("click", guardarSituacaoDefesa);
+    selectSituacaoDefesa?.addEventListener("change", actualizarEstadoBotaoSituacaoDefesa);
+    actualizarEstadoBotaoSituacaoDefesa();
 
     modalEdicaoDefesa?.addEventListener("click", (event) => {
         if (event.target === modalEdicaoDefesa) {
