@@ -759,7 +759,7 @@ function mostrarConsultaEstado() {
           <select id="tipoConsulta">
             <option value="">Selecione...</option>
             <option value="consulta_monografia">Monografia</option>
-            <option value="consulta_defesa_monografia">Defesa Monografia</option>
+            <option value="defesa">Defesa Monografia</option>
             <option value="consulta_credencial_pesquisa">Credencial Pesquisa</option>
             <option value="consulta_credencial_estagio">Credencial Estágio</option>
             <option value="consulta_tema">Tema de Monografia</option>
@@ -791,7 +791,8 @@ function mostrarConsultaEstado() {
 
   if (selectTipoConsulta) {
     selectTipoConsulta.addEventListener('change', () => {
-      consultaEstadoAction = selectTipoConsulta.value || "";
+      const tipoSelecionado = selectTipoConsulta.value || "";
+      consultaEstadoAction = tipoSelecionado === "defesa" ? "consulta_defesa" : tipoSelecionado;
       numeroEstudanteConsulta.disabled = !consultaEstadoAction;
       if (botaoBuscar) {
         botaoBuscar.disabled = !consultaEstadoAction;
