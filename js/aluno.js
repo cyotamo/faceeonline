@@ -947,6 +947,11 @@ function mostrarResultadoConsulta(resposta) {
   const linhaAtribuicao = document.getElementById("resAtribuicao")?.parentElement;
   const linhaHomologacao = document.getElementById("resHomologacao")?.parentElement;
   const linhaComprovativo = document.getElementById("resPdfHomologacao")?.parentElement;
+  const linhaAnaliseAcademicaFinanceira = document.getElementById("linhaAnaliseAcademicaFinanceira");
+  const linhaAvaliacaoJuri = document.getElementById("linhaAvaliacaoJuri");
+  const linhaAgendamentoDefesa = document.getElementById("linhaAgendamentoDefesa");
+  const linhaDefesaAgendada = document.getElementById("linhaDefesaAgendada");
+  const linhaSituacaoDefesa = document.getElementById("linhaSituacaoDefesa");
 
   const alternarLinha = (linha, mostrar) => {
     if (!linha) return;
@@ -968,6 +973,11 @@ function mostrarResultadoConsulta(resposta) {
     alternarLinha(linhaAtribuicao, false);
     alternarLinha(linhaHomologacao, false);
     alternarLinha(linhaComprovativo, false);
+    alternarLinha(linhaAnaliseAcademicaFinanceira, false);
+    alternarLinha(linhaAvaliacaoJuri, false);
+    alternarLinha(linhaAgendamentoDefesa, false);
+    alternarLinha(linhaDefesaAgendada, false);
+    alternarLinha(linhaSituacaoDefesa, false);
     if (pdfBox) {
       pdfBox.style.display = "none";
     }
@@ -982,6 +992,11 @@ function mostrarResultadoConsulta(resposta) {
 
   const dados = resposta.dados || {};
   const situacaoEl = document.getElementById("resParecer");
+  const situacaoDefesaEl = document.getElementById("resSituacao");
+  const analiseAcademicaEl = document.getElementById("resAnaliseAcademicaFinanceira");
+  const avaliacaoJuriEl = document.getElementById("resAvaliacaoJuri");
+  const agendamentoDefesaEl = document.getElementById("resAgendamentoDefesa");
+  const defesaAgendadaEl = document.getElementById("resDefesaAgendada");
   const comprovativoEl = document.getElementById("resPdfHomologacao");
   const consultaAction = consultaEstadoAction;
   const supervisorAtribuido = supervisorEstaAtribuido(dados.atribuicaoSupervisor);
@@ -996,6 +1011,11 @@ function mostrarResultadoConsulta(resposta) {
 
   // Esconder antes de avaliar
   pdfBox.style.display = "none";
+  alternarLinha(linhaAnaliseAcademicaFinanceira, false);
+  alternarLinha(linhaAvaliacaoJuri, false);
+  alternarLinha(linhaAgendamentoDefesa, false);
+  alternarLinha(linhaDefesaAgendada, false);
+  alternarLinha(linhaSituacaoDefesa, false);
 
   document.getElementById("resNome").textContent = dados.nome || "";
   document.getElementById("resNumero").textContent = dados.numero || "";
@@ -1014,6 +1034,71 @@ function mostrarResultadoConsulta(resposta) {
   } else {
     document.getElementById("resSubmissao").textContent = "";
   }
+
+  const isDefesaConsulta = ["analiseAcademica", "avaliacaoJuri", "agendamentoDefesa", "defesaAgendada", "situacao"]
+    .some((campo) => campo in dados);
+
+  if (isDefesaConsulta) {
+    const submissaoDefesa = dados.submissao;
+    const dataSubmissaoDefesa = submissaoDefesa && typeof submissaoDefesa === "object"
+      ? (submissaoDefesa.data || "")
+      : "";
+    const linkSubmissaoDefesa = submissaoDefesa && typeof submissaoDefesa === "object"
+      ? normalizarLink(submissaoDefesa.link)
+      : "";
+
+    if (dataSubmissaoDefesa && linkSubmissaoDefesa) {
+      const submissaoEl = document.getElementById("resSubmissao");
+      submissaoEl.textContent = `${dataSubmissaoDefesa} – `;
+      const linkEl = document.createElement("a");
+      linkEl.href = linkSubmissaoDefesa;
+      linkEl.target = "_blank";
+      linkEl.rel = "noopener";
+      linkEl.textContent = "Baixe aqui o comprovativo";
+      submissaoEl.appendChild(linkEl);
+    } else if (dataSubmissaoDefesa) {
+      document.getElementById("resSubmissao").textContent = dataSubmissaoDefesa;
+    }
+
+    const textoAnalise = dados.analiseAcademica || "Pendente";
+    const textoAvaliacaoJuri = dados.avaliacaoJuri || "Pendente";
+    const textoAgendamentoDefesa = dados.agendamentoDefesa || "Pendente";
+    const textoDefesaAgendada = dados.defesaAgendada || "Pendente";
+    const textoSituacaoDefesa = dados.situacao || "Pendente";
+
+    analiseAcademicaEl.textContent = textoAnalise;
+    avaliacaoJuriEl.textContent = textoAvaliacaoJuri;
+    agendamentoDefesaEl.textContent = textoAgendamentoDefesa;
+    defesaAgendadaEl.textContent = textoDefesaAgendada;
+    situacaoDefesaEl.textContent = textoSituacaoDefesa;
+
+    aplicarEstiloSituacao(analiseAcademicaEl, textoAnalise);
+    aplicarEstiloSituacao(avaliacaoJuriEl, textoAvaliacaoJuri);
+    aplicarEstiloSituacao(agendamentoDefesaEl, textoAgendamentoDefesa);
+    aplicarEstiloSituacao(defesaAgendadaEl, textoDefesaAgendada);
+    aplicarEstiloSituacao(situacaoDefesaEl, textoSituacaoDefesa);
+
+    alternarLinha(linhaNome, true);
+    alternarLinha(linhaNumero, true);
+    alternarLinha(linhaSubmissao, true);
+    alternarLinha(linhaAnaliseAcademicaFinanceira, true);
+    alternarLinha(linhaAvaliacaoJuri, true);
+    alternarLinha(linhaAgendamentoDefesa, true);
+    alternarLinha(linhaDefesaAgendada, true);
+    alternarLinha(linhaSituacaoDefesa, true);
+
+    alternarLinha(linhaParecer, false);
+    alternarLinha(linhaAtribuicao, false);
+    alternarLinha(linhaHomologacao, false);
+    alternarLinha(linhaObservacoes, false);
+    alternarLinha(linhaComprovativo, false);
+    comprovativoEl.innerHTML = "";
+    if (pdfBox) {
+      pdfBox.style.display = "none";
+    }
+    return;
+  }
+
   const homologacaoValor = dados.homologacao || dados.homologado || "";
   document.getElementById("resAtribuicao").textContent = textoAtribuicaoBase;
   document.getElementById("resHomologacao").textContent = homologacaoValor;
