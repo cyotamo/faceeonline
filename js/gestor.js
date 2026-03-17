@@ -354,16 +354,22 @@ function abrirModalEdicaoDefesa(registo = {}, indice = null) {
         situacao: registo.situacao || SITUACOES_DEFESA[0],
         presidente: registo.presidente || DOCENTES_DEFESA_TESTE[0],
         arguente: registo.arguente || DOCENTES_DEFESA_TESTE[1] || DOCENTES_DEFESA_TESTE[0],
-        dataAgendada: registo.dataAgendada || ""
+        dataAgendada: registo.dataAgendada || "",
+        sala: registo.sala || registo.Sala || "",
+        hora: registo.hora || registo.Hora || ""
     };
 
     const inputNome = document.getElementById("defesaNome");
     const inputSupervisor = document.getElementById("defesaSupervisor");
     const inputDataAgendada = document.getElementById("defesaDataAgendada");
+    const inputSala = document.getElementById("defesaSala");
+    const inputHora = document.getElementById("defesaHora");
 
     if (inputNome) inputNome.value = registoDefesaEmEdicao.nome;
     if (inputSupervisor) inputSupervisor.value = registoDefesaEmEdicao.supervisor;
     if (inputDataAgendada) inputDataAgendada.value = registoDefesaEmEdicao.dataAgendada;
+    if (inputSala) inputSala.value = registoDefesaEmEdicao.sala;
+    if (inputHora) inputHora.value = registoDefesaEmEdicao.hora;
 
     preencherSelectSituacaoDefesa(registoDefesaEmEdicao, registoDefesaEmEdicao.situacao);
     preencherSelectComOpcoes(selectPresidenteDefesa, DOCENTES_DEFESA_TESTE, registoDefesaEmEdicao.presidente);
@@ -460,16 +466,27 @@ function guardarEdicaoDefesa() {
     }
 
     const inputDataAgendada = document.getElementById("defesaDataAgendada");
+    const inputSala = document.getElementById("defesaSala");
+    const inputHora = document.getElementById("defesaHora");
 
     const dadosEditados = {
+        action: "guardarEdicaoDefesa",
+        id: registoDefesaEmEdicao.id || registoDefesaEmEdicao.idDefesa || "",
+        row: registoDefesaEmEdicao.row || "",
+        numero: registoDefesaEmEdicao.numero || "",
         nome: registoDefesaEmEdicao.nome,
         supervisor: registoDefesaEmEdicao.supervisor,
         situacao: selectSituacaoDefesa?.value || "",
         presidente: selectPresidenteDefesa?.value || "",
         arguente: selectArguenteDefesa?.value || "",
-        dataAgendada: inputDataAgendada?.value || ""
+        dataAgendada: inputDataAgendada?.value || "",
+        sala: inputSala?.value || "",
+        hora: inputHora?.value || ""
     };
 
+    const payload = new URLSearchParams(dadosEditados);
+
+    console.log("[Defesa] Payload preparado:", Object.fromEntries(payload.entries()));
     console.log("[Defesa] Edição preparada:", dadosEditados);
     fecharModalEdicaoDefesa();
 }
