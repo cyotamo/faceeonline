@@ -759,6 +759,7 @@ function mostrarConsultaEstado() {
           <select id="tipoConsulta">
             <option value="">Selecione...</option>
             <option value="consulta_monografia">Monografia</option>
+            <option value="consulta_defesa_monografia">Defesa Monografia</option>
             <option value="consulta_credencial_pesquisa">Credencial Pesquisa</option>
             <option value="consulta_credencial_estagio">Credencial Estágio</option>
             <option value="consulta_tema">Tema de Monografia</option>
@@ -1035,8 +1036,10 @@ function mostrarResultadoConsulta(resposta) {
     document.getElementById("resSubmissao").textContent = "";
   }
 
-  const isDefesaConsulta = ["analiseAcademica", "avaliacaoJuri", "agendamentoDefesa", "defesaAgendada", "situacao"]
-    .some((campo) => campo in dados);
+  const isDefesaConsulta =
+    consultaAction === "consulta_defesa_monografia" ||
+    ["analiseAcademica", "avaliacaoJuri", "agendamentoDefesa", "defesaAgendada", "situacao"]
+      .some((campo) => campo in dados);
 
   if (isDefesaConsulta) {
     const submissaoDefesa = dados.submissao;
