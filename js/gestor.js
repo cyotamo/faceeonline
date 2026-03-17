@@ -470,7 +470,7 @@ function guardarEdicaoDefesa() {
     const inputHora = document.getElementById("defesaHora");
 
     const dadosEditados = {
-        action: "guardarEdicaoDefesa",
+        action: "guardarSituacaoDefesa",
         id: registoDefesaEmEdicao.id || registoDefesaEmEdicao.idDefesa || "",
         row: registoDefesaEmEdicao.row || "",
         numero: registoDefesaEmEdicao.numero || "",
