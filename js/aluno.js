@@ -1052,14 +1052,7 @@ function mostrarResultadoConsulta(resposta) {
       : "";
 
     if (dataSubmissaoDefesa && linkSubmissaoDefesa) {
-      const submissaoEl = document.getElementById("resSubmissao");
-      submissaoEl.textContent = `${dataSubmissaoDefesa} – `;
-      const linkEl = document.createElement("a");
-      linkEl.href = linkSubmissaoDefesa;
-      linkEl.target = "_blank";
-      linkEl.rel = "noopener";
-      linkEl.textContent = "Baixe aqui o comprovativo";
-      submissaoEl.appendChild(linkEl);
+      document.getElementById("resSubmissao").innerHTML = `${dataSubmissaoDefesa} – <a href="${linkSubmissaoDefesa}" target="_blank" rel="noopener">Baixe aqui o comprovativo</a>`;
     } else if (dataSubmissaoDefesa) {
       document.getElementById("resSubmissao").textContent = dataSubmissaoDefesa;
     }
