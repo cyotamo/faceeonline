@@ -73,12 +73,12 @@ function aplicarDadosBloqueio() {
     });
 }
 
-function activarLoadingGuardar(botao) {
+function activarLoadingGuardar(botao, textoLoading = "A guardar...") {
   if (!botao) return;
   if (botao.disabled) return; // já está em loading, não sobrescreve
   botao.dataset.textoOriginal = botao.textContent;
   botao.disabled = true;
-  botao.textContent = "A guardar...";
+  botao.textContent = textoLoading;
 }
 
 function desactivarLoadingGuardar(botao) {
@@ -232,7 +232,6 @@ const SITUACOES_DEFESA = [
     "Em avaliação no RA",
     "Em avaliação pela banca",
     "Em processo de marcação de defesa",
-    "Defesa agendada",
     "Defendida"
 ];
 
@@ -240,7 +239,6 @@ const MAPA_CAMPOS_SITUACAO_DEFESA = {
     "Em avaliação no RA": ["enviadoRA", "enviadoAoRA", "avaliacaoRA"],
     "Em avaliação pela banca": ["banca", "avaliacaoBanca"],
     "Em processo de marcação de defesa": ["processo", "marcacaoDefesa", "processoMarcacao"],
-    "Defesa agendada": ["agendado", "dataAgendada", "defesaAgendada"],
     Defendida: ["defendido"]
 };
 
@@ -458,7 +456,7 @@ async function guardarSituacaoDefesa() {
         nome: registoDefesaEmEdicao.nome || ""
     });
 
-    activarLoadingGuardar(btnGuardarSituacaoDefesa);
+    activarLoadingGuardar(btnGuardarSituacaoDefesa, "A actualizar");
 
     try {
         const resposta = await fetch(WEB_URL, {
@@ -515,10 +513,28 @@ async function guardarEdicaoDefesa() {
         hora: inputHora?.value || ""
     };
 
+    const camposObrigatorios = [
+        { campo: "situacao", etiqueta: "Situação" },
+        { campo: "presidente", etiqueta: "Presidente" },
+        { campo: "arguente", etiqueta: "Arguente" },
+        { campo: "dataAgendada", etiqueta: "Data agendada" },
+        { campo: "hora", etiqueta: "Hora" },
+        { campo: "sala", etiqueta: "Sala" }
+    ];
+
+    const campoEmFalta = camposObrigatorios.find(({ campo }) => String(dadosEditados[campo] ?? "").trim() === "");
+    if (campoEmFalta) {
+        alert(`O campo \"${campoEmFalta.etiqueta}\" é obrigatório.`);
+        return;
+    }
+
     const payload = new URLSearchParams(dadosEditados);
 
     console.log("[Defesa] Payload preparado:", Object.fromEntries(payload.entries()));
     console.log("[Defesa] Edição preparada:", dadosEditados);
+
+    const btnGuardar = document.getElementById("btnGuardarEdicaoDefesa");
+    activarLoadingGuardar(btnGuardar, "A agendar");
 
     try {
         const resposta = await fetch(WEB_URL, {
@@ -539,17 +555,17 @@ async function guardarEdicaoDefesa() {
     } catch (erro) {
         console.error("[Defesa] Erro ao guardar edição:", erro);
         alert("Erro de comunicação com o servidor ao guardar a defesa.");
+    } finally {
+        desactivarLoadingGuardar(btnGuardar);
     }
 }
 
 function configurarEventosModalDefesa() {
     const btnFechar = document.getElementById("btnFecharModalDefesa");
-    const btnCancelar = document.getElementById("btnCancelarEdicaoDefesa");
     const btnGuardar = document.getElementById("btnGuardarEdicaoDefesa");
     const tbodyDefesas = document.getElementById("listaDefesas");
 
     btnFechar?.addEventListener("click", fecharModalEdicaoDefesa);
-    btnCancelar?.addEventListener("click", fecharModalEdicaoDefesa);
     btnGuardar?.addEventListener("click", guardarEdicaoDefesa);
     btnGuardarSituacaoDefesa?.addEventListener("click", guardarSituacaoDefesa);
 
