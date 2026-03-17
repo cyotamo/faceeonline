@@ -460,7 +460,7 @@ async function guardarSituacaoDefesa() {
     }
 }
 
-function guardarEdicaoDefesa() {
+async function guardarEdicaoDefesa() {
     if (!registoDefesaEmEdicao) {
         return;
     }
@@ -488,7 +488,27 @@ function guardarEdicaoDefesa() {
 
     console.log("[Defesa] Payload preparado:", Object.fromEntries(payload.entries()));
     console.log("[Defesa] Edição preparada:", dadosEditados);
-    fecharModalEdicaoDefesa();
+
+    try {
+        const resposta = await fetch(WEB_URL, {
+            method: "POST",
+            body: payload
+        });
+
+        const resultado = await resposta.json();
+        console.log("[Defesa] Resposta do back:", resultado);
+
+        if (!resultado.sucesso) {
+            alert(resultado.mensagem || "Erro ao guardar dados da defesa.");
+            return;
+        }
+
+        alert(resultado.mensagem || "Dados da defesa guardados com sucesso.");
+        fecharModalEdicaoDefesa();
+    } catch (erro) {
+        console.error("[Defesa] Erro ao guardar edição:", erro);
+        alert("Erro de comunicação com o servidor ao guardar a defesa.");
+    }
 }
 
 function configurarEventosModalDefesa() {
