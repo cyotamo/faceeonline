@@ -792,7 +792,7 @@ function mostrarConsultaEstado() {
   if (selectTipoConsulta) {
     selectTipoConsulta.addEventListener('change', () => {
       const tipoSelecionado = selectTipoConsulta.value || "";
-      consultaEstadoAction = tipoSelecionado === "defesa" ? "consulta_defesa" : tipoSelecionado;
+      consultaEstadoAction = tipoSelecionado === "defesa" ? "consulta_defesa_monografia" : tipoSelecionado;
       numeroEstudanteConsulta.disabled = !consultaEstadoAction;
       if (botaoBuscar) {
         botaoBuscar.disabled = !consultaEstadoAction;
@@ -1106,23 +1106,27 @@ function mostrarResultadoConsulta(resposta) {
   }
 
   const isDefesaConsulta =
-    consultaAction === "consulta_defesa_monografia" ||
+    ["consulta_defesa_monografia", "consulta_defesa"].includes(consultaAction) ||
     ["dataAnalise", "dataJuri", "dataAgendamento", "situacaoRaw"]
       .some((campo) => campo in dados);
 
   if (isDefesaConsulta) {
     const submissaoDefesa = dados.submissao;
-    const dataSubmissaoDefesa = submissaoDefesa && typeof submissaoDefesa === "object"
-      ? (submissaoDefesa.data || "")
-      : "";
-    const linkSubmissaoDefesa = submissaoDefesa && typeof submissaoDefesa === "object"
-      ? normalizarLink(submissaoDefesa.link)
-      : "";
+    const dataSubmissaoDefesa = (
+      dados.dataSubmissao ||
+      (submissaoDefesa && typeof submissaoDefesa === "object" ? submissaoDefesa.data : "") ||
+      ""
+    ).toString().trim();
+    const linkSubmissaoDefesa = normalizarLink(
+      (submissaoDefesa && typeof submissaoDefesa === "object" ? submissaoDefesa.link : "") ||
+      obterPrimeiroLinkPdf(dados, resposta.dados)
+    );
 
-    if (dataSubmissaoDefesa && linkSubmissaoDefesa) {
-      document.getElementById("resSubmissao").innerHTML = `${dataSubmissaoDefesa} – <a class="submissao-comprovativo-link" href="${linkSubmissaoDefesa}" target="_blank" rel="noopener">Baixe aqui o comprovativo</a>`;
-    } else if (dataSubmissaoDefesa) {
-      document.getElementById("resSubmissao").textContent = dataSubmissaoDefesa;
+    if (linkSubmissaoDefesa) {
+      const prefixoData = dataSubmissaoDefesa ? `${dataSubmissaoDefesa} – ` : "";
+      document.getElementById("resSubmissao").innerHTML = `${prefixoData}<a class="submissao-comprovativo-link" href="${linkSubmissaoDefesa}" target="_blank" rel="noopener">Baixe aqui o comprovativo</a>`;
+    } else {
+      document.getElementById("resSubmissao").textContent = dataSubmissaoDefesa || "Pendente";
     }
 
     const {
