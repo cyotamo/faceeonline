@@ -910,6 +910,78 @@ function renderLinkDownload(containerEl, url, label) {
   }
 }
 
+function limparEstadoDefesaClasse(el) {
+  if (!el) return;
+  el.classList.remove("defesa-status-andamento", "defesa-status-concluida");
+}
+
+function aplicarEstadoDefesa(el, estado) {
+  if (!el || !estado) return;
+
+  limparEstadoDefesaClasse(el);
+  el.classList.remove("status");
+
+  el.textContent = estado.texto;
+  if (estado.classe) {
+    el.classList.add(estado.classe);
+    return;
+  }
+
+  if (estado.texto === "Pendente") {
+    aplicarEstiloSituacao(el, "pendente");
+  }
+}
+
+function situacaoDefesaConcluida(situacaoRaw) {
+  const valor = (situacaoRaw || "").toString().trim().toLowerCase();
+  if (!valor) return false;
+
+  const marcadoresConclusao = [
+    "conclu",
+    "realiz",
+    "finaliz",
+    "defendida",
+    "defesa publica concluida",
+    "defesa pública concluída"
+  ];
+
+  return marcadoresConclusao.some((termo) => valor.includes(termo));
+}
+
+function montarEstadosDefesa(dados) {
+  const dataAnalise = (dados.dataAnalise || "").toString().trim();
+  const dataJuri = (dados.dataJuri || "").toString().trim();
+  const dataAgendamento = (dados.dataAgendamento || "").toString().trim();
+  const situacaoRaw = (dados.situacaoRaw || "").toString().trim();
+
+  const estadoAnalise = !dataAnalise
+    ? { texto: "Pendente", classe: "" }
+    : (!dataJuri
+      ? { texto: `Em análise... iniciando em ${dataAnalise}`, classe: "defesa-status-andamento" }
+      : { texto: "Análise concluída", classe: "defesa-status-concluida" });
+
+  const estadoJuri = !dataJuri
+    ? { texto: "Pendente", classe: "" }
+    : (!dataAgendamento
+      ? { texto: `Em análise... iniciado em ${dataJuri}`, classe: "defesa-status-andamento" }
+      : { texto: "Avaliação concluída", classe: "defesa-status-concluida" });
+
+  const estadoAgendamento = dataAgendamento
+    ? { texto: `Defesa agendada para o dia ${dataAgendamento}`, classe: "" }
+    : { texto: "Pendente", classe: "" };
+
+  const estadoDefesaPublica = situacaoDefesaConcluida(situacaoRaw)
+    ? { texto: "Concluída", classe: "defesa-status-concluida" }
+    : { texto: "Pendente", classe: "" };
+
+  return {
+    estadoAnalise,
+    estadoJuri,
+    estadoAgendamento,
+    estadoDefesaPublica
+  };
+}
+
 function obterPrimeiroLinkPdf(...fontes) {
   const chavesPdf = [
     "pdfComprovativo",
@@ -951,7 +1023,6 @@ function mostrarResultadoConsulta(resposta) {
   const linhaComprovativo = document.getElementById("resPdfHomologacao")?.parentElement;
   const linhaAnaliseAcademicaFinanceira = document.getElementById("linhaAnaliseAcademicaFinanceira");
   const linhaAvaliacaoJuri = document.getElementById("linhaAvaliacaoJuri");
-  const linhaAgendamentoDefesa = document.getElementById("linhaAgendamentoDefesa");
   const linhaDefesaAgendada = document.getElementById("linhaDefesaAgendada");
   const linhaSituacaoDefesa = document.getElementById("linhaSituacaoDefesa");
 
@@ -977,7 +1048,6 @@ function mostrarResultadoConsulta(resposta) {
     alternarLinha(linhaComprovativo, false);
     alternarLinha(linhaAnaliseAcademicaFinanceira, false);
     alternarLinha(linhaAvaliacaoJuri, false);
-    alternarLinha(linhaAgendamentoDefesa, false);
     alternarLinha(linhaDefesaAgendada, false);
     alternarLinha(linhaSituacaoDefesa, false);
     if (pdfBox) {
@@ -997,7 +1067,6 @@ function mostrarResultadoConsulta(resposta) {
   const situacaoDefesaEl = document.getElementById("resSituacao");
   const analiseAcademicaEl = document.getElementById("resAnaliseAcademicaFinanceira");
   const avaliacaoJuriEl = document.getElementById("resAvaliacaoJuri");
-  const agendamentoDefesaEl = document.getElementById("resAgendamentoDefesa");
   const defesaAgendadaEl = document.getElementById("resDefesaAgendada");
   const comprovativoEl = document.getElementById("resPdfHomologacao");
   const consultaAction = consultaEstadoAction;
@@ -1015,7 +1084,6 @@ function mostrarResultadoConsulta(resposta) {
   pdfBox.style.display = "none";
   alternarLinha(linhaAnaliseAcademicaFinanceira, false);
   alternarLinha(linhaAvaliacaoJuri, false);
-  alternarLinha(linhaAgendamentoDefesa, false);
   alternarLinha(linhaDefesaAgendada, false);
   alternarLinha(linhaSituacaoDefesa, false);
 
@@ -1039,7 +1107,7 @@ function mostrarResultadoConsulta(resposta) {
 
   const isDefesaConsulta =
     consultaAction === "consulta_defesa_monografia" ||
-    ["analiseAcademica", "avaliacaoJuri", "agendamentoDefesa", "defesaAgendada", "situacao"]
+    ["dataAnalise", "dataJuri", "dataAgendamento", "situacaoRaw"]
       .some((campo) => campo in dados);
 
   if (isDefesaConsulta) {
@@ -1052,35 +1120,28 @@ function mostrarResultadoConsulta(resposta) {
       : "";
 
     if (dataSubmissaoDefesa && linkSubmissaoDefesa) {
-      document.getElementById("resSubmissao").innerHTML = `${dataSubmissaoDefesa} – <a href="${linkSubmissaoDefesa}" target="_blank" rel="noopener">Baixe aqui o comprovativo</a>`;
+      document.getElementById("resSubmissao").innerHTML = `${dataSubmissaoDefesa} – <a class="submissao-comprovativo-link" href="${linkSubmissaoDefesa}" target="_blank" rel="noopener">Baixe aqui o comprovativo</a>`;
     } else if (dataSubmissaoDefesa) {
       document.getElementById("resSubmissao").textContent = dataSubmissaoDefesa;
     }
 
-    const textoAnalise = dados.analiseAcademica || "Pendente";
-    const textoAvaliacaoJuri = dados.avaliacaoJuri || "Pendente";
-    const textoAgendamentoDefesa = dados.agendamentoDefesa || "Pendente";
-    const textoDefesaAgendada = dados.defesaAgendada || "Pendente";
-    const textoSituacaoDefesa = dados.situacao || "Pendente";
+    const {
+      estadoAnalise,
+      estadoJuri,
+      estadoAgendamento,
+      estadoDefesaPublica
+    } = montarEstadosDefesa(dados);
 
-    analiseAcademicaEl.textContent = textoAnalise;
-    avaliacaoJuriEl.textContent = textoAvaliacaoJuri;
-    agendamentoDefesaEl.textContent = textoAgendamentoDefesa;
-    defesaAgendadaEl.textContent = textoDefesaAgendada;
-    situacaoDefesaEl.textContent = textoSituacaoDefesa;
-
-    aplicarEstiloSituacao(analiseAcademicaEl, textoAnalise);
-    aplicarEstiloSituacao(avaliacaoJuriEl, textoAvaliacaoJuri);
-    aplicarEstiloSituacao(agendamentoDefesaEl, textoAgendamentoDefesa);
-    aplicarEstiloSituacao(defesaAgendadaEl, textoDefesaAgendada);
-    aplicarEstiloSituacao(situacaoDefesaEl, textoSituacaoDefesa);
+    aplicarEstadoDefesa(analiseAcademicaEl, estadoAnalise);
+    aplicarEstadoDefesa(avaliacaoJuriEl, estadoJuri);
+    aplicarEstadoDefesa(defesaAgendadaEl, estadoAgendamento);
+    aplicarEstadoDefesa(situacaoDefesaEl, estadoDefesaPublica);
 
     alternarLinha(linhaNome, true);
     alternarLinha(linhaNumero, true);
     alternarLinha(linhaSubmissao, true);
     alternarLinha(linhaAnaliseAcademicaFinanceira, true);
     alternarLinha(linhaAvaliacaoJuri, true);
-    alternarLinha(linhaAgendamentoDefesa, true);
     alternarLinha(linhaDefesaAgendada, true);
     alternarLinha(linhaSituacaoDefesa, true);
 

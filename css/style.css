@@ -2261,3 +2261,23 @@ input[type='file'] {
   border: 1px solid #b42318;
   letter-spacing: 0.02em;
 }
+
+.submissao-comprovativo-link {
+  color: #4da3ff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.submissao-comprovativo-link:hover {
+  opacity: 0.85;
+}
+
+.defesa-status-andamento {
+  color: #0b63c9;
+  font-weight: 400;
+}
+
+.defesa-status-concluida {
+  color: #146c43;
+  font-weight: 400;
+}
