@@ -758,7 +758,7 @@ function mostrarConsultaEstado() {
           <label for="tipoConsulta">Tipo de consulta</label>
           <select id="tipoConsulta">
             <option value="">Selecione...</option>
-            <option value="consulta_monografia">Monografia</option>
+            <option value="consulta_monografia">Versão Final Monografia</option>
             <option value="defesa">Defesa Monografia</option>
             <option value="consulta_credencial_pesquisa">Credencial Pesquisa</option>
             <option value="consulta_credencial_estagio">Credencial Estágio</option>
