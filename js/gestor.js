@@ -253,6 +253,20 @@ let registoDefesaEmEdicao = null;
 let indiceDefesaEmEdicao = null;
 let defesasCache = [];
 
+function defesaEstaAgendada(registo = {}) {
+    const dataAgendada = String(registo.dataAgendada || registo.data_agendada || "").trim();
+    if (dataAgendada) {
+        return true;
+    }
+
+    const presidente = String(registo.presidente || "").trim();
+    const arguente = String(registo.arguente || "").trim();
+    const hora = String(registo.hora || registo.Hora || "").trim();
+    const sala = String(registo.sala || registo.Sala || "").trim();
+
+    return Boolean(presidente && arguente && hora && sala);
+}
+
 function actualizarEstadoBotaoSituacaoDefesa() {
     if (!btnGuardarSituacaoDefesa || !selectSituacaoDefesa) {
         return;
@@ -409,7 +423,7 @@ function abrirModalEdicaoDefesa(registo = {}, indice = null) {
     const inputHora = document.getElementById("defesaHora");
     const btnAgendar = document.getElementById("btnGuardarEdicaoDefesa");
 
-    const defesaJaAgendada = String(registoDefesaEmEdicao.dataAgendada || "").trim() !== "";
+    const defesaJaAgendada = defesaEstaAgendada(registoDefesaEmEdicao);
 
     if (inputNome) inputNome.value = registoDefesaEmEdicao.nome;
     if (inputSupervisor) inputSupervisor.value = registoDefesaEmEdicao.supervisor;
@@ -533,7 +547,7 @@ async function guardarEdicaoDefesa() {
         numero: registoDefesaEmEdicao.numero || "",
         nome: registoDefesaEmEdicao.nome,
         supervisor: registoDefesaEmEdicao.supervisor,
-        situacao: selectSituacaoDefesa?.value || "",
+        situacao: selectSituacaoDefesa?.value || registoDefesaEmEdicao.situacao || "",
         presidente: selectPresidenteDefesa?.value || "",
         arguente: selectArguenteDefesa?.value || "",
         dataAgendada: inputDataAgendada?.value || "",
@@ -542,7 +556,6 @@ async function guardarEdicaoDefesa() {
     };
 
     const camposObrigatorios = [
-        { campo: "situacao", etiqueta: "Situação" },
         { campo: "presidente", etiqueta: "Presidente" },
         { campo: "arguente", etiqueta: "Arguente" },
         { campo: "dataAgendada", etiqueta: "Data agendada" },
@@ -578,7 +591,17 @@ async function guardarEdicaoDefesa() {
             return;
         }
 
-        alert(resultado.mensagem || "Dados da defesa guardados com sucesso.");
+        registoDefesaEmEdicao = {
+            ...registoDefesaEmEdicao,
+            ...dadosEditados
+        };
+        if (Number.isInteger(indiceDefesaEmEdicao) && defesasCache[indiceDefesaEmEdicao]) {
+            defesasCache[indiceDefesaEmEdicao] = {
+                ...defesasCache[indiceDefesaEmEdicao],
+                ...dadosEditados
+            };
+        }
+        renderTabelaDefesa(defesasCache);
         fecharModalEdicaoDefesa();
     } catch (erro) {
         console.error("[Defesa] Erro ao guardar edição:", erro);
