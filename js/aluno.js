@@ -1065,6 +1065,7 @@ function mostrarResultadoConsulta(resposta) {
       .some((campo) => campo in dados);
 
   if (isDefesaConsulta) {
+    console.log("DADOS DEFESA:", dados);
     const submissaoDefesa = dados.submissao;
     const dataSubmissaoDefesa = submissaoDefesa && typeof submissaoDefesa === "object"
       ? (submissaoDefesa.data || "")
