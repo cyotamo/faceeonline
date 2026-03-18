@@ -1080,14 +1080,19 @@ function mostrarResultadoConsulta(resposta) {
       document.getElementById("resSubmissao").textContent = dataSubmissaoDefesa;
     }
 
+    const analiseAcademica = (dados.analiseAcademica || "").toString().trim();
     const dataAnalise = (dados.dataAnalise || "").toString().trim();
     const dataJuri = (dados.dataJuri || "").toString().trim();
     const dataAgendamento = (dados.dataAgendamento || "").toString().trim();
     const situacaoRaw = (dados.situacaoRaw || "").toString().trim();
 
-    const textoAnalise = dataJuri
-      ? "Análise concluída"
-      : (dataAnalise ? `Em análise... iniciando em ${dataAnalise}` : "Pendente");
+    const textoAnalise = consultaAction === "consulta_defesa_monografia"
+      ? (analiseAcademica || "Pendente")
+      : (
+        dataJuri
+          ? "Análise concluída"
+          : (dataAnalise ? `Em análise... iniciando em ${dataAnalise}` : "Pendente")
+      );
     const textoAvaliacaoJuri = dataAgendamento
       ? "Avaliação concluída"
       : (dataJuri ? `Em análise... iniciado em ${dataJuri}` : "Pendente");
@@ -1103,7 +1108,9 @@ function mostrarResultadoConsulta(resposta) {
 
     aplicarEstiloDefesaMonografia(
       analiseAcademicaEl,
-      dataJuri ? "concluida" : (dataAnalise ? "analise" : "pendente")
+      consultaAction === "consulta_defesa_monografia"
+        ? (analiseAcademica ? "analise" : "pendente")
+        : (dataJuri ? "concluida" : (dataAnalise ? "analise" : "pendente"))
     );
     aplicarEstiloDefesaMonografia(
       avaliacaoJuriEl,
