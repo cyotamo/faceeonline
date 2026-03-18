@@ -893,6 +893,28 @@ function normalizarLink(url) {
   return link;
 }
 
+function aplicarEstiloDefesaMonografia(el, tipo) {
+  if (!el) return;
+
+  el.classList.remove("status", "status-aprovado", "status-pendente", "status-reprovado", "status-recusado");
+  el.style.color = "";
+  el.style.fontWeight = "";
+
+  if (tipo === "analise") {
+    el.style.color = "#1e88e5";
+    el.style.fontWeight = "normal";
+    return;
+  }
+
+  if (tipo === "concluida") {
+    el.style.color = "#2e7d32";
+    el.style.fontWeight = "normal";
+    return;
+  }
+
+  aplicarEstiloSituacao(el, "pendente");
+}
+
 function renderLinkDownload(containerEl, url, label) {
   if (!containerEl) return;
 
@@ -997,7 +1019,6 @@ function mostrarResultadoConsulta(resposta) {
   const situacaoDefesaEl = document.getElementById("resSituacao");
   const analiseAcademicaEl = document.getElementById("resAnaliseAcademicaFinanceira");
   const avaliacaoJuriEl = document.getElementById("resAvaliacaoJuri");
-  const agendamentoDefesaEl = document.getElementById("resAgendamentoDefesa");
   const defesaAgendadaEl = document.getElementById("resDefesaAgendada");
   const comprovativoEl = document.getElementById("resPdfHomologacao");
   const consultaAction = consultaEstadoAction;
@@ -1039,7 +1060,8 @@ function mostrarResultadoConsulta(resposta) {
 
   const isDefesaConsulta =
     consultaAction === "consulta_defesa_monografia" ||
-    ["analiseAcademica", "avaliacaoJuri", "agendamentoDefesa", "defesaAgendada", "situacao"]
+    consultaAction === "consulta_defesa" ||
+    ["analiseAcademica", "avaliacaoJuri", "agendamentoDefesa", "defesaAgendada", "situacao", "dataAnalise", "dataJuri", "dataAgendamento", "situacaoRaw"]
       .some((campo) => campo in dados);
 
   if (isDefesaConsulta) {
@@ -1052,35 +1074,55 @@ function mostrarResultadoConsulta(resposta) {
       : "";
 
     if (dataSubmissaoDefesa && linkSubmissaoDefesa) {
-      document.getElementById("resSubmissao").innerHTML = `${dataSubmissaoDefesa} – <a href="${linkSubmissaoDefesa}" target="_blank" rel="noopener">Baixe aqui o comprovativo</a>`;
+      document.getElementById("resSubmissao").innerHTML = `${dataSubmissaoDefesa} – <a href="${linkSubmissaoDefesa}" target="_blank" rel="noopener" style="color:#4fc3f7;text-decoration:underline;">Baixe aqui o comprovativo</a>`;
     } else if (dataSubmissaoDefesa) {
       document.getElementById("resSubmissao").textContent = dataSubmissaoDefesa;
     }
 
-    const textoAnalise = dados.analiseAcademica || "Pendente";
-    const textoAvaliacaoJuri = dados.avaliacaoJuri || "Pendente";
-    const textoAgendamentoDefesa = dados.agendamentoDefesa || "Pendente";
-    const textoDefesaAgendada = dados.defesaAgendada || "Pendente";
-    const textoSituacaoDefesa = dados.situacao || "Pendente";
+    const dataAnalise = (dados.dataAnalise || "").toString().trim();
+    const dataJuri = (dados.dataJuri || "").toString().trim();
+    const dataAgendamento = (dados.dataAgendamento || "").toString().trim();
+    const situacaoRaw = (dados.situacaoRaw || "").toString().trim();
+
+    const textoAnalise = dataJuri
+      ? "Análise concluída"
+      : (dataAnalise ? `Em análise... iniciando em ${dataAnalise}` : "Pendente");
+    const textoAvaliacaoJuri = dataAgendamento
+      ? "Avaliação concluída"
+      : (dataJuri ? `Em análise... iniciado em ${dataJuri}` : "Pendente");
+    const textoDefesaAgendada = dataAgendamento
+      ? `Defesa agendada para o dia ${dataAgendamento}`
+      : "Pendente";
+    const textoSituacaoDefesa = situacaoRaw ? "Concluída" : "Pendente";
 
     analiseAcademicaEl.textContent = textoAnalise;
     avaliacaoJuriEl.textContent = textoAvaliacaoJuri;
-    agendamentoDefesaEl.textContent = textoAgendamentoDefesa;
     defesaAgendadaEl.textContent = textoDefesaAgendada;
     situacaoDefesaEl.textContent = textoSituacaoDefesa;
 
-    aplicarEstiloSituacao(analiseAcademicaEl, textoAnalise);
-    aplicarEstiloSituacao(avaliacaoJuriEl, textoAvaliacaoJuri);
-    aplicarEstiloSituacao(agendamentoDefesaEl, textoAgendamentoDefesa);
-    aplicarEstiloSituacao(defesaAgendadaEl, textoDefesaAgendada);
-    aplicarEstiloSituacao(situacaoDefesaEl, textoSituacaoDefesa);
+    aplicarEstiloDefesaMonografia(
+      analiseAcademicaEl,
+      dataJuri ? "concluida" : (dataAnalise ? "analise" : "pendente")
+    );
+    aplicarEstiloDefesaMonografia(
+      avaliacaoJuriEl,
+      dataAgendamento ? "concluida" : (dataJuri ? "analise" : "pendente")
+    );
+    aplicarEstiloDefesaMonografia(
+      defesaAgendadaEl,
+      dataAgendamento ? "analise" : "pendente"
+    );
+    aplicarEstiloDefesaMonografia(
+      situacaoDefesaEl,
+      situacaoRaw ? "concluida" : "pendente"
+    );
 
     alternarLinha(linhaNome, true);
     alternarLinha(linhaNumero, true);
     alternarLinha(linhaSubmissao, true);
     alternarLinha(linhaAnaliseAcademicaFinanceira, true);
     alternarLinha(linhaAvaliacaoJuri, true);
-    alternarLinha(linhaAgendamentoDefesa, true);
+    alternarLinha(linhaAgendamentoDefesa, false);
     alternarLinha(linhaDefesaAgendada, true);
     alternarLinha(linhaSituacaoDefesa, true);
 
