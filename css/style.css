@@ -1667,7 +1667,7 @@ footer {
 #btnGuardarSituacaoDefesa:disabled,
 #btnGuardarEdicaoDefesa:disabled {
   opacity: 0.8;
-  cursor: wait;
+  cursor: not-allowed;
 }
 
 .defesa-modal-section {
