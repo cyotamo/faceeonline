@@ -231,14 +231,12 @@ const btnGuardarSituacaoDefesa = document.getElementById("btnGuardarSituacaoDefe
 const SITUACOES_DEFESA = [
     "Em avaliação no RA",
     "Em avaliação pela banca",
-    "Em processo de marcação de defesa",
     "Defendida"
 ];
 
 const MAPA_CAMPOS_SITUACAO_DEFESA = {
     "Em avaliação no RA": ["enviadoRA", "enviadoAoRA", "avaliacaoRA"],
     "Em avaliação pela banca": ["banca", "avaliacaoBanca"],
-    "Em processo de marcação de defesa": ["processo", "marcacaoDefesa", "processoMarcacao"],
     Defendida: ["defendido"]
 };
 
@@ -252,6 +250,50 @@ const DOCENTES_DEFESA_TESTE = [
 let registoDefesaEmEdicao = null;
 let indiceDefesaEmEdicao = null;
 let defesasCache = [];
+let paginaAtualDefesas = 1;
+const REGISTOS_POR_PAGINA_DEFESAS = 12;
+
+function actualizarPaginacaoDefesas(totalRegistos = 0) {
+    const infoPaginacao = document.getElementById("infoPaginacaoDefesas");
+    const btnAnterior = document.getElementById("btnDefesasPaginaAnterior");
+    const btnSeguinte = document.getElementById("btnDefesasPaginaSeguinte");
+    const totalPaginasDefesas = Math.max(1, Math.ceil(totalRegistos / REGISTOS_POR_PAGINA_DEFESAS));
+
+    if (paginaAtualDefesas > totalPaginasDefesas) {
+        paginaAtualDefesas = totalPaginasDefesas;
+    }
+
+    if (paginaAtualDefesas < 1) {
+        paginaAtualDefesas = 1;
+    }
+
+    if (infoPaginacao) {
+        infoPaginacao.textContent = `${paginaAtualDefesas} de ${totalPaginasDefesas}`;
+    }
+
+    if (btnAnterior) {
+        btnAnterior.disabled = paginaAtualDefesas <= 1 || totalRegistos === 0;
+    }
+
+    if (btnSeguinte) {
+        btnSeguinte.disabled = paginaAtualDefesas >= totalPaginasDefesas || totalRegistos === 0;
+    }
+}
+
+function mostrarMensagemTabelaDefesa(mensagem) {
+    const tbody = document.getElementById("listaDefesas");
+    if (!tbody) {
+        return;
+    }
+
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="10">${escaparHTML(mensagem)}</td>
+        </tr>
+    `;
+    paginaAtualDefesas = 1;
+    actualizarPaginacaoDefesas(0);
+}
 
 function defesaEstaAgendada(registo = {}) {
     const dataAgendada = String(registo.dataAgendada || registo.data_agendada || "").trim();
@@ -348,8 +390,19 @@ function renderTabelaDefesa(lista = []) {
     }
 
     const listaSegura = Array.isArray(lista) ? lista : [];
+    const totalPaginasDefesas = Math.max(1, Math.ceil(listaSegura.length / REGISTOS_POR_PAGINA_DEFESAS));
+    paginaAtualDefesas = Math.min(Math.max(paginaAtualDefesas, 1), totalPaginasDefesas);
 
-    tbody.innerHTML = listaSegura.map((item, index) => {
+    if (!listaSegura.length) {
+        mostrarMensagemTabelaDefesa("Nenhum registo de defesa encontrado.");
+        return;
+    }
+
+    const inicio = (paginaAtualDefesas - 1) * REGISTOS_POR_PAGINA_DEFESAS;
+    const fim = inicio + REGISTOS_POR_PAGINA_DEFESAS;
+    const paginaDados = listaSegura.slice(inicio, fim);
+
+    tbody.innerHTML = paginaDados.map((item, index) => {
         const itemSeguro = {
             data: item.data || "",
             nome: item.nome || "",
@@ -387,12 +440,14 @@ function renderTabelaDefesa(lista = []) {
                     <button
                         type="button"
                         class="btn-editar-defesa"
-                        data-index="${index}"
+                        data-index="${inicio + index}"
                     >Actualizar</button>
                 </td>
             </tr>
         `;
     }).join("");
+
+    actualizarPaginacaoDefesas(listaSegura.length);
 }
 
 function abrirModalEdicaoDefesa(registo = {}, indice = null) {
@@ -646,6 +701,23 @@ function configurarEventosModalDefesa() {
         }
 
         abrirModalEdicaoDefesa(defesasCache[index], index);
+    });
+
+    document.getElementById("btnDefesasPaginaAnterior")?.addEventListener("click", () => {
+        if (paginaAtualDefesas <= 1) {
+            return;
+        }
+        paginaAtualDefesas -= 1;
+        renderTabelaDefesa(defesasCache);
+    });
+
+    document.getElementById("btnDefesasPaginaSeguinte")?.addEventListener("click", () => {
+        const totalPaginasDefesas = Math.max(1, Math.ceil(defesasCache.length / REGISTOS_POR_PAGINA_DEFESAS));
+        if (paginaAtualDefesas >= totalPaginasDefesas) {
+            return;
+        }
+        paginaAtualDefesas += 1;
+        renderTabelaDefesa(defesasCache);
     });
 }
 
@@ -1565,11 +1637,7 @@ async function carregarDefesas() {
             defesasCache = [];
             mostrarSecaoDefesas();
             esconderTabelaGestaoGeral();
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="10">Não foi possível carregar os dados das defesas.</td>
-                </tr>
-            `;
+            mostrarMensagemTabelaDefesa("Não foi possível carregar os dados das defesas.");
             return;
         }
 
@@ -1580,11 +1648,7 @@ async function carregarDefesas() {
             defesasCache = [];
             mostrarSecaoDefesas();
             esconderTabelaGestaoGeral();
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="10">Nenhum registo de defesa encontrado.</td>
-                </tr>
-            `;
+            mostrarMensagemTabelaDefesa("Nenhum registo de defesa encontrado.");
             return;
         }
 
@@ -1595,17 +1659,14 @@ async function carregarDefesas() {
 
         mostrarSecaoDefesas();
         esconderTabelaGestaoGeral();
+        paginaAtualDefesas = 1;
         renderTabelaDefesa(defesasCache);
     } catch (erro) {
         console.error("Erro ao carregar defesas:", erro);
         defesasCache = [];
         mostrarSecaoDefesas();
         esconderTabelaGestaoGeral();
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="10">Ocorreu um erro ao carregar as defesas.</td>
-            </tr>
-        `;
+        mostrarMensagemTabelaDefesa("Ocorreu um erro ao carregar as defesas.");
     }
 }
 
