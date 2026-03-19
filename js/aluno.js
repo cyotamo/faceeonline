@@ -1065,7 +1065,6 @@ function mostrarResultadoConsulta(resposta) {
       .some((campo) => campo in dados);
 
   if (isDefesaConsulta) {
-    console.log("DADOS DEFESA:", dados);
     const submissaoDefesa = dados.submissao;
     const dataSubmissaoDefesa = submissaoDefesa && typeof submissaoDefesa === "object"
       ? (submissaoDefesa.data || "")
@@ -1088,62 +1087,62 @@ function mostrarResultadoConsulta(resposta) {
     const dataJuri = (dados.dataJuri || "").toString().trim();
     const dataAgendamento = (dados.dataAgendamento || "").toString().trim();
     const situacaoRaw = (dados.situacaoRaw || "").toString().trim();
+    const isDefesaMonografiaFluxo =
+      consultaAction === "consulta_defesa_monografia" ||
+      consultaAction === "consulta_defesa";
 
     const obterTextoDefesaMonografia = (valor) => {
       const texto = (valor || "").toString().trim();
       return texto || "Pendente";
     };
 
-    const textoAnalise = consultaAction === "consulta_defesa_monografia"
+    const textoAnalise = isDefesaMonografiaFluxo
       ? obterTextoDefesaMonografia(analiseAcademica)
       : (
         dataJuri
           ? "Análise concluída"
           : (dataAnalise ? `Em análise... iniciando em ${dataAnalise}` : "Pendente")
       );
-    const textoAvaliacaoJuri = consultaAction === "consulta_defesa_monografia"
+    const textoAvaliacaoJuri = isDefesaMonografiaFluxo
       ? obterTextoDefesaMonografia(avaliacaoJuri)
       : (dataAgendamento
         ? "Avaliação concluída"
         : (dataJuri ? `Em análise... iniciado em ${dataJuri}` : "Pendente"));
-    const textoDefesaAgendada = consultaAction === "consulta_defesa_monografia"
+    const textoDefesaAgendada = isDefesaMonografiaFluxo
       ? obterTextoDefesaMonografia(defesaAgendada)
       : (dataAgendamento
         ? `Defesa agendada para o dia ${dataAgendamento}`
         : "Pendente");
-    const textoSituacaoDefesa = consultaAction === "consulta_defesa_monografia"
+    const textoSituacaoDefesa = isDefesaMonografiaFluxo
       ? obterTextoDefesaMonografia(situacaoDefesa)
       : (situacaoRaw ? "Concluída" : "Pendente");
 
-    console.log("textoAnalise:", textoAnalise);
-    console.log("analiseAcademicaEl antes:", analiseAcademicaEl?.textContent);
     analiseAcademicaEl.textContent = textoAnalise;
-    console.log("analiseAcademicaEl depois:", analiseAcademicaEl?.textContent);
     avaliacaoJuriEl.textContent = textoAvaliacaoJuri;
     defesaAgendadaEl.textContent = textoDefesaAgendada;
     situacaoDefesaEl.textContent = textoSituacaoDefesa;
 
     aplicarEstiloDefesaMonografia(
       analiseAcademicaEl,
-      consultaAction === "consulta_defesa_monografia"
+      isDefesaMonografiaFluxo
         ? (analiseAcademica ? "analise" : "pendente")
         : (dataJuri ? "concluida" : (dataAnalise ? "analise" : "pendente"))
     );
     aplicarEstiloDefesaMonografia(
       avaliacaoJuriEl,
-      consultaAction === "consulta_defesa_monografia"
+      isDefesaMonografiaFluxo
         ? (textoAvaliacaoJuri.toLowerCase() === "pendente" ? "pendente" : "analise")
         : (dataAgendamento ? "concluida" : (dataJuri ? "analise" : "pendente"))
     );
     aplicarEstiloDefesaMonografia(
       defesaAgendadaEl,
-      consultaAction === "consulta_defesa_monografia"
+      isDefesaMonografiaFluxo
         ? (textoDefesaAgendada.toLowerCase() === "pendente" ? "pendente" : "analise")
         : (dataAgendamento ? "analise" : "pendente")
     );
     aplicarEstiloDefesaMonografia(
       situacaoDefesaEl,
-      consultaAction === "consulta_defesa_monografia"
+      isDefesaMonografiaFluxo
         ? (textoSituacaoDefesa.toLowerCase() === "pendente" ? "pendente" : "concluida")
         : (situacaoRaw ? "concluida" : "pendente")
     );
