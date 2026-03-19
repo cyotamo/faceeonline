@@ -915,6 +915,18 @@ function aplicarEstiloDefesaMonografia(el, tipo) {
   aplicarEstiloSituacao(el, "pendente");
 }
 
+function extrairDataEstado(texto) {
+  const valor = (texto || "").toString().trim();
+  if (!valor) return "";
+
+  const partes = valor.split("-");
+  if (partes.length > 1) {
+    return partes.slice(1).join("-").trim();
+  }
+
+  return valor;
+}
+
 function renderLinkDownload(containerEl, url, label) {
   if (!containerEl) return;
 
@@ -1082,6 +1094,7 @@ function mostrarResultadoConsulta(resposta) {
     const analiseAcademica = (dados.analiseAcademica || "").toString().trim();
     const avaliacaoJuri = (dados.avaliacaoJuri || "").toString().trim();
     const defesaAgendada = (dados.defesaAgendada || "").toString().trim();
+    const agendamentoDefesa = (dados.agendamentoDefesa || "").toString().trim();
     const situacaoDefesa = (dados.situacao || "").toString().trim();
     const dataAnalise = (dados.dataAnalise || "").toString().trim();
     const dataJuri = (dados.dataJuri || "").toString().trim();
@@ -1090,31 +1103,46 @@ function mostrarResultadoConsulta(resposta) {
     const isDefesaMonografiaFluxo =
       consultaAction === "consulta_defesa_monografia" ||
       consultaAction === "consulta_defesa";
-
-    const obterTextoDefesaMonografia = (valor) => {
+    const valorNaoPendente = (valor) => {
       const texto = (valor || "").toString().trim();
-      return texto || "Pendente";
+      return texto !== "" && texto.toLowerCase() !== "pendente";
     };
 
+    const analiseTemValor = valorNaoPendente(analiseAcademica);
+    const juriTemValor = valorNaoPendente(avaliacaoJuri);
+    const defesaTemValor = valorNaoPendente(defesaAgendada);
+    const agendamentoTemValor = valorNaoPendente(agendamentoDefesa);
+    const situacaoTemValor = valorNaoPendente(situacaoDefesa);
+
+    const dataAnaliseEstado = extrairDataEstado(analiseAcademica);
+    const dataJuriEstado = extrairDataEstado(avaliacaoJuri);
+    const dataAgendamentoEstado = extrairDataEstado(agendamentoDefesa);
+
     const textoAnalise = isDefesaMonografiaFluxo
-      ? obterTextoDefesaMonografia(analiseAcademica)
+      ? (juriTemValor
+        ? "Análise concluída"
+        : (analiseTemValor ? `Em análise... iniciando em ${dataAnaliseEstado}` : "Pendente"))
       : (
         dataJuri
           ? "Análise concluída"
           : (dataAnalise ? `Em análise... iniciando em ${dataAnalise}` : "Pendente")
       );
     const textoAvaliacaoJuri = isDefesaMonografiaFluxo
-      ? obterTextoDefesaMonografia(avaliacaoJuri)
+      ? ((defesaTemValor || agendamentoTemValor)
+        ? "Avaliação concluída"
+        : (juriTemValor ? `Em análise... iniciado em ${dataJuriEstado}` : "Pendente"))
       : (dataAgendamento
         ? "Avaliação concluída"
         : (dataJuri ? `Em análise... iniciado em ${dataJuri}` : "Pendente"));
     const textoDefesaAgendada = isDefesaMonografiaFluxo
-      ? obterTextoDefesaMonografia(defesaAgendada)
+      ? (agendamentoTemValor
+        ? `Defesa agendada para o dia ${dataAgendamentoEstado}`
+        : "Pendente")
       : (dataAgendamento
         ? `Defesa agendada para o dia ${dataAgendamento}`
         : "Pendente");
     const textoSituacaoDefesa = isDefesaMonografiaFluxo
-      ? obterTextoDefesaMonografia(situacaoDefesa)
+      ? (situacaoTemValor ? "Concluída" : "Pendente")
       : (situacaoRaw ? "Concluída" : "Pendente");
 
     analiseAcademicaEl.textContent = textoAnalise;
@@ -1125,13 +1153,13 @@ function mostrarResultadoConsulta(resposta) {
     aplicarEstiloDefesaMonografia(
       analiseAcademicaEl,
       isDefesaMonografiaFluxo
-        ? (analiseAcademica ? "analise" : "pendente")
+        ? (textoAnalise === "Análise concluída" ? "concluida" : (textoAnalise === "Pendente" ? "pendente" : "analise"))
         : (dataJuri ? "concluida" : (dataAnalise ? "analise" : "pendente"))
     );
     aplicarEstiloDefesaMonografia(
       avaliacaoJuriEl,
       isDefesaMonografiaFluxo
-        ? (textoAvaliacaoJuri.toLowerCase() === "pendente" ? "pendente" : "analise")
+        ? (textoAvaliacaoJuri === "Avaliação concluída" ? "concluida" : (textoAvaliacaoJuri.toLowerCase() === "pendente" ? "pendente" : "analise"))
         : (dataAgendamento ? "concluida" : (dataJuri ? "analise" : "pendente"))
     );
     aplicarEstiloDefesaMonografia(
