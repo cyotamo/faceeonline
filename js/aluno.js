@@ -987,7 +987,6 @@ function mostrarResultadoConsulta(resposta) {
   const linhaAvaliacaoJuri = document.getElementById("linhaAvaliacaoJuri");
   const linhaAgendamentoDefesa = document.getElementById("linhaAgendamentoDefesa");
   const linhaDefesaAgendada = document.getElementById("linhaDefesaAgendada");
-  const linhaSituacaoDefesa = document.getElementById("linhaSituacaoDefesa");
 
   const alternarLinha = (linha, mostrar) => {
     if (!linha) return;
@@ -1013,7 +1012,6 @@ function mostrarResultadoConsulta(resposta) {
     alternarLinha(linhaAvaliacaoJuri, false);
     alternarLinha(linhaAgendamentoDefesa, false);
     alternarLinha(linhaDefesaAgendada, false);
-    alternarLinha(linhaSituacaoDefesa, false);
     if (pdfBox) {
       pdfBox.style.display = "none";
     }
@@ -1028,7 +1026,6 @@ function mostrarResultadoConsulta(resposta) {
 
   const dados = resposta.dados || {};
   const situacaoEl = document.getElementById("resParecer");
-  const situacaoDefesaEl = document.getElementById("resSituacao");
   const analiseAcademicaEl = document.getElementById("resAnaliseAcademicaFinanceira");
   const avaliacaoJuriEl = document.getElementById("resAvaliacaoJuri");
   const defesaAgendadaEl = document.getElementById("resDefesaAgendada");
@@ -1050,7 +1047,6 @@ function mostrarResultadoConsulta(resposta) {
   alternarLinha(linhaAvaliacaoJuri, false);
   alternarLinha(linhaAgendamentoDefesa, false);
   alternarLinha(linhaDefesaAgendada, false);
-  alternarLinha(linhaSituacaoDefesa, false);
 
   document.getElementById("resNome").textContent = dados.nome || "";
   document.getElementById("resNumero").textContent = dados.numero || "";
@@ -1095,11 +1091,9 @@ function mostrarResultadoConsulta(resposta) {
     const avaliacaoJuri = (dados.avaliacaoJuri || "").toString().trim();
     const defesaAgendada = (dados.defesaAgendada || "").toString().trim();
     const agendamentoDefesa = (dados.agendamentoDefesa || "").toString().trim();
-    const situacaoDefesa = (dados.situacao || "").toString().trim();
     const dataAnalise = (dados.dataAnalise || "").toString().trim();
     const dataJuri = (dados.dataJuri || "").toString().trim();
     const dataAgendamento = (dados.dataAgendamento || "").toString().trim();
-    const situacaoRaw = (dados.situacaoRaw || "").toString().trim();
     const isDefesaMonografiaFluxo =
       consultaAction === "consulta_defesa_monografia" ||
       consultaAction === "consulta_defesa";
@@ -1112,7 +1106,6 @@ function mostrarResultadoConsulta(resposta) {
     const juriTemValor = valorNaoPendente(avaliacaoJuri);
     const defesaTemValor = valorNaoPendente(defesaAgendada);
     const agendamentoTemValor = valorNaoPendente(agendamentoDefesa);
-    const situacaoTemValor = valorNaoPendente(situacaoDefesa);
 
     const dataAnaliseEstado = extrairDataEstado(analiseAcademica);
     const dataJuriEstado = extrairDataEstado(avaliacaoJuri);
@@ -1136,19 +1129,15 @@ function mostrarResultadoConsulta(resposta) {
         : (dataJuri ? `Em análise... iniciado em ${dataJuri}` : "Pendente"));
     const textoDefesaAgendada = isDefesaMonografiaFluxo
       ? (agendamentoTemValor
-        ? `Defesa agendada para o dia ${dataAgendamentoEstado}`
+        ? `Agendamento da defesa para o dia ${dataAgendamentoEstado}`
         : "Pendente")
       : (dataAgendamento
-        ? `Defesa agendada para o dia ${dataAgendamento}`
+        ? `Agendamento da defesa para o dia ${dataAgendamento}`
         : "Pendente");
-    const textoSituacaoDefesa = isDefesaMonografiaFluxo
-      ? (situacaoTemValor ? "Concluída" : "Pendente")
-      : (situacaoRaw ? "Concluída" : "Pendente");
 
     analiseAcademicaEl.textContent = textoAnalise;
     avaliacaoJuriEl.textContent = textoAvaliacaoJuri;
     defesaAgendadaEl.textContent = textoDefesaAgendada;
-    situacaoDefesaEl.textContent = textoSituacaoDefesa;
 
     aplicarEstiloDefesaMonografia(
       analiseAcademicaEl,
@@ -1168,12 +1157,6 @@ function mostrarResultadoConsulta(resposta) {
         ? (textoDefesaAgendada.toLowerCase() === "pendente" ? "pendente" : "analise")
         : (dataAgendamento ? "analise" : "pendente")
     );
-    aplicarEstiloDefesaMonografia(
-      situacaoDefesaEl,
-      isDefesaMonografiaFluxo
-        ? (textoSituacaoDefesa.toLowerCase() === "pendente" ? "pendente" : "concluida")
-        : (situacaoRaw ? "concluida" : "pendente")
-    );
 
     alternarLinha(linhaNome, true);
     alternarLinha(linhaNumero, true);
@@ -1182,7 +1165,6 @@ function mostrarResultadoConsulta(resposta) {
     alternarLinha(linhaAvaliacaoJuri, true);
     alternarLinha(linhaAgendamentoDefesa, false);
     alternarLinha(linhaDefesaAgendada, true);
-    alternarLinha(linhaSituacaoDefesa, true);
 
     alternarLinha(linhaParecer, false);
     alternarLinha(linhaAtribuicao, false);
