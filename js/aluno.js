@@ -1129,10 +1129,10 @@ function mostrarResultadoConsulta(resposta) {
         : (dataJuri ? `Em análise... iniciado em ${dataJuri}` : "Pendente"));
     const textoDefesaAgendada = isDefesaMonografiaFluxo
       ? (agendamentoTemValor
-        ? `Agendamento da defesa para o dia ${dataAgendamentoEstado}`
+        ? `Defesa agendada para o dia ${dataAgendamentoEstado}`
         : "Pendente")
       : (dataAgendamento
-        ? `Agendamento da defesa para o dia ${dataAgendamento}`
+        ? `Defesa agendada para o dia ${dataAgendamento}`
         : "Pendente");
 
     analiseAcademicaEl.textContent = textoAnalise;
