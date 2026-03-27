@@ -471,6 +471,28 @@ form button[type='submit']:focus-visible {
   color: var(--muted);
 }
 
+.alerta-piscante-consulta-estado {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #ffb3b3;
+  background: #fff2f2;
+  color: #b00020;
+  font-weight: 700;
+  animation: piscarAlertaConsulta 1.1s ease-in-out infinite;
+}
+
+@keyframes piscarAlertaConsulta {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.3;
+  }
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
