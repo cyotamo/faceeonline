@@ -750,10 +750,10 @@ function mostrarConsultaEstado() {
     <div class="form-card">
       <div class="form-header">
         <h2>Consulta de Estado</h2>
-        <p>Selecione o tipo de consulta:</p>
         <p class="alerta-piscante-consulta-estado">
           ⚠️ Atenção: os pedidos submetidos, tem prazo máximo de serem concluidos em 15 dias úteis, caso ultrapasse esse prazo entre em contacto com o seu departamento acadêmico.
         </p>
+        <p>Selecione o tipo de consulta:</p>
       </div>
 
       <div class="form-grid">
