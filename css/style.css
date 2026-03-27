@@ -478,19 +478,7 @@ form button[type='submit']:focus-visible {
   border: 1px solid #ffb3b3;
   background: #fff2f2;
   color: #b00020;
-  font-weight: 700;
-  animation: piscarAlertaConsulta 1.1s ease-in-out infinite;
-}
-
-@keyframes piscarAlertaConsulta {
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.3;
-  }
+  font-weight: 400;
 }
 
 .form-grid {
