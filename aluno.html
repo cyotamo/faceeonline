@@ -38,9 +38,6 @@
               <label for="cursoHorario">Curso</label>
               <select id="cursoHorario" name="cursoHorario">
                 <option value="">Seleccione...</option>
-                <option value="informatica">Informática</option>
-                <option value="gestao">Gestão</option>
-                <option value="contabilidade">Contabilidade</option>
               </select>
             </div>
 
@@ -48,10 +45,6 @@
               <label for="anoHorario">Ano</label>
               <select id="anoHorario" name="anoHorario">
                 <option value="">Seleccione...</option>
-                <option value="1">1º Ano</option>
-                <option value="2">2º Ano</option>
-                <option value="3">3º Ano</option>
-                <option value="4">4º Ano</option>
               </select>
             </div>
 
@@ -59,14 +52,12 @@
               <label for="regimeHorario">Regime</label>
               <select id="regimeHorario" name="regimeHorario">
                 <option value="">Seleccione...</option>
-                <option value="laboral">Laboral</option>
-                <option value="pos-laboral">Pós-laboral</option>
-                <option value="distancia">À distância</option>
               </select>
             </div>
 
-            <button class="button btn-navegacao btn-padrao-portal" id="btnBuscarHorarios" type="button">Buscar</button>
+            <button class="button btn-navegacao btn-padrao-portal" id="btnBuscarHorario" type="button">Buscar</button>
           </div>
+          <div id="resultadoHorario" class="horarios-resultado-consulta" aria-live="polite"></div>
         </div>
       </section>
 
@@ -108,6 +99,7 @@
     </main>
   </div>
   <script src="./js/main.js"></script>
+  <script src="./js/aluno-horarios.js"></script>
   <script src="./js/aluno.js"></script>
 
   <script type="module">

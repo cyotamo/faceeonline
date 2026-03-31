@@ -236,8 +236,49 @@ main {
   background: #f7faff;
 }
 
-#btnBuscarHorarios {
+#btnBuscarHorario {
   width: 100%;
+}
+
+.horarios-resultado-consulta {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #f7faff;
+  border: 1px solid #d8e3f3;
+}
+
+.horarios-resultado-consulta:empty {
+  display: none;
+}
+
+.horarios-resultado-consulta.sucesso {
+  border-color: #8ed8a1;
+  background: #effcf2;
+}
+
+.horarios-resultado-consulta.erro {
+  border-color: #f0a9a9;
+  background: #fff1f1;
+}
+
+.horario-resultado-mensagem {
+  margin: 0;
+  font-weight: 600;
+}
+
+.horario-resultado-detalhes {
+  margin-top: 8px;
+}
+
+.horario-resultado-detalhes p {
+  margin: 0 0 10px;
+}
+
+.horario-resultado-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 /* ---- FORMULÁRIOS MAIS PROFISSIONAIS ---- */
