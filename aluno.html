@@ -123,16 +123,7 @@
     const btnPedidoCredencial = document.getElementById('btnPedidoCredencial');
     const btnPedidoCredencialEstagio = document.getElementById('btnPedidoCredencialEstagio');
     const btnDefesaMonografia = document.getElementById('btnDefesaMonografia');
-    const btnHorarios = document.getElementById('btnHorarios');
-    const containerHorarios = document.getElementById('containerHorarios');
     const obterFormContainer = () => document.getElementById('form-container');
-
-    btnHorarios?.addEventListener('click', () => {
-      if (!containerHorarios) return;
-
-      const estaVisivel = containerHorarios.style.display !== 'none';
-      containerHorarios.style.display = estaVisivel ? 'none' : 'block';
-    });
 
     btnTema?.addEventListener('click', () => {
       const formContainer = obterFormContainer();
