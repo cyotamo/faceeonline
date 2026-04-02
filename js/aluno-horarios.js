@@ -1,9 +1,9 @@
 (function () {
   const IDS = {
     container: 'containerHorarios',
-    curso: 'cursoHorario',
-    ano: 'anoHorario',
-    regime: 'regimeHorario',
+    curso: 'filtroCurso',
+    ano: 'filtroAno',
+    regime: 'filtroRegime',
     buscar: 'btnBuscarHorario',
     resultado: 'resultadoHorario',
     abrirHorarios: 'btnHorarios',
@@ -13,9 +13,22 @@
   const TEXTO_BOTAO_BUSCAR = 'Buscar';
   let filtrosCarregados = false;
   let filtrosCarregando = false;
+  let pedidoFiltrosEmCurso = 0;
+  const filtrosIniciais = {
+    cursos: [],
+    anos: [],
+    regimes: [],
+  };
+  const IDS_LEGADOS = {
+    filtroCurso: 'cursoHorario',
+    filtroAno: 'anoHorario',
+    filtroRegime: 'regimeHorario',
+  };
 
   function obterElemento(id) {
-    return document.getElementById(id);
+    return document.getElementById(id)
+      || document.getElementById(IDS_LEGADOS[id])
+      || null;
   }
 
   function obterEstadoVisibilidade(container) {
@@ -33,7 +46,7 @@
     console.log(`[HORARIOS] Secção de horários ${aberto ? 'aberta' : 'fechada'}`);
   }
 
-  function limparEPreencherSelect(select, opcoes) {
+  function preencherSelect(select, opcoes, valorSeleccionado = '') {
     if (!select) return;
 
     select.innerHTML = '';
@@ -52,6 +65,9 @@
       option.textContent = item;
       select.appendChild(option);
     });
+
+    const valorValido = valorSeleccionado && itensUnicos.includes(valorSeleccionado);
+    select.value = valorValido ? valorSeleccionado : '';
   }
 
   function renderizarResultadoHorario({ tipo = 'info', mensagem = '', dadosPdf = null }) {
@@ -142,6 +158,13 @@
     }
   }
 
+  async function pedirFiltrosHorarios({ curso = '', ano = '' } = {}) {
+    const parametros = {};
+    if (curso) parametros.curso = curso;
+    if (ano) parametros.ano = ano;
+    return postHorarios('listarFiltrosHorarios', parametros);
+  }
+
   async function carregarFiltrosHorarios() {
     const cursoSelect = obterElemento(IDS.curso);
     const anoSelect = obterElemento(IDS.ano);
@@ -156,15 +179,19 @@
     console.log('[HORARIOS][FILTROS] A carregar filtros...');
     alternarEstadoFiltros(true, 'A carregar...');
     try {
-      const dados = await postHorarios('listarFiltrosHorarios');
+      const dados = await pedirFiltrosHorarios();
       console.log('[HORARIOS][FILTROS] Resposta dos filtros', dados);
-      limparEPreencherSelect(cursoSelect, dados.cursos);
-      limparEPreencherSelect(anoSelect, dados.anos);
-      limparEPreencherSelect(regimeSelect, dados.regimes);
+      filtrosIniciais.cursos = Array.isArray(dados?.cursos) ? dados.cursos : [];
+      filtrosIniciais.anos = Array.isArray(dados?.anos) ? dados.anos : [];
+      filtrosIniciais.regimes = Array.isArray(dados?.regimes) ? dados.regimes : [];
+
+      preencherSelect(cursoSelect, filtrosIniciais.cursos, cursoSelect?.value || '');
+      preencherSelect(anoSelect, filtrosIniciais.anos, '');
+      preencherSelect(regimeSelect, filtrosIniciais.regimes, '');
       console.log('[HORARIOS][FILTROS] Selects preenchidos', {
-        cursos: dados?.cursos?.length || 0,
-        anos: dados?.anos?.length || 0,
-        regimes: dados?.regimes?.length || 0,
+        cursos: filtrosIniciais.cursos.length,
+        anos: filtrosIniciais.anos.length,
+        regimes: filtrosIniciais.regimes.length,
       });
 
       filtrosCarregados = true;
@@ -179,6 +206,59 @@
     } finally {
       filtrosCarregando = false;
       alternarEstadoFiltros(false);
+    }
+  }
+
+  async function actualizarFiltrosHorarios(origem = 'curso') {
+    const cursoSelect = obterElemento(IDS.curso);
+    const anoSelect = obterElemento(IDS.ano);
+    const regimeSelect = obterElemento(IDS.regime);
+    if (!cursoSelect || !anoSelect || !regimeSelect) return;
+
+    const curso = cursoSelect.value?.trim() || '';
+    const ano = anoSelect.value?.trim() || '';
+    const tokenPedido = ++pedidoFiltrosEmCurso;
+
+    anoSelect.disabled = true;
+    regimeSelect.disabled = true;
+
+    try {
+      if (!curso) {
+        preencherSelect(anoSelect, filtrosIniciais.anos, '');
+        preencherSelect(regimeSelect, filtrosIniciais.regimes, '');
+        return;
+      }
+
+      if (origem === 'curso') {
+        const respostaCurso = await pedirFiltrosHorarios({ curso });
+        if (tokenPedido !== pedidoFiltrosEmCurso) return;
+
+        const anosDisponiveis = Array.isArray(respostaCurso?.anos) ? respostaCurso.anos : [];
+        preencherSelect(anoSelect, anosDisponiveis, anoSelect.value || '');
+
+        // Regime só deve ser preenchido após curso + ano.
+        preencherSelect(regimeSelect, [], '');
+        return;
+      }
+
+      if (!ano) {
+        preencherSelect(regimeSelect, [], '');
+        return;
+      }
+
+      const respostaCompleta = await pedirFiltrosHorarios({ curso, ano });
+      if (tokenPedido !== pedidoFiltrosEmCurso) return;
+      const regimesDisponiveis = Array.isArray(respostaCompleta?.regimes) ? respostaCompleta.regimes : [];
+      preencherSelect(regimeSelect, regimesDisponiveis, regimeSelect.value || '');
+    } catch (erro) {
+      console.error('[HORARIOS][ERRO] Falha ao actualizar filtros dependentes', erro);
+      renderizarResultadoHorario({
+        tipo: 'erro',
+        mensagem: erro?.message || 'Não foi possível actualizar os filtros de horários.',
+      });
+    } finally {
+      anoSelect.disabled = false;
+      regimeSelect.disabled = false;
     }
   }
 
@@ -264,11 +344,19 @@
     const btnBuscar = obterElemento(IDS.buscar);
     const btnHorarios = obterElemento(IDS.abrirHorarios);
     const container = obterElemento(IDS.container);
+    const cursoSelect = obterElemento(IDS.curso);
+    const anoSelect = obterElemento(IDS.ano);
 
-    if (!btnBuscar || !btnHorarios || !container) return;
+    if (!btnBuscar || !btnHorarios || !container || !cursoSelect || !anoSelect) return;
 
     btnBuscar.addEventListener('click', buscarHorarioPdf);
     btnHorarios.addEventListener('click', toggleHorariosSection);
+    cursoSelect.addEventListener('change', () => {
+      actualizarFiltrosHorarios('curso');
+    });
+    anoSelect.addEventListener('change', () => {
+      actualizarFiltrosHorarios('ano');
+    });
 
     const estaAbertoAoIniciar = obterEstadoVisibilidade(container);
     definirVisibilidadeContainer(container, estaAbertoAoIniciar);
