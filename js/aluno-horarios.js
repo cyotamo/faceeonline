@@ -54,6 +54,15 @@
     });
   }
 
+  function normalizarNomeFicheiro(nomeOriginal = '') {
+    const nome = String(nomeOriginal || '').trim();
+    if (!nome) return 'Horario.pdf';
+
+    const nomeSemTimestamp = nome.replace(/_(?:\d{8}_\d{6})(?=\.pdf$)/i, '');
+    if (/\.pdf$/i.test(nomeSemTimestamp)) return nomeSemTimestamp;
+    return `${nomeSemTimestamp}.pdf`;
+  }
+
   function renderizarResultadoHorario({ tipo = 'info', mensagem = '', dadosPdf = null }) {
     const resultado = obterElemento(IDS.resultado);
     if (!resultado) return;
@@ -72,29 +81,23 @@
       const detalhes = document.createElement('div');
       detalhes.className = 'horario-resultado-detalhes';
 
+      const nomeDownload = normalizarNomeFicheiro(dadosPdf.nome || 'Horario.pdf');
+
       const nomeFicheiro = document.createElement('p');
-      nomeFicheiro.innerHTML = `<strong>Ficheiro:</strong> ${dadosPdf.nome || 'Horário.pdf'}`;
+      nomeFicheiro.innerHTML = `<strong>Ficheiro:</strong> ${nomeDownload}`;
       detalhes.appendChild(nomeFicheiro);
 
       const acoes = document.createElement('div');
       acoes.className = 'horario-resultado-acoes';
 
-      const linkAbrir = document.createElement('a');
-      linkAbrir.href = dadosPdf.url;
-      linkAbrir.target = '_blank';
-      linkAbrir.rel = 'noopener noreferrer';
-      linkAbrir.className = 'button btn-navegacao btn-padrao-portal';
-      linkAbrir.textContent = 'Abrir PDF';
-
       const linkBaixar = document.createElement('a');
       linkBaixar.href = dadosPdf.url;
       linkBaixar.target = '_blank';
       linkBaixar.rel = 'noopener noreferrer';
-      linkBaixar.download = dadosPdf.nome || 'horario.pdf';
-      linkBaixar.className = 'button btn-navegacao btn-padrao-portal';
+      linkBaixar.download = nomeDownload;
       linkBaixar.textContent = 'Baixar Horário';
 
-      acoes.append(linkAbrir, linkBaixar);
+      acoes.append(linkBaixar);
       detalhes.appendChild(acoes);
       resultado.appendChild(detalhes);
     }
