@@ -277,6 +277,13 @@ main {
   gap: 8px;
 }
 
+.horario-resultado-acoes a {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 1px solid #0b3269;
+  border-radius: 8px;
+}
+
 /* ---- FORMULÁRIOS MAIS PROFISSIONAIS ---- */
 
 /* Container do formulário (onde é inserido pelo JS) */
