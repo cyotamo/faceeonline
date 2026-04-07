@@ -5,13 +5,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Secretaria Online</title>
-<link rel="icon" type="image/png" href="./favicon.png">
-<link rel="apple-touch-icon" href="./favicon.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#1e88e5">
+
+<link rel="icon" href="/favicon.png">
+<link rel="apple-touch-icon" href="/icon-512.png">
 <link rel="stylesheet" href="./css/style.css">
-<link rel="manifest" href="/faceeonline/manifest.json">
-<meta name="theme-color" content="#0b3c5d">
-<meta property="og:title" content="Secretaria online">
-<meta property="og:description" content="Acesso rápido aos serviços académicos da Faculdade de Ciências Económicas e Empresariais">
+
+<meta property="og:title" content="Secretaria Online FACEE">
+<meta property="og:description" content="Portal académico de submissão e gestão de trabalhos">
 <meta property="og:image" content="https://seconlinefacee.web.app/og-image.png">
 <meta property="og:url" content="https://seconlinefacee.web.app/">
 <meta property="og:type" content="website">
@@ -143,9 +145,9 @@
 
   <script type="module">
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/faceeonline/service-worker.js", {
-        scope: "/faceeonline/"
-      });
+      navigator.serviceWorker.register("/service-worker.js")
+      .then(() => console.log("SW activo"))
+      .catch((err) => console.log(err));
     }
   </script>
 

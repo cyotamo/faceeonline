@@ -18,6 +18,7 @@
       }
     ],
     "rewrites": [
+      { "source": "/service-worker.js", "destination": "/service-worker.js" },
       { "source": "**", "destination": "/index.html" }
     ]
   }

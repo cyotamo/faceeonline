@@ -1,3 +1,12 @@
+let deferredPrompt;
+
+window.addEventListener("beforeinstallprompt", (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+
+  console.log("App pode ser instalada");
+});
+
 const WEB_URL = "https://script.google.com/macros/s/AKfycbzvk6U_f8ZNdMUgRVN-MJYZ8k_Uxg4xq_40JwMqlWsL3aLKKQjhRONqqYaZWsSJweDAvw/exec";
 
 // Funções gerais e utilitárias usadas em várias páginas
