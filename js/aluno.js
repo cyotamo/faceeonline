@@ -702,14 +702,6 @@ let consultaEstadoAction = "";
 const containerDocumentos = document.getElementById('containerDocumentos');
 const listaDocumentos = document.getElementById('listaDocumentos');
 const btnBaixarFormulario = document.getElementById('btnBaixarFormulario');
-const containerHorarios = document.getElementById('containerHorarios');
-const btnHorarios = document.getElementById('btnHorarios');
-
-function esconderContainerHorarios() {
-  if (!containerHorarios) return;
-  containerHorarios.style.display = 'none';
-  containerHorarios.dataset.horariosAberto = 'false';
-}
 
 function mostrarContainerFormularios() {
   if (formContainer) {
@@ -718,7 +710,6 @@ function mostrarContainerFormularios() {
   if (containerDocumentos) {
     containerDocumentos.style.display = 'none';
   }
-  esconderContainerHorarios();
 }
 
 function configurarMonitorizacaoFormulario() {
@@ -1518,6 +1509,12 @@ async function carregarDocumentos() {
             nome: 'Licenciatura em gestao de recursos humanos',
             link: 'https://drive.google.com/file/d/1hr-vsMaTe6T2Sx9SPhnbnAwikza9PavU/view?usp=drive_link',
           },
+
+          {
+            nome: 'Licenciatura em gestao de empresas',
+            link: 'https://drive.google.com/file/d/14ui6RPq5GJYbZRq4vTjG3hTEsogVas2e/view?usp=drive_link',
+          },
+         
           {
             nome: 'Contabilidade e Fiscalidade',
             link: 'https://drive.google.com/file/d/1acEL2M-yv1Cw2LV57NXeKz8u7f2zsAHl/view?usp=drive_link',
@@ -1615,16 +1612,7 @@ btnBaixarFormulario?.addEventListener('click', () => {
   carregarDocumentos();
 });
 
-btnHorarios?.addEventListener('click', () => {
-  if (formContainer) {
-    formContainer.style.display = 'none';
-  }
-  if (containerDocumentos) {
-    containerDocumentos.style.display = 'none';
-  }
-});
-
-['btnTema', 'btnMonografia', 'btnPedidoCredencial', 'btnPedidoCredencialEstagio', 'btnConsultaEstado', 'btnDefesaMonografia'].forEach((idBotao) => {
+['btnTema', 'btnMonografia', 'btnPedidoCredencial', 'btnPedidoCredencialEstagio', 'btnConsultaEstado'].forEach((idBotao) => {
   const botao = document.getElementById(idBotao);
   botao?.addEventListener('click', mostrarContainerFormularios);
 });
