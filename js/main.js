@@ -1,10 +1,72 @@
 let deferredPrompt;
+let botaoInstalacao = null;
+let aplicacaoInstalada = false;
+
+const ID_BOTAO_INSTALACAO = "btnInstalarAplicacao";
+const TEXTO_BOTAO_INSTALACAO = "Instalar aplicação";
+
+function esconderBotaoInstalacao() {
+  if (botaoInstalacao) {
+    botaoInstalacao.style.display = "none";
+  }
+}
+
+function mostrarBotaoInstalacao() {
+  if (!botaoInstalacao || aplicacaoInstalada || !deferredPrompt) return;
+  botaoInstalacao.style.display = "";
+}
+
+function criarBotaoInstalacao() {
+  if (botaoInstalacao) return botaoInstalacao;
+
+  const containerAcoes = document.querySelector(".actions");
+  if (!containerAcoes) return null;
+
+  botaoInstalacao = document.getElementById(ID_BOTAO_INSTALACAO);
+  if (botaoInstalacao) return botaoInstalacao;
+
+  const botaoModelo = containerAcoes.querySelector("button, a");
+  botaoInstalacao = document.createElement("button");
+  botaoInstalacao.id = ID_BOTAO_INSTALACAO;
+  botaoInstalacao.type = "button";
+  botaoInstalacao.textContent = TEXTO_BOTAO_INSTALACAO;
+
+  if (botaoModelo) {
+    botaoInstalacao.className = botaoModelo.className;
+  } else {
+    botaoInstalacao.className = "button";
+  }
+
+  botaoInstalacao.style.display = "none";
+
+  botaoInstalacao.addEventListener("click", async () => {
+    if (!deferredPrompt) return;
+
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    esconderBotaoInstalacao();
+  });
+
+  containerAcoes.appendChild(botaoInstalacao);
+  return botaoInstalacao;
+}
 
 window.addEventListener("beforeinstallprompt", (e) => {
   e.preventDefault();
   deferredPrompt = e;
-
+  mostrarBotaoInstalacao();
   console.log("App pode ser instalada");
+});
+
+window.addEventListener("appinstalled", () => {
+  aplicacaoInstalada = true;
+  deferredPrompt = null;
+
+  if (botaoInstalacao) {
+    botaoInstalacao.remove();
+    botaoInstalacao = null;
+  }
 });
 
 const WEB_URL = "https://script.google.com/macros/s/AKfycbzvk6U_f8ZNdMUgRVN-MJYZ8k_Uxg4xq_40JwMqlWsL3aLKKQjhRONqqYaZWsSJweDAvw/exec";
@@ -195,6 +257,21 @@ observer.observe(document.body, { childList: true, subtree: true });
 // Ativa máscaras ao carregar página
 document.addEventListener("DOMContentLoaded", iniciarMascaras);
 document.addEventListener("DOMContentLoaded", iniciarNavegacaoFormulariosAluno);
+document.addEventListener("DOMContentLoaded", () => {
+  const emModoStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+  aplicacaoInstalada = emModoStandalone;
+
+  criarBotaoInstalacao();
+  if (aplicacaoInstalada) {
+    esconderBotaoInstalacao();
+    return;
+  }
+
+  mostrarBotaoInstalacao();
+});
 
 // Modal de sucesso reutilizável
 function mostrarModal(mensagem) {
@@ -216,7 +293,6 @@ function mostrarModal(mensagem) {
     if (e.target === modal) modal.style.display = "none";
   };
 }
-
 
 
 
