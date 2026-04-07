@@ -22,7 +22,12 @@ const PERFIS = {
   "gestor@faceeonline.ac.mz": ["ALL"],
   "administrativo@faceeonline.ac.mz": ["CREDENCIAL", "ESTATISTICAS"],
   "parecertecnico@faceeonline.ac.mz": ["PARECER", "ESTATISTICAS"],
-  "supervisor@faceeonline.ac.mz": ["ATRIBUIR_SUPERVISOR", "ESTATISTICAS"],
+  "supervisor@faceeonline.ac.mz": [
+    "ATRIBUIR_SUPERVISOR",
+    "ESTATISTICAS",
+    "DEFESAS",
+    "PLANOS_ANALITICOS",
+  ],
 };
 
 function obterElementoErroLogin() {
