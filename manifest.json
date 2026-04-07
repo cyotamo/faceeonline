@@ -1,15 +1,14 @@
 {
   "name": "Secretaria Online FACEE",
-  "short_name": "FACEE Online",
-  "start_url": "/faceeonline/",
-  "scope": "/faceeonline/",
-  "id": "/faceeonline/",
+  "short_name": "FACEE",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#0b3c5d",
+  "theme_color": "#1e88e5",
   "background_color": "#ffffff",
   "icons": [
     {
-      "src": "/faceeonline/favicon.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
