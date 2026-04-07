@@ -1442,6 +1442,7 @@ function mostrarContainerDocumentos() {
   if (formContainer) {
     formContainer.style.display = 'none';
   }
+  esconderContainerHorarios();
 }
 
 async function carregarDocumentos() {
