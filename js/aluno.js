@@ -702,6 +702,14 @@ let consultaEstadoAction = "";
 const containerDocumentos = document.getElementById('containerDocumentos');
 const listaDocumentos = document.getElementById('listaDocumentos');
 const btnBaixarFormulario = document.getElementById('btnBaixarFormulario');
+const containerHorarios = document.getElementById('containerHorarios');
+const btnHorarios = document.getElementById('btnHorarios');
+
+function esconderContainerHorarios() {
+  if (!containerHorarios) return;
+  containerHorarios.style.display = 'none';
+  containerHorarios.dataset.horariosAberto = 'false';
+}
 
 function mostrarContainerFormularios() {
   if (formContainer) {
@@ -710,6 +718,7 @@ function mostrarContainerFormularios() {
   if (containerDocumentos) {
     containerDocumentos.style.display = 'none';
   }
+  esconderContainerHorarios();
 }
 
 function configurarMonitorizacaoFormulario() {
@@ -1442,6 +1451,7 @@ function mostrarContainerDocumentos() {
   if (formContainer) {
     formContainer.style.display = 'none';
   }
+  esconderContainerHorarios();
 }
 
 async function carregarDocumentos() {
@@ -1605,7 +1615,16 @@ btnBaixarFormulario?.addEventListener('click', () => {
   carregarDocumentos();
 });
 
-['btnTema', 'btnMonografia', 'btnPedidoCredencial', 'btnPedidoCredencialEstagio', 'btnConsultaEstado'].forEach((idBotao) => {
+btnHorarios?.addEventListener('click', () => {
+  if (formContainer) {
+    formContainer.style.display = 'none';
+  }
+  if (containerDocumentos) {
+    containerDocumentos.style.display = 'none';
+  }
+});
+
+['btnTema', 'btnMonografia', 'btnPedidoCredencial', 'btnPedidoCredencialEstagio', 'btnConsultaEstado', 'btnDefesaMonografia'].forEach((idBotao) => {
   const botao = document.getElementById(idBotao);
   botao?.addEventListener('click', mostrarContainerFormularios);
 });
