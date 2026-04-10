@@ -1544,15 +1544,17 @@ async function carregarDocumentos() {
         ],
       },
       {
-        titulo: 'Outros',
-        documentos: [
-          {
-            nome: 'Linhas de Pesquisa',
-            link: 'https://drive.google.com/file/d/1f8c9u-H-D1AzRyB-3hqhuiq-nOJNA4UM/view?usp=drive_link',
-            nome: 'Credencial Academia Militar',
-            link: 'https://drive.google.com/file/d/1bmndSyOnPgEXJ61I1CJN7yfmA7JIVhDq/view?usp=drive_link', 
-          },
-        ],
+titulo: 'Outros',
+documentos: [
+  {
+    nome: 'Linhas de Pesquisa',
+    link: 'https://drive.google.com/file/d/1f8c9u-H-D1AzRyB-3hqhuiq-nOJNA4UM/view?usp=drive_link',
+  },
+  {
+    nome: 'Credencial Academia Militar',
+    link: 'https://drive.google.com/file/d/1bmndSyOnPgEXJ61I1CJN7yfmA7JIVhDq/view?usp=drive_link',
+  },
+],
       },
     ];
 
