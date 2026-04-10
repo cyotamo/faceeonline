@@ -1475,7 +1475,7 @@ async function carregarDocumentos() {
           },
           {
             nome: 'Pedido de declaração de frequência',
-            link: 'https://drive.google.com/file/d/1oVm4XV-l3mesmEHAIXDD2BDjdC3zQA8/view?usp=drive_link',
+            link: 'https://drive.google.com/file/d/1SIwFIX3rjHpU19fc6ETQlw_5dOE6HMMM/view?usp=drive_link',
           },
           {
             nome: 'Pedido de equivalência',
