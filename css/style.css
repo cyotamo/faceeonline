@@ -973,6 +973,37 @@ footer {
   box-shadow: none;
 }
 
+.tabela-defesas-resumo thead th {
+  font-size: 13px;
+  letter-spacing: 0.01em;
+}
+
+.tabela-defesas-resumo tbody td {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  vertical-align: middle;
+}
+
+.tabela-defesas-resumo tbody tr:nth-child(even) {
+  background: #fbfdff;
+}
+
+.tabela-defesas-resumo tbody tr:hover {
+  background: #f3f8ff;
+}
+
+.defesa-situacao-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid #d4e3f8;
+  background: #f4f8fe;
+  color: #234f88;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .tabela-gestao .col-pdf,
 .tabela-gestao .pdf-col {
   width: 60px;

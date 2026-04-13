@@ -482,9 +482,10 @@ function renderTabelaDefesa(lista = []) {
         const linkPdfFinal = linkPdf || item.linkPDF || item.linkPdf || item.pdf || item.PDF || "";
         const dataAgendadaFinal = dataAgendada || item.data_agendada || "";
         const situacaoTabela = String(itemSeguro.situacao || "").trim() || "Aguardando actualização";
-        const situacaoHtml = dataAgendadaFinal
-            ? `Agendado para o dia: ${escaparHTML(formatarDataDiaMesAno(dataAgendadaFinal))}`
-            : escaparHTML(situacaoTabela);
+        const situacaoTexto = dataAgendadaFinal
+            ? `Agendado: ${formatarDataDiaMesAno(dataAgendadaFinal)}`
+            : situacaoTabela;
+        const situacaoHtml = `<span class="defesa-situacao-badge">${escaparHTML(situacaoTexto)}</span>`;
         const linkPdfHtml = linkPdfFinal
             ? `<a class="pdf-icon" href="${escaparHTML(linkPdfFinal)}" target="_blank" rel="noopener noreferrer" aria-label="Ver PDF">📄</a>`
             : "—";
@@ -493,11 +494,6 @@ function renderTabelaDefesa(lista = []) {
             <tr>
                 <td>${escaparHTML(formatarDataCurta(itemSeguro.data))}</td>
                 <td class="col-nome">${escaparHTML(itemSeguro.nome)}</td>
-                <td>${escaparHTML(itemSeguro.numero)}</td>
-                <td>${escaparHTML(itemSeguro.contacto1)}</td>
-                <td>${escaparHTML(itemSeguro.contacto2)}</td>
-                <td class="col-curso">${escaparHTML(itemSeguro.curso)}</td>
-                <td class="col-supervisor">${escaparHTML(itemSeguro.supervisor)}</td>
                 <td>${situacaoHtml}</td>
                 <td class="col-pdf">${linkPdfHtml}</td>
                 <td class="col-acao">
@@ -527,6 +523,10 @@ function abrirModalEdicaoDefesa(registo = {}, indice = null) {
         ...registo,
         nome: registo.nome || "",
         supervisor: registo.supervisor || "",
+        curso: registo.curso || "",
+        numero: registo.numero || "",
+        contacto1: registo.contacto1 || "",
+        contacto2: registo.contacto2 || "",
         situacao: registo.situacao || "",
         presidente: registo.presidente || DOCENTES_DEFESA_TESTE[0],
         arguente: registo.arguente || DOCENTES_DEFESA_TESTE[1] || DOCENTES_DEFESA_TESTE[0],
@@ -540,12 +540,20 @@ function abrirModalEdicaoDefesa(registo = {}, indice = null) {
     const inputDataAgendada = document.getElementById("defesaDataAgendada");
     const inputSala = document.getElementById("defesaSala");
     const inputHora = document.getElementById("defesaHora");
+    const inputCurso = document.getElementById("defesaCurso");
+    const inputNumero = document.getElementById("defesaNumero");
+    const inputContacto1 = document.getElementById("defesaContacto1");
+    const inputContacto2 = document.getElementById("defesaContacto2");
     const btnAgendar = document.getElementById("btnGuardarEdicaoDefesa");
 
     const defesaJaAgendada = defesaEstaAgendada(registoDefesaEmEdicao);
 
     if (inputNome) inputNome.value = registoDefesaEmEdicao.nome;
     if (inputSupervisor) inputSupervisor.value = registoDefesaEmEdicao.supervisor;
+    if (inputCurso) inputCurso.value = registoDefesaEmEdicao.curso;
+    if (inputNumero) inputNumero.value = registoDefesaEmEdicao.numero;
+    if (inputContacto1) inputContacto1.value = registoDefesaEmEdicao.contacto1;
+    if (inputContacto2) inputContacto2.value = registoDefesaEmEdicao.contacto2;
     if (inputDataAgendada) inputDataAgendada.value = registoDefesaEmEdicao.dataAgendada;
     if (inputSala) inputSala.value = registoDefesaEmEdicao.sala;
     if (inputHora) inputHora.value = registoDefesaEmEdicao.hora;
