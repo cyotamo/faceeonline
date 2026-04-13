@@ -2807,10 +2807,13 @@ input[type='file'] {
 
 .aluno-page .gestor-topbar {
   justify-content: center;
+  background: #06264d;
+  border-bottom: 1px solid #0a376d;
 }
 
 .aluno-page .gestor-topbar-title {
   width: 100%;
+  color: #ffffff;
 }
 
 .aluno-content {
@@ -2882,6 +2885,84 @@ input[type='file'] {
 
 .aluno-content .horarios-container {
   padding: 20px;
+}
+
+.aluno-sidebar .gestor-sidebar-topo {
+  justify-content: flex-start;
+}
+
+.aluno-sidebar .gestor-sidebar-brand-texto {
+  width: 100%;
+}
+
+.aluno-inicio-card {
+  padding: 28px 30px;
+  line-height: 1.7;
+}
+
+.aluno-inicio-card h2 {
+  margin: 0 0 6px;
+  font-size: 26px;
+  font-weight: 600;
+  color: #0f2340;
+}
+
+.aluno-inicio-subtitulo {
+  margin: 0 0 16px;
+  color: #4b5563;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.aluno-inicio-card p {
+  margin: 0 0 14px;
+  color: #374151;
+  font-size: 14px;
+}
+
+.aluno-inicio-funcionalidades {
+  background: #f7f9fc;
+  border: 1px solid #e4e9f0;
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin: 18px 0;
+}
+
+.aluno-inicio-funcionalidades h3 {
+  margin: 0 0 10px;
+  font-size: 15px;
+  color: #1f2937;
+}
+
+.aluno-inicio-funcionalidades ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.aluno-inicio-funcionalidades li {
+  font-size: 14px;
+  color: #374151;
+  padding-left: 16px;
+  position: relative;
+}
+
+.aluno-inicio-funcionalidades li::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0d3a74;
+  position: absolute;
+  left: 0;
+  top: 10px;
+}
+
+.aluno-inicio-nota {
+  margin-bottom: 0;
+  font-weight: 500;
 }
 
 @media (max-width: 600px) {
