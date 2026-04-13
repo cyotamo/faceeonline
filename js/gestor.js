@@ -352,7 +352,7 @@ function mostrarMensagemTabelaDefesa(mensagem) {
 
     tbody.innerHTML = `
         <tr>
-            <td colspan="10">${escaparHTML(mensagem)}</td>
+            <td colspan="6">${escaparHTML(mensagem)}</td>
         </tr>
     `;
     paginaAtualDefesas = 1;
@@ -501,10 +501,11 @@ function renderTabelaDefesa(lista = []) {
 
         return `
             <tr>
-                <td>${escaparHTML(formatarDataCurta(itemSeguro.data))}</td>
+                <td class="col-data">${escaparHTML(formatarDataCurta(itemSeguro.data))}</td>
                 <td class="col-nome">${escaparHTML(itemSeguro.nome)}</td>
-                <td>${situacaoHtml}</td>
-                <td class="col-pdf">${linkPdfHtml}</td>
+                <td class="col-curso">${escaparHTML(itemSeguro.curso || "—")}</td>
+                <td class="col-arquivo">${linkPdfHtml}</td>
+                <td class="col-status">${situacaoHtml}</td>
                 <td class="col-acao">
                     <button
                         type="button"
