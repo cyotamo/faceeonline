@@ -782,7 +782,7 @@ document.getElementById("btnGestaoGeral").addEventListener("click", () => {
 });
 
 // Monografia Final
-document.getElementById("btnMonografiaFinal").addEventListener("click", () => {
+document.getElementById("btnMonografiaFinal")?.addEventListener("click", () => {
     esconderEstatisticas();
     esconderSecaoDefesas();
     mostrarTabelaGestaoGeral();
