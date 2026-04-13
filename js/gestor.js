@@ -227,6 +227,13 @@ const selectSituacaoDefesa = document.getElementById("defesaSituacao");
 const selectPresidenteDefesa = document.getElementById("defesaPresidente");
 const selectArguenteDefesa = document.getElementById("defesaArguente");
 const btnGuardarSituacaoDefesa = document.getElementById("btnGuardarSituacaoDefesa");
+const modalParecerCredencial = document.getElementById("modalParecerCredencial");
+const credModalNome = document.getElementById("credModalNome");
+const credModalCurso = document.getElementById("credModalCurso");
+const credModalOrganizacao = document.getElementById("credModalOrganizacao");
+const credModalParecer = document.getElementById("credModalParecer");
+const credModalObservacoes = document.getElementById("credModalObservacoes");
+const btnGuardarParecerCredencial = document.getElementById("btnGuardarParecerCredencial");
 
 const SITUACOES_DEFESA = [
     "Em avaliação no RA",
@@ -250,8 +257,59 @@ const DOCENTES_DEFESA_TESTE = [
 let registoDefesaEmEdicao = null;
 let indiceDefesaEmEdicao = null;
 let defesasCache = [];
+let credencialPesquisaRegistos = [];
+let idCredencialModalAtual = "";
 let paginaAtualDefesas = 1;
 const REGISTOS_POR_PAGINA_DEFESAS = 10;
+
+function obterClasseStatusCredencial(valor) {
+    const normalizado = normalizarCampo(valor);
+    if (normalizado === "aprovado") return "status-aprovado";
+    if (normalizado === "recusado" || normalizado === "reprovado") return "status-recusado";
+    return "status-pendente";
+}
+
+function obterLabelStatusCredencial(valor) {
+    const normalizado = normalizarCampo(valor);
+    if (normalizado === "aprovado") return "APROVADO";
+    if (normalizado === "recusado" || normalizado === "reprovado") return "RECUSADO";
+    return "PENDENTE";
+}
+
+function abrirModalParecerCredencial(idCredencial) {
+    if (!modalParecerCredencial) return;
+    const registo = credencialPesquisaRegistos.find((item) => String(item.id || "").trim() === String(idCredencial).trim());
+    if (!registo) return;
+
+    idCredencialModalAtual = String(registo.id || "").trim();
+    credModalNome.value = registo.nome || "";
+    credModalCurso.value = registo.curso || "";
+    credModalOrganizacao.value = registo.organizacao || "";
+    credModalParecer.value = registo.parecer || "";
+    credModalObservacoes.value = registo.observacoes || "";
+
+    modalParecerCredencial.style.display = "flex";
+    modalParecerCredencial.setAttribute("aria-hidden", "false");
+}
+
+function fecharModalParecerCredencial() {
+    if (!modalParecerCredencial) return;
+    modalParecerCredencial.style.display = "none";
+    modalParecerCredencial.setAttribute("aria-hidden", "true");
+    idCredencialModalAtual = "";
+}
+
+function atualizarLinhaCredencialUI(idCredencial, dadosAtualizados = {}) {
+    const linha = document.querySelector(`.credencial-linha[data-id="${idCredencial}"]`);
+    if (!linha) return;
+
+    const parecer = dadosAtualizados.parecer ?? "";
+    const badge = linha.querySelector(".credencial-status .status");
+    if (badge) {
+        badge.className = `status ${obterClasseStatusCredencial(parecer)}`;
+        badge.textContent = obterLabelStatusCredencial(parecer);
+    }
+}
 
 function actualizarPaginacaoDefesas(totalRegistos = 0) {
     const infoPaginacao = document.getElementById("infoPaginacaoDefesas");
@@ -727,12 +785,44 @@ function configurarEventosModalDefesa() {
     });
 }
 
+function guardarParecerModalCredencial() {
+    if (!idCredencialModalAtual) return;
+    const registo = credencialPesquisaRegistos.find((item) => String(item.id || "").trim() === idCredencialModalAtual);
+    if (!registo) return;
+
+    registo.parecer = (credModalParecer?.value || "").trim();
+    registo.observacoes = (credModalObservacoes?.value || "").trim();
+
+    atualizarLinhaCredencialUI(idCredencialModalAtual, {
+        parecer: registo.parecer
+    });
+    fecharModalParecerCredencial();
+}
+
+function configurarEventosModalCredencial() {
+    document.getElementById("btnFecharModalParecerCredencial")?.addEventListener("click", fecharModalParecerCredencial);
+    btnGuardarParecerCredencial?.addEventListener("click", guardarParecerModalCredencial);
+
+    modalParecerCredencial?.addEventListener("click", (event) => {
+        if (event.target === modalParecerCredencial) {
+            fecharModalParecerCredencial();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && modalParecerCredencial?.style.display === "flex") {
+            fecharModalParecerCredencial();
+        }
+    });
+}
+
 window.abrirModalEdicaoDefesa = abrirModalEdicaoDefesa;
 window.fecharModalEdicaoDefesa = fecharModalEdicaoDefesa;
 window.guardarSituacaoDefesa = guardarSituacaoDefesa;
 window.guardarEdicaoDefesa = guardarEdicaoDefesa;
 window.renderTabelaDefesa = renderTabelaDefesa;
 configurarEventosModalDefesa();
+configurarEventosModalCredencial();
 
 function esconderEstatisticas() {
     estatisticasContainer.style.display = "none";
@@ -1709,8 +1799,8 @@ function carregarCredencialPesquisa() {
     })
     .then(r => r.json())
     .then(resposta => {
-        const dados = resposta.dados;
-        const temParecer = Array.isArray(dados)
+        const dados = Array.isArray(resposta.dados) ? resposta.dados : [];
+        const temParecer = dados.length > 0
             && dados.some(item => Object.prototype.hasOwnProperty.call(item, "parecer")
                 || Object.prototype.hasOwnProperty.call(item, "Parecer"));
         const dadosFiltrados = temParecer
@@ -1719,19 +1809,14 @@ function carregarCredencialPesquisa() {
                 return String(parecerValor).trim() === "";
             })
             : dados;
+        credencialPesquisaRegistos = dadosFiltrados.map((item) => ({
+            ...item,
+            id: String(item.id || "").trim(),
+            parecer: String(item.parecer ?? item.Parecer ?? "").trim(),
+            observacoes: String(item.observacoes ?? item.Observacoes ?? "").trim()
+        }));
 
-        const processarObservacoes = (inputs) => {
-            inputs.forEach((textarea) => {
-                const idValue = (textarea.dataset.id || "").trim();
-                const item = dadosFiltrados.find((entrada) => String(entrada.id || "").trim() === idValue);
-
-                if (item && item.observacoes) {
-                    textarea.value = item.observacoes;
-                }
-            });
-        };
-
-        if (!dadosFiltrados || dadosFiltrados.length === 0) {
+        if (!credencialPesquisaRegistos || credencialPesquisaRegistos.length === 0) {
             document.getElementById("tabelaGestaoGeral").innerHTML =
                 '<p class="sem-dados">Não existe nenhum dado para ser apresentado.</p>';
             esconderCarregamento();
@@ -1740,24 +1825,18 @@ function carregarCredencialPesquisa() {
         }
 
         let html = `
-            <div class="tabela-scroll">
-            <table class="tabela-gestao table-credencial">
-                <thead>
-                    <tr>
-                        <th class="col-ord">Ord</th>
-                        <th class="col-data">Data</th>
-                        <th class="col-nome">Nome</th>
-                        <th class="col-curso">Curso</th>
-                        <th class="col-organizacao">Organização</th>
-                        <th class="col-parecer">Parecer</th>
-                        <th class="col-pdf">Ver (PDF)</th>
-                        <th class="col-observacoes">Observações</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <div class="credencial-lista-head">
+                <div>Data</div>
+                <div>Nome</div>
+                <div>Curso</div>
+                <div>Arquivo</div>
+                <div>Status</div>
+                <div>Acção</div>
+            </div>
+            <div class="credencial-lista table-credencial">
         `;
 
-        dadosFiltrados.forEach((item, index) => {
+        credencialPesquisaRegistos.forEach((item, index) => {
             const rowNumber = obterRowNumericoCredencial(item.row, index + 2);
             const idCredencial = String(item.id || "").trim();
 
@@ -1765,36 +1844,38 @@ function carregarCredencialPesquisa() {
                 return;
             }
 
+            const statusClasse = obterClasseStatusCredencial(item.parecer);
+            const statusLabel = obterLabelStatusCredencial(item.parecer);
+
             html += `
-                <tr data-id="${idCredencial}">
-                    <td class="col-ord">${index + 1}</td>
-                    <td class="col-data">${formatarDataCurta(item.timestamp)}</td>
-                    <td class="col-nome">${item.nome}</td>
-                    <td class="col-curso">${item.curso}</td>
-                    <td class="col-organizacao">${item.organizacao}</td>
-                    <td class="col-parecer">
-                        <select class="parecerPesquisa" data-id="${idCredencial}">
-                            <option value="">Seleccione…</option>
-                            <option>Aprovado</option>
-                            <option>Recusado</option>
-                        </select>
-                    </td>
-                    <td class="col-pdf"><a class="pdf-icon" href="${item.pdfURL || item.linkPDF}" target="_blank" rel="noopener noreferrer" aria-label="Ver PDF">PDF</a></td>
-                    <td class="col-observacoes">
-                        <textarea class="observacoes" data-id="${idCredencial}" rows="4" aria-label="Observações"></textarea>
-                    </td>
-                </tr>
+                <article class="credencial-linha" data-id="${idCredencial}">
+                    <div class="credencial-data">${formatarDataCurta(item.timestamp)}</div>
+                    <div class="credencial-estudante">
+                        <p class="credencial-nome">${item.nome || "—"}</p>
+                    </div>
+                    <div class="credencial-curso">${item.curso || "—"}</div>
+                    <div class="credencial-arquivo">
+                        <a class="pdf-icon credencial-pdf-link" href="${item.pdfURL || item.linkPDF || "#"}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento DOCX">
+                            <span aria-hidden="true">📄</span><span>DOCX</span>
+                        </a>
+                    </div>
+                    <div class="credencial-status">
+                        <span class="status ${statusClasse}">${statusLabel}</span>
+                    </div>
+                    <div class="credencial-acao">
+                        <button class="credencial-btn-acao" type="button" data-credencial-acao="${idCredencial}" aria-label="Ver e emitir parecer">
+                            <span aria-hidden="true">👁</span>
+                        </button>
+                    </div>
+                </article>
             `;
         });
 
         html += `
-                </tbody>
-            </table>
             </div>
         `;
 
         document.getElementById("tabelaGestaoGeral").innerHTML = html;
-        processarObservacoes(document.querySelectorAll(".table-credencial textarea.observacoes"));
         mostrarBotaoGuardar("credencial");
         esconderCarregamento();
         reaplicarRestricoesUI();
@@ -2100,6 +2181,12 @@ async function carregarCredenciaisEstagioGestor() {
 }
 
 document.addEventListener("click", async (e) => {
+    const botaoAcaoCredencial = e.target?.closest("[data-credencial-acao]");
+    if (botaoAcaoCredencial) {
+        abrirModalParecerCredencial(botaoAcaoCredencial.dataset.credencialAcao);
+        return;
+    }
+
     const botao = e.target?.closest("#btnGuardar");
     if (!botao) {
         return;
@@ -2276,71 +2363,20 @@ async function guardarCredencialPesquisa() {
     });
     activarLoadingGuardar(botao);
 
-    const linhas = new Map();
     let idInvalido = false;
-
-    const obterIdCredencial = (elemento) => (elemento?.dataset?.id || elemento?.closest("tr")?.dataset?.id || "").trim();
-
-    const registrarLinha = (id, valores) => {
-        if (!linhas.has(id)) {
-            linhas.set(id, {
-                id,
-                parecer: "",
-                observacoes: ""
-            });
-        }
-
-        const linha = linhas.get(id);
-        Object.assign(linha, valores);
-    };
-
-    const processarPareceres = (selects) => {
-        selects.forEach(select => {
-            const parecer = select.value.trim();
-            const id = obterIdCredencial(select);
-
-            if ((parecer !== "") && !id) {
+    const updates = credencialPesquisaRegistos
+        .map((item) => ({
+            id: String(item.id || "").trim(),
+            parecer: String(item.parecer || "").trim(),
+            observacoes: String(item.observacoes || "").trim()
+        }))
+        .filter((item) => item.parecer || item.observacoes)
+        .map((item) => {
+            if (!item.id) {
                 idInvalido = true;
-                return;
             }
-
-            if (!id || parecer === "") {
-                return;
-            }
-
-            registrarLinha(id, { parecer });
+            return item;
         });
-    };
-
-    const processarObservacoes = (inputs) => {
-        inputs.forEach(input => {
-            const observacoes = input.value.trim();
-            const id = obterIdCredencial(input);
-
-            if ((observacoes !== "") && !id) {
-                idInvalido = true;
-                return;
-            }
-
-            if (!id || observacoes === "") {
-                return;
-            }
-
-            registrarLinha(id, { observacoes });
-        });
-    };
-
-    const pareceresEncontrados = document.querySelectorAll("select.parecerPesquisa");
-    const observacoesEncontradas = document.querySelectorAll(".table-credencial textarea.observacoes");
-    console.log("[CRED] ELEMENTOS COLECTADOS", {
-        totalPareceres: pareceresEncontrados.length,
-        totalObservacoes: observacoesEncontradas.length,
-    });
-
-    processarPareceres(pareceresEncontrados);
-    processarObservacoes(observacoesEncontradas);
-
-    const updates = Array.from(linhas.values()).filter(item => item.parecer || item.observacoes);
     console.log("[CRED] PAYLOAD MONTADO", updates);
 
     if (updates.length === 0) {
@@ -2376,14 +2412,10 @@ async function guardarCredencialPesquisa() {
         }
 
         updates.forEach(item => {
-            document.querySelectorAll(`select.parecerPesquisa[data-id="${item.id}"]`).forEach(select => {
-                select.disabled = true;
-            });
-            document
-                .querySelectorAll(`textarea.observacoes[data-id="${item.id}"]`)
-                .forEach(textarea => {
-                    textarea.disabled = true;
-                });
+            const botaoAcao = document.querySelector(`.credencial-btn-acao[data-credencial-acao="${item.id}"]`);
+            if (botaoAcao) {
+                botaoAcao.disabled = true;
+            }
         });
     } catch (err) {
         console.error("Erro ao guardar dados da credencial de pesquisa:", err);
