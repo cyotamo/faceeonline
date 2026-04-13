@@ -513,7 +513,7 @@ function renderTabelaDefesa(lista = []) {
                         data-index="${inicio + index}"
                         aria-label="Ver e actualizar registo de defesa"
                         title="Ver e actualizar"
-                    >Actualizar</button>
+                    ></button>
                 </td>
             </tr>
         `;
