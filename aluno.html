@@ -21,21 +21,20 @@
       <div class="gestor-layout aluno-layout">
         <aside class="gestor-sidebar aluno-sidebar" aria-label="Menu principal do estudante">
           <div class="gestor-sidebar-topo">
-            <div class="gestor-sidebar-brand-icon" aria-hidden="true">UR</div>
             <div class="gestor-sidebar-brand-texto">
               <p class="gestor-sidebar-subtitle">Secretaria Online - FACEE</p>
             </div>
           </div>
 
           <nav class="gestor-sidebar-nav" aria-label="Navegação do estudante">
-            <button id="btnTema" class="gestor-menu-item btn-navegacao btn-padrao-portal active" type="button"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19.5V6.75A2.25 2.25 0 0 1 6.25 4.5h11.5A2.25 2.25 0 0 1 20 6.75V19.5M8 9h8M8 12.5h8M8 16h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Tema de Monografia</span></button>
+            <button id="btnInicio" class="gestor-menu-item btn-navegacao btn-padrao-portal active" type="button"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.25 9.75V20a1 1 0 0 0 1 1h11.5a1 1 0 0 0 1-1V9.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Início</span></button>
+            <button id="btnTema" class="gestor-menu-item btn-navegacao btn-padrao-portal" type="button"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19.5V6.75A2.25 2.25 0 0 1 6.25 4.5h11.5A2.25 2.25 0 0 1 20 6.75V19.5M8 9h8M8 12.5h8M8 16h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Tema de Monografia</span></button>
             <button class="gestor-menu-item btn-navegacao btn-padrao-portal" id="btnPedidoCredencialEstagio" type="button"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M8 3.75h6l4 4V20a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4.75a1 1 0 0 1 1-1z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 3.75v4h4M9.5 12h5M9.5 15.5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Pedido Estágio</span></button>
-            <button class="gestor-menu-item btn-navegacao btn-padrao-portal" id="btnMonografia" type="button"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v6c0 4.5-2.9 7.9-7 9-4.1-1.1-7-4.5-7-9V6l7-3z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Monografia Final</span></button>
             <button class="gestor-menu-item btn-navegacao btn-padrao-portal" id="btnPedidoCredencial" type="button"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M9 3h6M10 3v5l-5 8.5A3 3 0 0 0 7.5 21h9a3 3 0 0 0 2.5-4.5L14 8V3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 15h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span>Colecta de Dados</span></button>
-            <button class="gestor-menu-item btn-navegacao btn-padrao-portal" id="btnConsultaEstado" type="button"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M7.5 5.25h9A2.25 2.25 0 0 1 18.75 7.5v9A2.25 2.25 0 0 1 16.5 18.75h-9A2.25 2.25 0 0 1 5.25 16.5v-9A2.25 2.25 0 0 1 7.5 5.25z" stroke="currentColor" stroke-width="1.8"/><path d="M9 9h6M9 12h6M9 15h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span>Consulta de Estado</span></button>
             <button class="gestor-menu-item btn-navegacao btn-padrao-portal" id="btnHorarios" type="button"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M7 3v3M17 3v3M4.5 8.25h15M6.75 5.25h10.5A2.25 2.25 0 0 1 19.5 7.5v10.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 18V7.5a2.25 2.25 0 0 1 2.25-2.25z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Horários</span></button>
-            <button class="gestor-menu-item btn-navegacao btn-padrao-portal" id="btnBaixarFormulario" type="button"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v11m0 0l4-4m-4 4l-4-4M4.5 19.5h15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Baixar Documentos</span></button>
-            <button class="gestor-menu-item btn-navegacao btn-padrao-portal" id="btnDefesaMonografia" type="button"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.25 9.75V20a1 1 0 0 0 1 1h11.5a1 1 0 0 0 1-1V9.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Defesa Monografia</span></button>
+            <button class="gestor-menu-item btn-navegacao btn-padrao-portal" id="btnDefesaMonografia" type="button"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.25 9.75V20a1 1 0 0 0 1 1h11.5a1 1 0 0 0 1-1V9.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Defesa de Monografia</span></button>
+            <button class="gestor-menu-item btn-navegacao btn-padrao-portal" id="btnBaixarFormulario" type="button"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v11m0 0l4-4m-4 4l-4-4M4.5 19.5h15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Baixar Documento</span></button>
+            <button class="gestor-menu-item btn-navegacao btn-padrao-portal" id="btnConsultaEstado" type="button"><span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M7.5 5.25h9A2.25 2.25 0 0 1 18.75 7.5v9A2.25 2.25 0 0 1 16.5 18.75h-9A2.25 2.25 0 0 1 5.25 16.5v-9A2.25 2.25 0 0 1 7.5 5.25z" stroke="currentColor" stroke-width="1.8"/><path d="M9 9h6M9 12h6M9 15h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span>Consulta de Estado</span></button>
           </nav>
         </aside>
 
@@ -43,6 +42,28 @@
           <div class="gestor-topbar">
             <h1 class="gestor-topbar-title">Portal do Estudante</h1>
           </div>
+
+          <section id="containerInicio" class="gestor-card aluno-inicio-card">
+            <h2>Bem-vindo ao Portal do Estudante</h2>
+            <p class="aluno-inicio-subtitulo">Área de apoio académico e administrativo da Faculdade de Ciências Económicas e Empresariais</p>
+            <p>O Portal do Estudante foi desenvolvido para facilitar o acesso dos estudantes aos principais serviços académicos e administrativos de forma simples, organizada e eficiente.</p>
+            <p>Nesta plataforma, poderá submeter documentos, acompanhar processos, consultar informações importantes e aceder a funcionalidades essenciais relacionadas com a sua vida académica.</p>
+
+            <div class="aluno-inicio-funcionalidades">
+              <h3>Através deste portal, o estudante poderá utilizar as seguintes funcionalidades:</h3>
+              <ul>
+                <li><strong>Tema de Monografia</strong> — para submissão e acompanhamento de propostas de tema.</li>
+                <li><strong>Pedido de Estágio</strong> — para registo e encaminhamento de pedidos de estágio.</li>
+                <li><strong>Colecta de Dados</strong> — para submissão de pedidos ou informações relacionados com actividades de recolha de dados.</li>
+                <li><strong>Horários</strong> — para consulta de horários académicos.</li>
+                <li><strong>Defesa de Monografia</strong> — para acesso a informações relacionadas com o processo de defesa.</li>
+                <li><strong>Baixar Documento</strong> — para descarregar documentos disponibilizados pela instituição.</li>
+                <li><strong>Consulta de Estado</strong> — para verificar o andamento de processos submetidos.</li>
+              </ul>
+            </div>
+
+            <p class="aluno-inicio-nota">Recomenda-se o preenchimento correcto de todos os dados solicitados em cada secção, de modo a garantir o devido tratamento da informação submetida.</p>
+          </section>
 
           <div id="containerHorarios" class="horarios-container gestor-card" style="display:none;">
             <h2 class="horarios-titulo">Consulta de Horários</h2>
@@ -73,7 +94,7 @@
             <div id="resultadoHorario" class="horarios-resultado-consulta" aria-live="polite"></div>
           </div>
 
-          <div id="form-container" class="gestor-card aluno-form-shell"></div>
+          <div id="form-container" class="gestor-card aluno-form-shell" style="display:none;"></div>
 
           <div id="containerDocumentos" class="container-conteudo" style="display:none;">
             <div class="form-card gestor-card">
@@ -141,11 +162,51 @@
 
   <script>
     const btnTema = document.getElementById('btnTema');
+    const btnInicio = document.getElementById('btnInicio');
     const btnMonografia = document.getElementById('btnMonografia');
     const btnPedidoCredencial = document.getElementById('btnPedidoCredencial');
     const btnPedidoCredencialEstagio = document.getElementById('btnPedidoCredencialEstagio');
     const btnDefesaMonografia = document.getElementById('btnDefesaMonografia');
     const obterFormContainer = () => document.getElementById('form-container');
+    const obterContainerInicio = () => document.getElementById('containerInicio');
+
+    const mostrarInicio = () => {
+      const formContainer = obterFormContainer();
+      const containerInicio = obterContainerInicio();
+      const containerHorarios = document.getElementById('containerHorarios');
+      const containerDocumentos = document.getElementById('containerDocumentos');
+      const resultadoConsultaEstado = document.getElementById('resultadoConsultaEstado');
+      const pdfReprovadoContainer = document.getElementById('pdfReprovadoContainer');
+
+      if (containerInicio) containerInicio.style.display = 'block';
+      if (formContainer) {
+        formContainer.innerHTML = '';
+        formContainer.style.display = 'none';
+      }
+      if (containerHorarios) containerHorarios.style.display = 'none';
+      if (containerDocumentos) containerDocumentos.style.display = 'none';
+      if (resultadoConsultaEstado) resultadoConsultaEstado.style.display = 'none';
+      if (pdfReprovadoContainer) pdfReprovadoContainer.style.display = 'none';
+    };
+
+    [
+      btnTema,
+      btnMonografia,
+      btnPedidoCredencial,
+      btnPedidoCredencialEstagio,
+      btnDefesaMonografia,
+      document.getElementById('btnBaixarFormulario'),
+      document.getElementById('btnConsultaEstado'),
+      document.getElementById('btnHorarios'),
+    ].forEach((botao) => {
+      botao?.addEventListener('click', () => {
+        const containerInicio = obterContainerInicio();
+        if (containerInicio) containerInicio.style.display = 'none';
+      });
+    });
+
+    btnInicio?.addEventListener('click', mostrarInicio);
+    mostrarInicio();
 
     btnTema?.addEventListener('click', () => {
       const formContainer = obterFormContainer();
@@ -500,5 +561,4 @@
 </body>
 
 </html>
-
 
