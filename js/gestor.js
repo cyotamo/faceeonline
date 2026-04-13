@@ -483,8 +483,8 @@ function renderTabelaDefesa(lista = []) {
         const dataAgendadaFinal = dataAgendada || item.data_agendada || "";
         const situacaoTabela = String(itemSeguro.situacao || "").trim() || "Aguardando actualização";
         const situacaoHtml = dataAgendadaFinal
-            ? `Agendado para o dia: ${escaparHTML(formatarDataDiaMesAno(dataAgendadaFinal))}`
-            : escaparHTML(situacaoTabela);
+            ? `<span class="defesa-status-badge">Agendado: ${escaparHTML(formatarDataDiaMesAno(dataAgendadaFinal))}</span>`
+            : `<span class="defesa-status-badge">${escaparHTML(situacaoTabela)}</span>`;
         const linkPdfHtml = linkPdfFinal
             ? `<a class="pdf-icon" href="${escaparHTML(linkPdfFinal)}" target="_blank" rel="noopener noreferrer" aria-label="Ver PDF">📄</a>`
             : "—";
@@ -493,11 +493,6 @@ function renderTabelaDefesa(lista = []) {
             <tr>
                 <td>${escaparHTML(formatarDataCurta(itemSeguro.data))}</td>
                 <td class="col-nome">${escaparHTML(itemSeguro.nome)}</td>
-                <td>${escaparHTML(itemSeguro.numero)}</td>
-                <td>${escaparHTML(itemSeguro.contacto1)}</td>
-                <td>${escaparHTML(itemSeguro.contacto2)}</td>
-                <td class="col-curso">${escaparHTML(itemSeguro.curso)}</td>
-                <td class="col-supervisor">${escaparHTML(itemSeguro.supervisor)}</td>
                 <td>${situacaoHtml}</td>
                 <td class="col-pdf">${linkPdfHtml}</td>
                 <td class="col-acao">
@@ -536,6 +531,10 @@ function abrirModalEdicaoDefesa(registo = {}, indice = null) {
     };
 
     const inputNome = document.getElementById("defesaNome");
+    const inputNumero = document.getElementById("defesaNumero");
+    const inputCurso = document.getElementById("defesaCurso");
+    const inputContacto1 = document.getElementById("defesaContacto1");
+    const inputContacto2 = document.getElementById("defesaContacto2");
     const inputSupervisor = document.getElementById("defesaSupervisor");
     const inputDataAgendada = document.getElementById("defesaDataAgendada");
     const inputSala = document.getElementById("defesaSala");
@@ -545,6 +544,10 @@ function abrirModalEdicaoDefesa(registo = {}, indice = null) {
     const defesaJaAgendada = defesaEstaAgendada(registoDefesaEmEdicao);
 
     if (inputNome) inputNome.value = registoDefesaEmEdicao.nome;
+    if (inputNumero) inputNumero.value = registoDefesaEmEdicao.numero || "";
+    if (inputCurso) inputCurso.value = registoDefesaEmEdicao.curso || "";
+    if (inputContacto1) inputContacto1.value = registoDefesaEmEdicao.contacto1 || "";
+    if (inputContacto2) inputContacto2.value = registoDefesaEmEdicao.contacto2 || "";
     if (inputSupervisor) inputSupervisor.value = registoDefesaEmEdicao.supervisor;
     if (inputDataAgendada) inputDataAgendada.value = registoDefesaEmEdicao.dataAgendada;
     if (inputSala) inputSala.value = registoDefesaEmEdicao.sala;
