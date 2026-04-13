@@ -258,7 +258,9 @@ let registoDefesaEmEdicao = null;
 let indiceDefesaEmEdicao = null;
 let defesasCache = [];
 let credencialPesquisaRegistos = [];
+let credencialEstagioRegistos = [];
 let idCredencialModalAtual = "";
+let moduloCredencialModalAtual = "pesquisa";
 let paginaAtualDefesas = 1;
 const REGISTOS_POR_PAGINA_DEFESAS = 10;
 
@@ -276,17 +278,29 @@ function obterLabelStatusCredencial(valor) {
     return "PENDENTE";
 }
 
-function abrirModalParecerCredencial(idCredencial) {
+function obterRegistosPorModuloCredencial(modulo = "pesquisa") {
+    return modulo === "estagio" ? credencialEstagioRegistos : credencialPesquisaRegistos;
+}
+
+function abrirModalParecerCredencial(idCredencial, modulo = "pesquisa") {
     if (!modalParecerCredencial) return;
-    const registo = credencialPesquisaRegistos.find((item) => String(item.id || "").trim() === String(idCredencial).trim());
+    const registos = obterRegistosPorModuloCredencial(modulo);
+    const registo = registos.find((item) => String(item.id || "").trim() === String(idCredencial).trim());
     if (!registo) return;
 
+    moduloCredencialModalAtual = modulo;
     idCredencialModalAtual = String(registo.id || "").trim();
     credModalNome.value = registo.nome || "";
     credModalCurso.value = registo.curso || "";
     credModalOrganizacao.value = registo.organizacao || "";
     credModalParecer.value = registo.parecer || "";
     credModalObservacoes.value = registo.observacoes || "";
+    const tituloModal = document.getElementById("credencialModalTitulo");
+    if (tituloModal) {
+        tituloModal.textContent = modulo === "estagio"
+            ? "Parecer do Pedido de Estágio"
+            : "Parecer da Colecta de Dados";
+    }
 
     modalParecerCredencial.style.display = "flex";
     modalParecerCredencial.setAttribute("aria-hidden", "false");
@@ -297,6 +311,7 @@ function fecharModalParecerCredencial() {
     modalParecerCredencial.style.display = "none";
     modalParecerCredencial.setAttribute("aria-hidden", "true");
     idCredencialModalAtual = "";
+    moduloCredencialModalAtual = "pesquisa";
 }
 
 function atualizarLinhaCredencialUI(idCredencial, dadosAtualizados = {}) {
@@ -807,7 +822,8 @@ function configurarEventosModalDefesa() {
 
 function guardarParecerModalCredencial({ fecharModal = true } = {}) {
     if (!idCredencialModalAtual) return false;
-    const registo = credencialPesquisaRegistos.find((item) => String(item.id || "").trim() === idCredencialModalAtual);
+    const registos = obterRegistosPorModuloCredencial(moduloCredencialModalAtual);
+    const registo = registos.find((item) => String(item.id || "").trim() === idCredencialModalAtual);
     if (!registo) return false;
 
     registo.parecer = (credModalParecer?.value || "").trim();
@@ -831,9 +847,25 @@ async function guardarParecerCredencialModalBackend() {
     }
 }
 
+async function guardarParecerEstagioModalBackend() {
+    const dadosAplicados = guardarParecerModalCredencial({ fecharModal: false });
+    if (!dadosAplicados) return;
+    const guardadoComSucesso = await guardarCredencialEstagioRegistos(btnGuardarParecerCredencial);
+    if (guardadoComSucesso) {
+        fecharModalParecerCredencial();
+        await carregarCredenciaisEstagioGestor();
+    }
+}
+
 function configurarEventosModalCredencial() {
     document.getElementById("btnFecharModalParecerCredencial")?.addEventListener("click", fecharModalParecerCredencial);
-    btnGuardarParecerCredencial?.addEventListener("click", guardarParecerCredencialModalBackend);
+    btnGuardarParecerCredencial?.addEventListener("click", () => {
+        if (moduloCredencialModalAtual === "estagio") {
+            guardarParecerEstagioModalBackend();
+            return;
+        }
+        guardarParecerCredencialModalBackend();
+    });
 
     modalParecerCredencial?.addEventListener("click", (event) => {
         if (event.target === modalParecerCredencial) {
@@ -1895,7 +1927,7 @@ function carregarCredencialPesquisa() {
                         <span class="status ${statusClasse}">${statusLabel}</span>
                     </div>
                     <div class="credencial-acao">
-                        <button class="credencial-btn-acao" type="button" data-credencial-acao="${idCredencial}" aria-label="Ver e emitir parecer">
+                        <button class="credencial-btn-acao" type="button" data-credencial-acao="${idCredencial}" data-credencial-modulo="pesquisa" aria-label="Ver e emitir parecer">
                             <span aria-hidden="true">👁</span>
                         </button>
                     </div>
@@ -2109,6 +2141,12 @@ async function carregarCredenciaisEstagioGestor() {
             const observacoesVazio = String(item?.observacoes || "").trim() === "";
             return parecerVazio && observacoesVazio;
         });
+        credencialEstagioRegistos = listaFiltrada.map((item) => ({
+            ...item,
+            id: String(item.id || "").trim(),
+            parecer: String(item.parecer || "").trim(),
+            observacoes: String(item.observacoes || "").trim()
+        }));
 
         if (listaFiltrada.length === 0) {
             document.getElementById("tabelaGestaoGeral").innerHTML =
@@ -2119,87 +2157,56 @@ async function carregarCredenciaisEstagioGestor() {
         }
 
         let html = `
-            <div class="tabela-scroll">
-            <table class="tabela-gestao table-credencial table-credencial-estagio">
-                <thead>
-                    <tr>
-                        <th class="col-ord">Ord</th>
-                        <th class="col-data">Data</th>
-                        <th class="col-nome">Nome</th>
-                        <th class="col-curso">Curso</th>
-                        <th class="col-organizacao">Organização</th>
-                        <th class="col-parecer">Parecer</th>
-                        <th class="col-pdf">Ver (PDF)</th>
-                        <th class="col-observacoes">Observações</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <div class="credencial-lista-head">
+                <div>Data</div>
+                <div>Nome</div>
+                <div>Curso</div>
+                <div>Ver</div>
+                <div>Status</div>
+                <div>Acções</div>
+            </div>
+            <div class="credencial-lista table-credencial table-credencial-estagio">
         `;
 
         listaFiltrada.forEach((item, index) => {
             const idCredencial = String(item.id || "").trim();
-            const linkPDF = item.linkPDF ?? "";
+            const linkPDF = item.linkPDF ?? item.pdfURL ?? "";
             const idEmFalta = !idCredencial;
             if (idEmFalta) {
                 console.warn("Linha sem ID:", item);
             }
+            const statusClasse = obterClasseStatusCredencial(item.parecer);
+            const statusLabel = obterLabelStatusCredencial(item.parecer);
             const linkPDFHtml = linkPDF
-                ? `<a class="pdf-icon" href="${linkPDF}" target="_blank" rel="noopener noreferrer">PDF</a>`
+                ? `<a class="pdf-icon credencial-pdf-link" href="${linkPDF}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento PDF"><span aria-hidden="true">📄</span><span>PDF</span></a>`
                 : "—";
 
             html += `
-                <tr data-id="${idCredencial}">
-                    <td class="col-ord">${index + 1}</td>
-                    <td class="col-data">${formatarDataCurta(item.data)}</td>
-                    <td class="col-nome">${item.nome ?? ""}</td>
-                    <td class="col-curso">${item.curso ?? ""}</td>
-                    <td class="col-organizacao">${item.organizacao ?? ""}</td>
-                    <td class="col-parecer">
-                        <select class="parecerEstagio" data-id="${idCredencial}" ${idEmFalta ? "disabled" : ""}>
-                            <option value="">Seleccione…</option>
-                            <option value="Aprovado">Aprovado</option>
-                            <option value="Recusado">Recusado</option>
-                        </select>
-                    </td>
-                    <td class="col-pdf">${linkPDFHtml}</td>
-                    <td class="col-observacoes">
-                        <textarea class="observacoesEstagio" data-id="${idCredencial}" rows="4" aria-label="Observações" ${idEmFalta ? "disabled" : ""}></textarea>
-                    </td>
-                </tr>
+                <article class="credencial-linha" data-id="${idCredencial}">
+                    <div class="credencial-data">${formatarDataCurta(item.data || item.timestamp)}</div>
+                    <div class="credencial-estudante">
+                        <p class="credencial-nome">${item.nome || "—"}</p>
+                    </div>
+                    <div class="credencial-curso">${item.curso || "—"}</div>
+                    <div class="credencial-arquivo">${linkPDFHtml}</div>
+                    <div class="credencial-status">
+                        <span class="status ${statusClasse}">${statusLabel}</span>
+                    </div>
+                    <div class="credencial-acao">
+                        <button class="credencial-btn-acao" type="button" data-credencial-acao="${idCredencial}" data-credencial-modulo="estagio" aria-label="Ver e emitir parecer"${idEmFalta ? " disabled" : ""}>
+                            <span aria-hidden="true">👁</span>
+                        </button>
+                    </div>
+                </article>
             `;
         });
 
         html += `
-                </tbody>
-            </table>
             </div>
         `;
 
         document.getElementById("tabelaGestaoGeral").innerHTML = html;
-        listaFiltrada.forEach(item => {
-            const idCredencial = String(item.id || "").trim();
-            if (!idCredencial) {
-                console.warn("Linha sem ID:", item);
-                return;
-            }
-            const parecerValor = String(item.parecer ?? "").trim();
-            const observacoesValor = String(item.observacoes ?? "").trim();
-            const select = document.querySelector(`select.parecerEstagio[data-id="${idCredencial}"]`);
-            if (select && parecerValor !== "") {
-                select.value = parecerValor;
-            }
-            if (select) {
-                select.dataset.original = parecerValor;
-            }
-            const textarea = document.querySelector(`textarea.observacoesEstagio[data-id="${idCredencial}"]`);
-            if (textarea && observacoesValor !== "") {
-                textarea.value = observacoesValor;
-            }
-            if (textarea) {
-                textarea.dataset.original = observacoesValor;
-            }
-        });
-        mostrarBotaoGuardar("estagio");
+        document.getElementById("btnGuardar")?.remove();
         esconderCarregamento();
         reaplicarRestricoesUI();
     } catch (err) {
@@ -2215,7 +2222,8 @@ async function carregarCredenciaisEstagioGestor() {
 document.addEventListener("click", async (e) => {
     const botaoAcaoCredencial = e.target?.closest("[data-credencial-acao]");
     if (botaoAcaoCredencial) {
-        abrirModalParecerCredencial(botaoAcaoCredencial.dataset.credencialAcao);
+        const modulo = botaoAcaoCredencial.dataset.credencialModulo || "pesquisa";
+        abrirModalParecerCredencial(botaoAcaoCredencial.dataset.credencialAcao, modulo);
         return;
     }
 
@@ -2567,6 +2575,53 @@ async function guardarCredencialEstagio() {
     } finally {
         desactivarLoadingGuardar(botao);
     }
+}
+
+async function guardarCredencialEstagioRegistos(botaoOrigem) {
+    const botao = botaoOrigem || document.getElementById("btnGuardarParecerCredencial");
+    activarLoadingGuardar(botao);
+
+    const updates = credencialEstagioRegistos
+        .map((item) => ({
+            id: String(item.id || "").trim(),
+            parecer: String(item.parecer || "").trim(),
+            observacoes: String(item.observacoes || "").trim()
+        }))
+        .filter((item) => item.id && (item.parecer || item.observacoes));
+
+    if (updates.length === 0) {
+        desactivarLoadingGuardar(botao);
+        return false;
+    }
+
+    let guardadoComSucesso = false;
+
+    try {
+        const dados = new FormData();
+        dados.append("action", "atualizarCredencialEstagio");
+        dados.append("linhas", JSON.stringify(updates));
+
+        const resposta = await fetch(WEB_URL, {
+            method: "POST",
+            body: dados
+        });
+
+        const txt = await resposta.text();
+        const resultado = txt ? JSON.parse(txt) : null;
+
+        if (!resultado || resultado.sucesso !== true) {
+            throw new Error(resultado?.mensagem || "Erro ao actualizar registos.");
+        }
+
+        guardadoComSucesso = true;
+    } catch (err) {
+        console.error("Erro ao guardar dados da credencial de estágio:", err);
+        alert(err.message || "Erro ao actualizar registos.");
+    } finally {
+        desactivarLoadingGuardar(botao);
+    }
+
+    return guardadoComSucesso;
 }
 
 async function guardarMonografiaFinal() {
