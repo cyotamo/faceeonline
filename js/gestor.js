@@ -345,9 +345,20 @@ function obterResumoTema(registo = {}) {
 }
 
 function abrirModalParecerTema(idTema) {
-    if (!modalParecerTema) return;
+    console.log("[TemasMonografia][Modal] abrirModalParecerTema chamado com idTema:", idTema);
+    if (!modalParecerTema) {
+        console.error("[TemasMonografia][Modal] #modalParecerTema não encontrado no DOM.");
+        return;
+    }
     const registo = temasParecerRegistos.find((item) => String(item.idTema || "").trim() === String(idTema || "").trim());
-    if (!registo) return;
+    if (!registo) {
+        console.warn("[TemasMonografia][Modal] Nenhum registo encontrado para idTema:", idTema);
+        console.log("[TemasMonografia][Modal] IDs disponíveis:", temasParecerRegistos.map((item) => String(item.idTema || "").trim()));
+        return;
+    }
+
+    console.log("[TemasMonografia][Modal] Registo encontrado:", registo);
+    console.log("[TemasMonografia][Modal] Campos no registo:", Object.keys(registo));
 
     idTemaModalAtual = String(registo.idTema || "").trim();
     temaModalNome.value = registo.nome || "";
@@ -356,9 +367,11 @@ function abrirModalParecerTema(idTema) {
     temaModalResumo.value = obterResumoTema(registo);
     temaModalParecer.value = registo.parecer || "";
     temaModalObservacoes.value = registo.observacoes || "";
+    console.log("[TemasMonografia][Modal] Valor de resumo normalizado:", temaModalResumo.value);
 
     modalParecerTema.style.display = "flex";
     modalParecerTema.setAttribute("aria-hidden", "false");
+    console.log("[TemasMonografia][Modal] Modal aberto com sucesso para idTema:", idTemaModalAtual);
 }
 
 function fecharModalParecerTema() {
@@ -2340,6 +2353,8 @@ document.addEventListener("click", async (e) => {
 
     const botaoAcaoTema = e.target?.closest("[data-tema-acao]");
     if (botaoAcaoTema) {
+        console.log("[TemasMonografia][Click] Clique capturado no botão Acções.");
+        console.log("[TemasMonografia][Click] data-tema-acao capturado:", botaoAcaoTema.dataset.temaAcao);
         abrirModalParecerTema(botaoAcaoTema.dataset.temaAcao);
         return;
     }
@@ -2874,6 +2889,12 @@ function carregarParecer() {
     .then(r => r.json())
     .then(json => {
         const dados = json.dados || [];
+        console.log("[TemasMonografia][Backend] Resposta getGestaoGeral (json):", json);
+        console.log("[TemasMonografia][Backend] Total de registos recebidos:", dados.length);
+        if (dados.length > 0) {
+            console.log("[TemasMonografia][Backend] Exemplo do primeiro registo bruto:", dados[0]);
+            console.log("[TemasMonografia][Backend] Campos do primeiro registo bruto:", Object.keys(dados[0] || {}));
+        }
 
         if (dados.length === 0) {
             document.getElementById("tabelaGestaoGeral").innerHTML =
@@ -2894,6 +2915,12 @@ function carregarParecer() {
             parecer: String(item.parecer ?? item.Parecer ?? "").trim(),
             observacoes: String(item.observacoes ?? item.Observacoes ?? "").trim()
         }));
+        if (temasParecerRegistos.length > 0) {
+            const registo = temasParecerRegistos[0];
+            console.log("[TemasMonografia][Frontend] Exemplo do primeiro registo normalizado:", registo);
+            console.log("[TemasMonografia][Frontend] Campos do primeiro registo normalizado:", Object.keys(registo || {}));
+            console.log("[TemasMonografia][Frontend] Campo resumo (normalizado por obterResumoTema):", obterResumoTema(registo));
+        }
 
         if (temasParecerRegistos.length === 0) {
             document.getElementById("tabelaGestaoGeral").innerHTML =
