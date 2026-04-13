@@ -24,16 +24,13 @@
             <div class="gestor-sidebar-brand-icon" aria-hidden="true">UR</div>
             <div class="gestor-sidebar-brand-texto">
               <p class="gestor-sidebar-label">ADMIN</p>
-              <p class="gestor-sidebar-subtitle">JORNADAS 2026</p>
+              <p class="gestor-sidebar-subtitle">Secretaria Online - FACEE</p>
             </div>
           </div>
 
           <nav class="gestor-sidebar-nav" aria-label="Navegação do gestor">
             <button class="gestor-menu-item active" type="button" data-target-button="btnGestaoGeral" data-permissao="ALL">
               <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 10.5L12 3l9 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.25 9.75V20a1 1 0 0 0 1 1h11.5a1 1 0 0 0 1-1V9.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Gestão Geral</span>
-            </button>
-            <button class="gestor-menu-item" type="button" data-target-button="btnMonografiaFinal" data-permissao="PARECER">
-              <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6.75 4.5h8.5a3 3 0 0 1 3 3v12h-8.5a3 3 0 0 0-3 3V4.5z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.75 19.5h8.5a3 3 0 0 1 3 3H8.75a2 2 0 0 1-2-2v-1z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Monografia Final</span>
             </button>
             <button class="gestor-menu-item" type="button" data-target-button="btnDefesa" data-permissao="DEFESAS">
               <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v6c0 4.5-2.9 7.9-7 9-4.1-1.1-7-4.5-7-9V6l7-3z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Defesa Monografia</span>
@@ -62,10 +59,6 @@
           </nav>
 
           <div class="gestor-sidebar-rodape">
-            <div class="gestor-sidebar-user">
-              <div class="gestor-avatar" aria-hidden="true">G</div>
-              <p id="sidebarUserName">Gestor</p>
-            </div>
             <div class="gestor-sidebar-footer-actions">
               <button class="gestor-footer-link" type="button">Alterar Senha</button>
               <button class="gestor-footer-link" id="btnLogout" type="button">Sair do Sistema</button>
@@ -77,8 +70,7 @@
         <div class="gestor-topbar">
           <h1 class="gestor-topbar-title" id="gestorSectionTitleTop">Gestão Geral</h1>
           <div class="gestor-topbar-user">
-            <span>Logado como: <strong id="gestorTopbarUserName">Gestor</strong></span>
-            <div class="gestor-topbar-avatar" id="gestorTopbarAvatar" aria-hidden="true">G</div>
+            <span>Logado como: <strong id="gestorTopbarUserName">gestor@unirovuma.ac.mz</strong></span>
           </div>
         </div>
 
@@ -86,15 +78,12 @@
         <div class="gestor-conteudo-header">
           <div>
             <h2 id="gestorSectionTitle" class="gestor-section-title">Gestão Geral</h2>
-            <p class="gestor-section-subtitle">VI Jornadas Científicas - Controlo de Resumos</p>
           </div>
-          <button class="button gestor-btn-exportar" type="button">Exportar para Excel</button>
         </div>
 
         <!-- BOTÕES -->
         <div class="actions-gestor navegacao-antiga-oculta" aria-hidden="true">
           <button class="button btn-navegacao btn-padrao-portal" id="btnGestaoGeral" data-permissao="ALL">Gestão Geral</button>
-          <button class="button btn-navegacao btn-padrao-portal" id="btnMonografiaFinal" data-permissao="PARECER">Monografia Final</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnDefesa" data-permissao="DEFESAS">Defesa Monografia</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnCredencialPesquisa" data-permissao="CREDENCIAL">Colecta de Dados</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnCredencialEstagio" data-permissao="CREDENCIAL">Pedido de Estágios</button>
@@ -347,39 +336,12 @@
       }
     });
 
-    const sidebarUserName = document.getElementById('sidebarUserName');
-    const avatar = document.querySelector('.gestor-avatar');
     const topbarUserName = document.getElementById('gestorTopbarUserName');
-    const topbarAvatar = document.getElementById('gestorTopbarAvatar');
 
     const atualizarNomeUtilizador = () => {
       const email = (window.userEmail || '').trim();
-      if (!email || !sidebarUserName) return false;
-
-      const nome = email.split('@')[0].replace(/[._-]+/g, ' ').trim();
-      const nomeFormatado = nome
-        .split(' ')
-        .filter(Boolean)
-        .map((parte) => parte.charAt(0).toUpperCase() + parte.slice(1))
-        .join(' ');
-
-      sidebarUserName.textContent = nomeFormatado || 'Gestor';
-      if (topbarUserName) {
-        topbarUserName.textContent = nomeFormatado || 'Gestor';
-      }
-
-      if (avatar) {
-        const iniciais = nomeFormatado
-          .split(' ')
-          .filter(Boolean)
-          .slice(0, 2)
-          .map((parte) => parte.charAt(0).toUpperCase())
-          .join('') || 'G';
-        avatar.textContent = iniciais;
-        if (topbarAvatar) {
-          topbarAvatar.textContent = iniciais;
-        }
-      }
+      if (!email || !topbarUserName) return false;
+      topbarUserName.textContent = email;
 
       return true;
     };
