@@ -2752,3 +2752,90 @@ input[type='file'] {
     font-size: 20px;
   }
 }
+
+/* ===== Layout unificado para página do aluno ===== */
+.aluno-page .page {
+  background: #f2f4f8;
+}
+
+.aluno-page .main-container {
+  padding: 0;
+}
+
+.aluno-page #site-header {
+  display: none;
+}
+
+.aluno-content {
+  font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+  color: #1f2937;
+}
+
+.aluno-content .gestor-card {
+  margin: 14px 30px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(15, 32, 62, 0.06);
+}
+
+.aluno-form-shell {
+  padding: 20px;
+  min-height: 90px;
+}
+
+.aluno-page #form-container h2,
+.aluno-content .form-card h2,
+.aluno-content .horarios-titulo {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.aluno-page #form-container label,
+.aluno-content .horarios-campo label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.aluno-page #form-container input,
+.aluno-page #form-container select,
+.aluno-page #form-container textarea,
+.aluno-content .horarios-campo select,
+.aluno-content input,
+.aluno-content select,
+.aluno-content textarea {
+  border: 1px solid #d5dde8;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1f2937;
+  font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+  background: #fff;
+}
+
+.aluno-content .btn-submeter,
+.aluno-content #btnBuscarHorario,
+.aluno-content button[type='button'] {
+  font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.aluno-page .gestor-sidebar .btn-padrao-portal {
+  box-shadow: none;
+  border: 0;
+  background: transparent;
+  justify-content: flex-start;
+  padding: 11px 12px;
+}
+
+.aluno-content .horarios-container {
+  padding: 20px;
+}
+
+@media (max-width: 600px) {
+  .aluno-content .gestor-card {
+    margin-left: 14px;
+    margin-right: 14px;
+  }
+}
