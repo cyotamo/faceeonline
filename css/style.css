@@ -2778,6 +2778,11 @@ input[type='file'] {
   border-bottom: 1px solid #edf1f6;
 }
 
+.tema-lista-head,
+.tema-parecer-linha {
+  grid-template-columns: 110px 1.8fr 1.2fr 0.9fr 72px;
+}
+
 .credencial-linha:last-child {
   border-bottom: none;
 }
@@ -2901,7 +2906,15 @@ input[type='file'] {
   background: #f8fafc;
 }
 
+.credencial-form-field textarea[readonly] {
+  background: #f8fafc;
+}
+
 #btnGuardarParecerCredencial {
+  min-width: 110px;
+}
+
+#btnGuardarParecerTema {
   min-width: 110px;
 }
 
