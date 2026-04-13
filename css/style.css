@@ -2344,3 +2344,138 @@ input[type='file'] {
   border: 1px solid #b42318;
   letter-spacing: 0.02em;
 }
+
+/* ===== Layout lateral do gestor ===== */
+.gestor-main {
+  max-width: 1280px;
+}
+
+.gestor-layout {
+  display: flex;
+  align-items: stretch;
+  gap: 18px;
+  min-height: calc(100vh - var(--header-height) - 56px);
+}
+
+.gestor-sidebar {
+  width: 270px;
+  flex: 0 0 270px;
+  background: linear-gradient(180deg, #0a2f63 0%, #0c3d7a 100%);
+  border-radius: 16px;
+  box-shadow: 0 16px 34px rgba(0, 27, 61, 0.28);
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  color: #e8f0fd;
+}
+
+.gestor-sidebar-topo {
+  padding: 4px 6px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.gestor-sidebar-label {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.gestor-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 0;
+}
+
+.gestor-menu-item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #e8f0fd;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.92rem;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.gestor-menu-item:hover {
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateX(2px);
+}
+
+.gestor-menu-item.active {
+  background: rgba(125, 186, 255, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.menu-icon {
+  width: 20px;
+  display: inline-flex;
+  justify-content: center;
+}
+
+.gestor-sidebar-rodape {
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 12px 6px 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gestor-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.24);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+#sidebarUserName {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.gestor-content {
+  flex: 1;
+}
+
+.gestor-section-title {
+  margin: 0 0 16px;
+  color: var(--primary);
+  font-size: 1.28rem;
+}
+
+.navegacao-antiga-oculta {
+  display: none !important;
+}
+
+@media (max-width: 980px) {
+  .gestor-layout {
+    flex-direction: column;
+  }
+
+  .gestor-sidebar {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .gestor-sidebar-nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .gestor-sidebar-nav {
+    grid-template-columns: 1fr;
+  }
+}
