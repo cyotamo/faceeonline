@@ -234,6 +234,14 @@ const credModalOrganizacao = document.getElementById("credModalOrganizacao");
 const credModalParecer = document.getElementById("credModalParecer");
 const credModalObservacoes = document.getElementById("credModalObservacoes");
 const btnGuardarParecerCredencial = document.getElementById("btnGuardarParecerCredencial");
+const modalParecerTema = document.getElementById("modalParecerTema");
+const temaModalNome = document.getElementById("temaModalNome");
+const temaModalLinhaPesquisa = document.getElementById("temaModalLinhaPesquisa");
+const temaModalTema = document.getElementById("temaModalTema");
+const temaModalResumo = document.getElementById("temaModalResumo");
+const temaModalParecer = document.getElementById("temaModalParecer");
+const temaModalObservacoes = document.getElementById("temaModalObservacoes");
+const btnGuardarParecerTema = document.getElementById("btnGuardarParecerTema");
 
 const SITUACOES_DEFESA = [
     "Em avaliação no RA",
@@ -261,6 +269,8 @@ let credencialPesquisaRegistos = [];
 let credencialEstagioRegistos = [];
 let idCredencialModalAtual = "";
 let moduloCredencialModalAtual = "pesquisa";
+let temasParecerRegistos = [];
+let idTemaModalAtual = "";
 let paginaAtualDefesas = 1;
 const REGISTOS_POR_PAGINA_DEFESAS = 10;
 
@@ -316,6 +326,50 @@ function fecharModalParecerCredencial() {
 
 function atualizarLinhaCredencialUI(idCredencial, dadosAtualizados = {}) {
     const linha = document.querySelector(`.credencial-linha[data-id="${idCredencial}"]`);
+    if (!linha) return;
+
+    const parecer = dadosAtualizados.parecer ?? "";
+    const badge = linha.querySelector(".credencial-status .status");
+    if (badge) {
+        badge.className = `status ${obterClasseStatusCredencial(parecer)}`;
+        badge.textContent = obterLabelStatusCredencial(parecer);
+    }
+}
+
+function obterResumoTema(registo = {}) {
+    return registo.resumo
+        ?? registo.Resumo
+        ?? registo.descricao
+        ?? registo.colJ
+        ?? "";
+}
+
+function abrirModalParecerTema(idTema) {
+    if (!modalParecerTema) return;
+    const registo = temasParecerRegistos.find((item) => String(item.idTema || "").trim() === String(idTema || "").trim());
+    if (!registo) return;
+
+    idTemaModalAtual = String(registo.idTema || "").trim();
+    temaModalNome.value = registo.nome || "";
+    temaModalLinhaPesquisa.value = registo.linhaPesquisa || registo.linha || "";
+    temaModalTema.value = registo.tema || "";
+    temaModalResumo.value = obterResumoTema(registo);
+    temaModalParecer.value = registo.parecer || "";
+    temaModalObservacoes.value = registo.observacoes || "";
+
+    modalParecerTema.style.display = "flex";
+    modalParecerTema.setAttribute("aria-hidden", "false");
+}
+
+function fecharModalParecerTema() {
+    if (!modalParecerTema) return;
+    modalParecerTema.style.display = "none";
+    modalParecerTema.setAttribute("aria-hidden", "true");
+    idTemaModalAtual = "";
+}
+
+function atualizarLinhaTemaUI(idTema, dadosAtualizados = {}) {
+    const linha = document.querySelector(`.tema-parecer-linha[data-id="${idTema}"]`);
     if (!linha) return;
 
     const parecer = dadosAtualizados.parecer ?? "";
@@ -880,6 +934,62 @@ function configurarEventosModalCredencial() {
     });
 }
 
+async function guardarParecerTemaModalBackend() {
+    if (!idTemaModalAtual) return;
+    const registo = temasParecerRegistos.find((item) => String(item.idTema || "").trim() === idTemaModalAtual);
+    if (!registo) return;
+
+    const parecer = String(temaModalParecer?.value || "").trim();
+    const observacoes = String(temaModalObservacoes?.value || "").trim();
+    const botao = btnGuardarParecerTema;
+    activarLoadingGuardar(botao);
+
+    try {
+        const payload = [{ idTema: idTemaModalAtual, parecer, observacoes }];
+        const params = new URLSearchParams({
+            action: "guardarParecer",
+            dados: JSON.stringify(payload)
+        });
+
+        const resposta = await fetch(WEB_URL, {
+            method: "POST",
+            body: params
+        });
+        const res = await resposta.json();
+
+        if (!res?.sucesso) {
+            throw new Error(res?.mensagem || "Erro ao guardar parecer.");
+        }
+
+        registo.parecer = parecer;
+        registo.observacoes = observacoes;
+        atualizarLinhaTemaUI(idTemaModalAtual, { parecer });
+        fecharModalParecerTema();
+    } catch (err) {
+        console.error("Erro ao guardar parecer de tema:", err);
+        alert(err?.message || "Erro ao guardar parecer.");
+    } finally {
+        desactivarLoadingGuardar(botao);
+    }
+}
+
+function configurarEventosModalTema() {
+    document.getElementById("btnFecharModalParecerTema")?.addEventListener("click", fecharModalParecerTema);
+    btnGuardarParecerTema?.addEventListener("click", guardarParecerTemaModalBackend);
+
+    modalParecerTema?.addEventListener("click", (event) => {
+        if (event.target === modalParecerTema) {
+            fecharModalParecerTema();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && modalParecerTema?.style.display === "flex") {
+            fecharModalParecerTema();
+        }
+    });
+}
+
 window.abrirModalEdicaoDefesa = abrirModalEdicaoDefesa;
 window.fecharModalEdicaoDefesa = fecharModalEdicaoDefesa;
 window.guardarSituacaoDefesa = guardarSituacaoDefesa;
@@ -887,6 +997,7 @@ window.guardarEdicaoDefesa = guardarEdicaoDefesa;
 window.renderTabelaDefesa = renderTabelaDefesa;
 configurarEventosModalDefesa();
 configurarEventosModalCredencial();
+configurarEventosModalTema();
 
 function esconderEstatisticas() {
     estatisticasContainer.style.display = "none";
@@ -2227,6 +2338,12 @@ document.addEventListener("click", async (e) => {
         return;
     }
 
+    const botaoAcaoTema = e.target?.closest("[data-tema-acao]");
+    if (botaoAcaoTema) {
+        abrirModalParecerTema(botaoAcaoTema.dataset.temaAcao);
+        return;
+    }
+
     const botao = e.target?.closest("#btnGuardar");
     if (!botao) {
         return;
@@ -2750,19 +2867,12 @@ carregarDadosBloqueio();
 function carregarParecer() {
     esconderEstatisticas();
     mostrarCarregamentoAtribuirSupervisor();
-    const url = WEB_URL;
-    console.log("[TEMA][LOAD] url=", url);
-    fetch(url, {
+    fetch(WEB_URL, {
         method: "POST",
         body: new URLSearchParams({ action: "getGestaoGeral" })
     })
     .then(r => r.json())
     .then(json => {
-        console.log("[TEMA][LOAD] keys 1º item=", Object.keys(json.dados?.[0] || {}));
-        console.log("[TEMA][LOAD] primeiro.idTema=", json.dados?.[0]?.idTema);
-        if (!json.dados?.[0]?.idTema) {
-            console.warn("[TEMA][LOAD] idTema não veio do servidor (ou veio com outro nome).");
-        }
         const dados = json.dados || [];
 
         if (dados.length === 0) {
@@ -2777,13 +2887,15 @@ function carregarParecer() {
             return;
         }
 
-        // 🔥 Agora usamos a nova Tabela Parecer (não a Gestão Geral)
-        dadosGestaoGeral = dados.filter(item => {
-            const parecer = item.parecer ?? item.Parecer ?? "";
-            return !parecer || parecer.toString().trim() === "";
-        });
+        dadosGestaoGeral = dados;
+        temasParecerRegistos = dadosGestaoGeral.map((item) => ({
+            ...item,
+            idTema: String(item.idTema || "").trim(),
+            parecer: String(item.parecer ?? item.Parecer ?? "").trim(),
+            observacoes: String(item.observacoes ?? item.Observacoes ?? "").trim()
+        }));
 
-        if (dadosGestaoGeral.length === 0) {
+        if (temasParecerRegistos.length === 0) {
             document.getElementById("tabelaGestaoGeral").innerHTML =
                 '<p class="sem-dados">Não existe nenhum dado para ser apresentado.</p>';
             const controles = document.getElementById("controlesPaginacao");
@@ -2796,9 +2908,7 @@ function carregarParecer() {
         }
 
         paginaAtual = 1;
-        totalPaginas = Math.ceil(dadosGestaoGeral.length / linhasPorPagina);
-
-        // Renderiza a tabela LIMPA do módulo Parecer
+        totalPaginas = Math.ceil(temasParecerRegistos.length / linhasPorPagina);
         renderTabelaParecer();
         esconderCarregamento();
     })
@@ -2814,81 +2924,48 @@ function renderTabelaParecer() {
 
     const inicio = (paginaAtual - 1) * linhasPorPagina;
     const fim = inicio + linhasPorPagina;
-    const paginaDados = dadosGestaoGeral.slice(inicio, fim);
+    const paginaDados = temasParecerRegistos.slice(inicio, fim);
 
     let html = `
-        <div class="tabela-scroll">
-        <table class="tabela-gestao">
-            <thead>
-                <tr>
-                    <th class="col-ord">Ord</th>
-                    <th class="col-data">Data</th>
-                    <th class="col-nome">Nome</th>
-                    <th class="col-curso">Curso</th>
-                    <th class="col-linha">Linha</th>
-                    <th class="col-tema">Tema</th>
-                    <th class="col-parecer">Parecer</th>
-                    <th class="col-observacoes">Observações</th>
-                </tr>
-            </thead>
-            <tbody>
+        <div class="credencial-lista-head tema-lista-head">
+            <div>Data</div>
+            <div>Nome</div>
+            <div>Curso</div>
+            <div>Status</div>
+            <div>Acções</div>
+        </div>
+        <div class="credencial-lista table-credencial table-tema-parecer">
     `;
 
-    paginaDados.forEach((item, index) => {
-        const indiceGlobal = inicio + index;
+    paginaDados.forEach((item) => {
         const idTema = String(item.idTema || "").trim();
-
-        if (idTema) {
-            console.log("[TEMA][RENDER] idTema preenchido:", idTema);
-        } else {
-            console.warn(
-                "[TEMA][RENDER] idTema vazio - verificar campo do item. Keys:",
-                Object.keys(item)
-            );
-        }
+        const statusClasse = obterClasseStatusCredencial(item.parecer);
+        const statusLabel = obterLabelStatusCredencial(item.parecer);
 
         html += `
-            <tr data-id="${idTema}">
-                <td class="col-ord">${indiceGlobal + 1}</td>
-                <td class="col-data">${formatarDataCurta(item.data)}</td>
-                <td class="col-nome">${item.nome}</td>
-                <td class="col-curso">${item.curso}</td>
-                <td class="col-linha">${item.linha}</td>
-                <td class="col-tema">${item.tema}</td>
-
-                <td class="col-parecer">
-                    <select class="parecerSelect" data-id="${idTema}">
-                        <option value="">Seleccione…</option>
-                        <option value="Aprovado">Aprovado</option>
-                        <option value="Reprovado">Reprovado</option>
-                    </select>
-                </td>
-
-                <td class="col-observacoes">
-                    <textarea class="observacoesInput" data-id="${idTema}" rows="3"></textarea>
-                </td>
-            </tr>
+            <article class="credencial-linha tema-parecer-linha" data-id="${escaparHTML(idTema)}">
+                <div class="credencial-data">${escaparHTML(formatarDataCurta(item.data || item.timestamp))}</div>
+                <div class="credencial-estudante">
+                    <p class="credencial-nome">${escaparHTML(item.nome || "—")}</p>
+                </div>
+                <div class="credencial-curso">${escaparHTML(item.curso || "—")}</div>
+                <div class="credencial-status">
+                    <span class="status ${statusClasse}">${statusLabel}</span>
+                </div>
+                <div class="credencial-acao">
+                    <button class="credencial-btn-acao" type="button" data-tema-acao="${escaparHTML(idTema)}" aria-label="Ver e emitir parecer"${idTema ? "" : " disabled"}>
+                        <span aria-hidden="true">👁</span>
+                    </button>
+                </div>
+            </article>
         `;
     });
 
     html += `
-            </tbody>
-        </table>
-        </div>
-
-        <div style="margin-top: 15px; text-align: left;">
-            <button id="btnGuardarParecerGlobal" class="btn-guardar-geral">
-                Guardar
-            </button>
         </div>
     `;
 
     container.innerHTML = html;
-
-    // Ativar botão global
-    document.getElementById("btnGuardarParecerGlobal")
-        .addEventListener("click", guardarTodosPareceres);
-
     renderizarControlesParecer();
     reaplicarRestricoesUI();
 }
@@ -2896,7 +2973,7 @@ function renderTabelaParecer() {
 function renderizarControlesParecer() {
     const controles = document.getElementById("controlesPaginacao");
     if (!controles) return;
-    const deveMostrarPaginacao = dadosGestaoGeral.length > 10 && totalPaginas > 1;
+    const deveMostrarPaginacao = temasParecerRegistos.length > 10 && totalPaginas > 1;
 
     if (!deveMostrarPaginacao) {
         controles.innerHTML = "";
@@ -2918,158 +2995,4 @@ function mudarPaginaParecer(delta) {
 
     paginaAtual = novaPagina;
     renderTabelaParecer();
-}
-
-
-function guardarTodosPareceres() {
-    const botao = document.getElementById("btnGuardarParecerGlobal");
-    activarLoadingGuardar(botao);
-
-    const container = document.getElementById("tabelaGestaoGeral");
-
-    const selects = container ? container.querySelectorAll("select.parecerSelect") : [];
-
-    const selectSnapshots = Array.from(selects)
-        .slice(0, 3)
-        .map(select => ({
-            datasetId: select.dataset.id || "",
-            value: select.value,
-            selectedText: select.options[select.selectedIndex]?.text || ""
-        }));
-
-    console.log("[TEMA][GUARDAR] container encontrado?", Boolean(container));
-    console.log("[TEMA][GUARDAR] Selects encontrados:", selects.length);
-    console.log("[TEMA][GUARDAR] Snapshot selects (3):", selectSnapshots);
-    // Debug rápido: ver se está a achar alguma coisa
-    // alert("Selects encontrados: " + selects.length);
-
-    const pareceres = [];
-
-    let houveInteracaoSemId = false;
-
-    selects.forEach(select => {
-        const idTemaDataset = select.dataset.id || "";
-        const idTemaTr = select.closest("tr")?.dataset?.id || "";
-        const idTema = (idTemaDataset || idTemaTr || "").trim();
-        const parecer = (select.value || "").trim();
-        const obsElement = select.closest("tr")?.querySelector("textarea.observacoesInput");
-        const observacoes = obsElement ? (obsElement.value || "").trim() : "";
-        const parecerTexto = select.options[select.selectedIndex]?.text || "";
-
-        if (idTema) {
-            console.log("[TEMA][GUARDAR] idTema !=", "", idTema);
-        }
-        console.log("[TEMA][GUARDAR] Linha:", {
-            idTemaDataset,
-            idTemaTr,
-            idTema,
-            parecer,
-            parecerTexto,
-            observacoesLength: observacoes.length
-        });
-
-        if ((parecer !== "" || observacoes !== "") && !idTema) {
-            houveInteracaoSemId = true;
-            console.warn(
-                "[TEMA][GUARDAR] Interação sem idTema - não será guardado.",
-                { parecer, observacoesLength: observacoes.length }
-            );
-            return;
-        }
-
-        if (parecer !== "" || observacoes !== "") {
-            pareceres.push({
-                idTema,
-                parecer,
-                observacoes
-            });
-            console.log("[TEMA][GUARDAR] Parecer adicionado:", {
-                idTema,
-                parecer,
-                observacoesLength: observacoes.length
-            });
-        } else {
-            console.log("[TEMA][GUARDAR] Linha descartada (sem interação).", {
-                idTema
-            });
-        }
-    });
-
-    console.log("Pareceres prontos para envio:", pareceres);
-
-    if (pareceres.length === 0) {
-        if (houveInteracaoSemId) {
-            desactivarLoadingGuardar(botao);
-            alert("Não foi possível identificar o tema. Recarregue a página e tente novamente.");
-            if (window.aplicarRestricoesUI && window.userEmail) {
-                aplicarRestricoesUI(window.userEmail);
-            }
-            return;
-        }
-
-        desactivarLoadingGuardar(botao);
-        alert("Nenhum parecer preenchido.");
-        if (window.aplicarRestricoesUI && window.userEmail) {
-            aplicarRestricoesUI(window.userEmail);
-        }
-        return;
-    }
-
-    const url = WEB_URL;
-    const params = new URLSearchParams({
-        action: "guardarParecer",
-        dados: JSON.stringify(pareceres)
-    });
-
-    console.log("[TEMA][ENVIAR] url=", url);
-    console.log("[TEMA][ENVIAR] pareceres=", pareceres);
-    console.log("[TEMA][ENVIAR] pareceres JSON=", JSON.stringify(pareceres));
-    console.log("[TEMA][ENVIAR] body=", params.toString());
-
-    fetch(url, {
-        method: "POST",
-        body: params
-    })
-        .then(async response => {
-            console.log("[TEMA][RESP] status=", response.status, "ok=", response.ok);
-            console.log("[TEMA][RESP] content-type=", response.headers.get("content-type"));
-            const raw = await response.text();
-            console.log("[TEMA][RESP] raw=", raw);
-
-            let res = null;
-            try {
-                res = JSON.parse(raw);
-                console.log("[TEMA][RESP] json=", res);
-            } catch (err) {
-                console.warn("[TEMA][RESP] JSON parse falhou:", err);
-            }
-
-            if (res && res.sucesso) {
-                pareceres.forEach(({ idTema }) => {
-                    document
-                        .querySelectorAll(`select.parecerSelect[data-id="${idTema}"]`)
-                        .forEach(select => {
-                            select.disabled = true;
-                        });
-                    document
-                        .querySelectorAll(`textarea.observacoesInput[data-id="${idTema}"]`)
-                        .forEach(textarea => {
-                            textarea.disabled = true;
-                        });
-                });
-            } else {
-                const mensagemErro = res?.mensagem || "Erro ao guardar pareceres.";
-                alert("Erro ao guardar: " + mensagemErro);
-            }
-        })
-        .catch(err => {
-            console.error("Erro ao guardar pareceres:", err);
-            alert("Erro ao comunicar com o servidor.");
-        })
-        .finally(() => {
-            desactivarLoadingGuardar(botao);
-            if (window.aplicarRestricoesUI && window.userEmail) {
-                aplicarRestricoesUI(window.userEmail);
-            }
-        });
 }
