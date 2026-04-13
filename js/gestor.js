@@ -805,10 +805,10 @@ function configurarEventosModalDefesa() {
     });
 }
 
-function guardarParecerModalCredencial() {
-    if (!idCredencialModalAtual) return;
+function guardarParecerModalCredencial({ fecharModal = true } = {}) {
+    if (!idCredencialModalAtual) return false;
     const registo = credencialPesquisaRegistos.find((item) => String(item.id || "").trim() === idCredencialModalAtual);
-    if (!registo) return;
+    if (!registo) return false;
 
     registo.parecer = (credModalParecer?.value || "").trim();
     registo.observacoes = (credModalObservacoes?.value || "").trim();
@@ -816,12 +816,24 @@ function guardarParecerModalCredencial() {
     atualizarLinhaCredencialUI(idCredencialModalAtual, {
         parecer: registo.parecer
     });
-    fecharModalParecerCredencial();
+    if (fecharModal) {
+        fecharModalParecerCredencial();
+    }
+    return true;
+}
+
+async function guardarParecerCredencialModalBackend() {
+    const dadosAplicados = guardarParecerModalCredencial({ fecharModal: false });
+    if (!dadosAplicados) return;
+    const guardadoComSucesso = await guardarCredencialPesquisa(btnGuardarParecerCredencial);
+    if (guardadoComSucesso) {
+        fecharModalParecerCredencial();
+    }
 }
 
 function configurarEventosModalCredencial() {
     document.getElementById("btnFecharModalParecerCredencial")?.addEventListener("click", fecharModalParecerCredencial);
-    btnGuardarParecerCredencial?.addEventListener("click", guardarParecerModalCredencial);
+    btnGuardarParecerCredencial?.addEventListener("click", guardarParecerCredencialModalBackend);
 
     modalParecerCredencial?.addEventListener("click", (event) => {
         if (event.target === modalParecerCredencial) {
@@ -1896,7 +1908,7 @@ function carregarCredencialPesquisa() {
         `;
 
         document.getElementById("tabelaGestaoGeral").innerHTML = html;
-        mostrarBotaoGuardar("credencial");
+        document.getElementById("btnGuardar")?.remove();
         esconderCarregamento();
         reaplicarRestricoesUI();
     })
@@ -2376,12 +2388,13 @@ document.addEventListener("click", async (e) => {
     }
 });
 
-async function guardarCredencialPesquisa() {
-    const botao = document.getElementById("btnGuardar") || document.getElementById("btnGuardarCredencialPesquisa");
+async function guardarCredencialPesquisa(botaoOrigem = null) {
+    const botao = botaoOrigem || document.getElementById("btnGuardar") || document.getElementById("btnGuardarCredencialPesquisa") || document.getElementById("btnGuardarParecerCredencial");
     console.log("[CRED] ENTROU NA FUNÇÃO guardarCredencialPesquisa", {
         botaoEncontrado: Boolean(botao),
     });
     activarLoadingGuardar(botao);
+    let guardadoComSucesso = false;
 
     let idInvalido = false;
     const updates = credencialPesquisaRegistos
@@ -2402,13 +2415,13 @@ async function guardarCredencialPesquisa() {
     if (updates.length === 0) {
         console.log("[CRED] Nenhuma linha com dados preenchidos. Fluxo interrompido.");
         desactivarLoadingGuardar(botao);
-        return;
+        return false;
     }
 
     if (idInvalido) {
         alert("Não foi possível identificar o estudante. Recarregue a página e tente novamente.");
         desactivarLoadingGuardar(botao);
-        return;
+        return false;
     }
 
     try {
@@ -2431,6 +2444,8 @@ async function guardarCredencialPesquisa() {
             throw new Error("Resposta de erro do servidor");
         }
 
+        guardadoComSucesso = true;
+
         updates.forEach(item => {
             const botaoAcao = document.querySelector(`.credencial-btn-acao[data-credencial-acao="${item.id}"]`);
             if (botaoAcao) {
@@ -2442,6 +2457,8 @@ async function guardarCredencialPesquisa() {
     } finally {
         desactivarLoadingGuardar(botao);
     }
+
+    return guardadoComSucesso;
 }
 
 async function guardarCredencialEstagio() {
