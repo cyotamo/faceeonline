@@ -14,8 +14,53 @@
   <div class="page">
     <header id="site-header"></header>
 
-    <main class="main-container">
-      <section class="page-section">
+    <main class="main-container gestor-main">
+      <div class="gestor-layout">
+        <aside class="gestor-sidebar" aria-label="Menu principal do gestor">
+          <div class="gestor-sidebar-topo">
+            <p class="gestor-sidebar-label">Portal do Gestor</p>
+          </div>
+
+          <nav class="gestor-sidebar-nav" aria-label="Navegação do gestor">
+            <button class="gestor-menu-item active" type="button" data-target-button="btnGestaoGeral" data-permissao="ALL">
+              <span class="menu-icon" aria-hidden="true">🏠</span><span>Gestão Geral</span>
+            </button>
+            <button class="gestor-menu-item" type="button" data-target-button="btnMonografiaFinal" data-permissao="PARECER">
+              <span class="menu-icon" aria-hidden="true">📘</span><span>Monografia Final</span>
+            </button>
+            <button class="gestor-menu-item" type="button" data-target-button="btnDefesa" data-permissao="DEFESAS">
+              <span class="menu-icon" aria-hidden="true">🛡️</span><span>Defesa Monografia</span>
+            </button>
+            <button class="gestor-menu-item" type="button" data-target-button="btnCredencialPesquisa" data-permissao="CREDENCIAL">
+              <span class="menu-icon" aria-hidden="true">🧪</span><span>Colecta de Dados</span>
+            </button>
+            <button class="gestor-menu-item" type="button" data-target-button="btnCredencialEstagio" data-permissao="CREDENCIAL">
+              <span class="menu-icon" aria-hidden="true">📄</span><span>Pedido de Estágios</span>
+            </button>
+            <button class="gestor-menu-item" type="button" data-target-button="btnParecerTec" data-permissao="PARECER">
+              <span class="menu-icon" aria-hidden="true">📝</span><span>Temas Monografia</span>
+            </button>
+            <button class="gestor-menu-item" type="button" data-target-button="btnAtribuirSuperv" data-permissao="ATRIBUIR_SUPERVISOR">
+              <span class="menu-icon" aria-hidden="true">👥</span><span>Atribuir Supervisores</span>
+            </button>
+            <button class="gestor-menu-item" type="button" data-target-button="btnHomologarSuperv" data-permissao="ALL">
+              <span class="menu-icon" aria-hidden="true">✅</span><span>Homologar Listas</span>
+            </button>
+            <button class="gestor-menu-item" type="button" data-target-button="btnPlanosAnaliticos" data-permissao="PLANOS_ANALITICOS">
+              <span class="menu-icon" aria-hidden="true">📊</span><span>Planos Analíticos</span>
+            </button>
+            <button class="gestor-menu-item" type="button" data-target-button="btnEstatisticas" data-permissao="ESTATISTICAS">
+              <span class="menu-icon" aria-hidden="true">📈</span><span>Gerar Relatórios</span>
+            </button>
+          </nav>
+
+          <div class="gestor-sidebar-rodape">
+            <div class="gestor-avatar" aria-hidden="true">G</div>
+            <p id="sidebarUserName">Gestor</p>
+          </div>
+        </aside>
+
+        <section class="page-section gestor-content">
 
         <!-- TÍTULO DO PORTAL DO GESTOR -->
         <div class="section-header topo-gestor">
@@ -23,8 +68,10 @@
           <button class="button secondary btn-navegacao btn-padrao-portal" id="btnLogout">Sair</button>
         </div>
 
+        <h2 id="gestorSectionTitle" class="gestor-section-title">Gestão Geral</h2>
+
         <!-- BOTÕES -->
-        <div class="actions-gestor">
+        <div class="actions-gestor navegacao-antiga-oculta" aria-hidden="true">
           <button class="button btn-navegacao btn-padrao-portal" id="btnGestaoGeral" data-permissao="ALL">Gestão Geral</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnMonografiaFinal" data-permissao="PARECER">Monografia Final</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnDefesa" data-permissao="DEFESAS">Defesa Monografia</button>
@@ -32,7 +79,7 @@
           <button class="button btn-navegacao btn-padrao-portal" id="btnCredencialEstagio" data-permissao="CREDENCIAL">Pedido de Estágios</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnEstatisticas" data-permissao="ESTATISTICAS">Gerar Relatórios</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnParecerTec" data-permissao="PARECER">Temas Monografia</button>
-          <div id="acoesSupervisor" class="acoes-supervisor">
+          <div id="acoesSupervisor" class="acoes-supervisor navegacao-antiga-oculta" aria-hidden="true">
             <button class="button btn-navegacao btn-padrao-portal" id="btnAtribuirSuperv" data-permissao="ATRIBUIR_SUPERVISOR">Atribuir Supervisores</button>
             <button class="button btn-navegacao btn-padrao-portal" id="btnHomologarSuperv" data-permissao="ALL">Homologar Listas</button>
             <button class="button btn-navegacao btn-padrao-portal" id="btnPlanosAnaliticos" data-permissao="PLANOS_ANALITICOS">Planos Analíticos</button>
@@ -179,7 +226,8 @@
           </div>
         </div>
 
-      </section>
+        </section>
+      </div>
     </main>
   </div>
 
@@ -219,6 +267,100 @@
         });
       }
     });
+  </script>
+
+  <script type="module">
+    const menuItems = Array.from(document.querySelectorAll('.gestor-menu-item'));
+    const sectionTitle = document.getElementById('gestorSectionTitle');
+
+    const setActiveMenu = (targetButtonId) => {
+      menuItems.forEach((item) => {
+        const active = item.dataset.targetButton === targetButtonId;
+        item.classList.toggle('active', active);
+        if (active && sectionTitle) {
+          sectionTitle.textContent = item.textContent.trim();
+        }
+      });
+    };
+
+    const sincronizarVisibilidadeMenu = () => {
+      menuItems.forEach((item) => {
+        const target = document.getElementById(item.dataset.targetButton);
+        if (!target) return;
+        const hidden = target.style.display === 'none';
+        item.style.display = hidden ? 'none' : '';
+      });
+
+      const activeVisible = menuItems.find((item) => item.classList.contains('active') && item.style.display !== 'none');
+      if (!activeVisible) {
+        const primeiroVisivel = menuItems.find((item) => item.style.display !== 'none');
+        if (primeiroVisivel) {
+          setActiveMenu(primeiroVisivel.dataset.targetButton);
+        }
+      }
+    };
+
+    menuItems.forEach((item) => {
+      item.addEventListener('click', () => {
+        const targetButtonId = item.dataset.targetButton;
+        const targetButton = document.getElementById(targetButtonId);
+
+        if (targetButton) {
+          targetButton.click();
+          setActiveMenu(targetButtonId);
+        }
+      });
+
+      const targetButton = document.getElementById(item.dataset.targetButton);
+      if (targetButton) {
+        targetButton.addEventListener('click', () => {
+          setActiveMenu(item.dataset.targetButton);
+        });
+
+        const observer = new MutationObserver(sincronizarVisibilidadeMenu);
+        observer.observe(targetButton, { attributes: true, attributeFilter: ['style'] });
+      }
+    });
+
+    const sidebarUserName = document.getElementById('sidebarUserName');
+    const avatar = document.querySelector('.gestor-avatar');
+
+    const atualizarNomeUtilizador = () => {
+      const email = (window.userEmail || '').trim();
+      if (!email || !sidebarUserName) return false;
+
+      const nome = email.split('@')[0].replace(/[._-]+/g, ' ').trim();
+      const nomeFormatado = nome
+        .split(' ')
+        .filter(Boolean)
+        .map((parte) => parte.charAt(0).toUpperCase() + parte.slice(1))
+        .join(' ');
+
+      sidebarUserName.textContent = nomeFormatado || 'Gestor';
+
+      if (avatar) {
+        const iniciais = nomeFormatado
+          .split(' ')
+          .filter(Boolean)
+          .slice(0, 2)
+          .map((parte) => parte.charAt(0).toUpperCase())
+          .join('') || 'G';
+        avatar.textContent = iniciais;
+      }
+
+      return true;
+    };
+
+    sincronizarVisibilidadeMenu();
+    if (!atualizarNomeUtilizador()) {
+      const timer = setInterval(() => {
+        if (atualizarNomeUtilizador()) {
+          clearInterval(timer);
+        }
+      }, 400);
+
+      setTimeout(() => clearInterval(timer), 6000);
+    }
   </script>
 
 </body>
