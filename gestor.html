@@ -10,7 +10,7 @@
   <link rel="apple-touch-icon" href="./favicon.png">
 </head>
 
-<body>
+<body class="gestor-page">
   <div class="page">
     <header id="site-header"></header>
 
@@ -18,7 +18,11 @@
       <div class="gestor-layout">
         <aside class="gestor-sidebar" aria-label="Menu principal do gestor">
           <div class="gestor-sidebar-topo">
-            <p class="gestor-sidebar-label">Portal do Gestor</p>
+            <div class="gestor-sidebar-brand-icon" aria-hidden="true">UR</div>
+            <div class="gestor-sidebar-brand-texto">
+              <p class="gestor-sidebar-label">ADMIN</p>
+              <p class="gestor-sidebar-subtitle">JORNADAS 2026</p>
+            </div>
           </div>
 
           <nav class="gestor-sidebar-nav" aria-label="Navegação do gestor">
@@ -55,20 +59,34 @@
           </nav>
 
           <div class="gestor-sidebar-rodape">
-            <div class="gestor-avatar" aria-hidden="true">G</div>
-            <p id="sidebarUserName">Gestor</p>
+            <div class="gestor-sidebar-user">
+              <div class="gestor-avatar" aria-hidden="true">G</div>
+              <p id="sidebarUserName">Gestor</p>
+            </div>
+            <div class="gestor-sidebar-footer-actions">
+              <button class="gestor-footer-link" type="button">Alterar Senha</button>
+              <button class="gestor-footer-link" id="btnLogout" type="button">Sair do Sistema</button>
+            </div>
           </div>
         </aside>
 
         <section class="page-section gestor-content">
-
-        <!-- TÍTULO DO PORTAL DO GESTOR -->
-        <div class="section-header topo-gestor">
-          <span class="badge">Portal do Gestor</span>
-          <button class="button secondary btn-navegacao btn-padrao-portal" id="btnLogout">Sair</button>
+        <div class="gestor-topbar">
+          <h1 class="gestor-topbar-title" id="gestorSectionTitleTop">Gestão Geral</h1>
+          <div class="gestor-topbar-user">
+            <span>Logado como: <strong id="gestorTopbarUserName">Gestor</strong></span>
+            <div class="gestor-topbar-avatar" id="gestorTopbarAvatar" aria-hidden="true">G</div>
+          </div>
         </div>
 
-        <h2 id="gestorSectionTitle" class="gestor-section-title">Gestão Geral</h2>
+        <!-- TÍTULO DO PORTAL DO GESTOR -->
+        <div class="gestor-conteudo-header">
+          <div>
+            <h2 id="gestorSectionTitle" class="gestor-section-title">Gestão Geral</h2>
+            <p class="gestor-section-subtitle">VI Jornadas Científicas - Controlo de Resumos</p>
+          </div>
+          <button class="button gestor-btn-exportar" type="button">Exportar para Excel</button>
+        </div>
 
         <!-- BOTÕES -->
         <div class="actions-gestor navegacao-antiga-oculta" aria-hidden="true">
@@ -86,7 +104,7 @@
           </div>
         </div>
 
-        <div id="secaoDefesas" style="display:none;">
+        <div id="secaoDefesas" class="gestor-card" style="display:none;">
           <div class="tabela-scroll">
             <table class="tabela-gestao">
               <thead>
@@ -176,7 +194,7 @@
 
 
         <!-- CONTAINER PARA LISTAS E ESTATÍSTICAS (APARECE APENAS QUANDO CLICAR) -->
-        <div id="estatisticasContainer" class="estatisticas-container" style="display:none;">
+        <div id="estatisticasContainer" class="estatisticas-container gestor-card" style="display:none;">
 
           <div class="form-card">
             <div class="form-header">
@@ -220,7 +238,7 @@
         </div>
 
         <!-- TABELA GERAL DAS GESTÕES (NÃO ALTERAR) -->
-        <div id="tabelaGestaoGeral">
+        <div id="tabelaGestaoGeral" class="gestor-card">
           <div id="loadingAtribuirSupervisor" class="loading-local" hidden>
             A carregar…
           </div>
@@ -272,6 +290,7 @@
   <script type="module">
     const menuItems = Array.from(document.querySelectorAll('.gestor-menu-item'));
     const sectionTitle = document.getElementById('gestorSectionTitle');
+    const sectionTitleTop = document.getElementById('gestorSectionTitleTop');
 
     const setActiveMenu = (targetButtonId) => {
       menuItems.forEach((item) => {
@@ -279,6 +298,9 @@
         item.classList.toggle('active', active);
         if (active && sectionTitle) {
           sectionTitle.textContent = item.textContent.trim();
+        }
+        if (active && sectionTitleTop) {
+          sectionTitleTop.textContent = item.textContent.trim();
         }
       });
     };
@@ -324,6 +346,8 @@
 
     const sidebarUserName = document.getElementById('sidebarUserName');
     const avatar = document.querySelector('.gestor-avatar');
+    const topbarUserName = document.getElementById('gestorTopbarUserName');
+    const topbarAvatar = document.getElementById('gestorTopbarAvatar');
 
     const atualizarNomeUtilizador = () => {
       const email = (window.userEmail || '').trim();
@@ -337,6 +361,9 @@
         .join(' ');
 
       sidebarUserName.textContent = nomeFormatado || 'Gestor';
+      if (topbarUserName) {
+        topbarUserName.textContent = nomeFormatado || 'Gestor';
+      }
 
       if (avatar) {
         const iniciais = nomeFormatado
@@ -346,6 +373,9 @@
           .map((parte) => parte.charAt(0).toUpperCase())
           .join('') || 'G';
         avatar.textContent = iniciais;
+        if (topbarAvatar) {
+          topbarAvatar.textContent = iniciais;
+        }
       }
 
       return true;

@@ -2347,44 +2347,76 @@ input[type='file'] {
 
 /* ===== Layout lateral do gestor ===== */
 .gestor-main {
-  max-width: 1280px;
+  max-width: 100%;
+  padding: 0;
 }
 
 .gestor-layout {
   display: flex;
   align-items: stretch;
-  gap: 18px;
-  min-height: calc(100vh - var(--header-height) - 56px);
+  gap: 0;
+  min-height: 100vh;
 }
 
 .gestor-sidebar {
-  width: 270px;
-  flex: 0 0 270px;
-  background: linear-gradient(180deg, #0a2f63 0%, #0c3d7a 100%);
-  border-radius: 16px;
-  box-shadow: 0 16px 34px rgba(0, 27, 61, 0.28);
-  padding: 18px 14px;
+  width: 252px;
+  flex: 0 0 252px;
+  background: #06264d;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 18px 12px;
   display: flex;
   flex-direction: column;
-  color: #e8f0fd;
+  color: #dbe7fa;
 }
 
 .gestor-sidebar-topo {
-  padding: 4px 6px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 6px 8px 16px;
+  border-bottom: 1px solid rgba(205, 220, 243, 0.14);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gestor-sidebar-brand-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f4f7fc;
+  color: #06264d;
+  font-size: 0.78rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gestor-sidebar-brand-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .gestor-sidebar-label {
   margin: 0;
+  font-weight: 700;
+  font-size: 1.04rem;
+  line-height: 1;
+}
+
+.gestor-sidebar-subtitle {
+  margin: 0;
+  font-size: 0.72rem;
   font-weight: 600;
-  font-size: 0.92rem;
+  color: #f2c94c;
+  letter-spacing: 0.05em;
 }
 
 .gestor-sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 14px 0;
+  gap: 5px;
+  padding: 16px 0;
 }
 
 .gestor-menu-item {
@@ -2395,44 +2427,51 @@ input[type='file'] {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
-  border-radius: 10px;
+  padding: 11px 12px;
+  border-radius: 8px;
   cursor: pointer;
   text-align: left;
-  font-size: 0.92rem;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  font-size: 0.94rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
 }
 
 .gestor-menu-item:hover {
-  background: rgba(255, 255, 255, 0.14);
-  transform: translateX(2px);
+  background: rgba(172, 197, 233, 0.14);
 }
 
 .gestor-menu-item.active {
-  background: rgba(125, 186, 255, 0.28);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+  background: #0d3a74;
+  color: #f4f8ff;
+  box-shadow: inset 0 0 0 1px rgba(208, 224, 248, 0.12);
 }
 
 .menu-icon {
   width: 20px;
+  opacity: 0.85;
   display: inline-flex;
   justify-content: center;
 }
 
 .gestor-sidebar-rodape {
   margin-top: auto;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 12px 6px 4px;
+  border-top: 1px solid rgba(205, 220, 243, 0.14);
+  padding: 14px 8px 4px;
+}
+
+.gestor-sidebar-user {
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-bottom: 12px;
 }
 
 .gestor-avatar {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.24);
+  background: rgba(236, 194, 83, 0.24);
+  color: #ffe8aa;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2444,14 +2483,147 @@ input[type='file'] {
   font-size: 0.88rem;
 }
 
+.gestor-sidebar-footer-actions {
+  display: grid;
+  gap: 4px;
+}
+
+.gestor-footer-link {
+  border: 0;
+  background: transparent;
+  color: #dbe7fa;
+  font-size: 0.88rem;
+  text-align: left;
+  padding: 6px 0;
+  cursor: pointer;
+  opacity: 0.88;
+}
+
+.gestor-footer-link:hover {
+  opacity: 1;
+}
+
 .gestor-content {
   flex: 1;
+  padding: 0;
+  background: #f2f4f8;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.gestor-topbar {
+  height: 68px;
+  background: #fff;
+  border-bottom: 1px solid #e4e9f0;
+  padding: 0 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gestor-topbar-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1e2c3f;
+}
+
+.gestor-topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.93rem;
+  color: #5b6778;
+}
+
+.gestor-topbar-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f0c64f;
+  color: #1e2c3f;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.gestor-conteudo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 30px 30px 12px;
 }
 
 .gestor-section-title {
-  margin: 0 0 16px;
-  color: var(--primary);
-  font-size: 1.28rem;
+  margin: 0 0 4px;
+  color: #0f2d51;
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.gestor-section-subtitle {
+  margin: 0;
+  color: #6f7a89;
+  font-size: 1.02rem;
+}
+
+.gestor-btn-exportar {
+  background: #0d3a74;
+  color: #fff;
+  border: 1px solid #0d3a74;
+  border-radius: 10px;
+  box-shadow: none;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+}
+
+.gestor-btn-exportar:hover {
+  background: #0b3365;
+}
+
+.gestor-card {
+  background: #fff;
+  border: 1px solid #e4e9f0;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(15, 32, 62, 0.06);
+  margin: 14px 30px;
+  overflow: hidden;
+}
+
+#tabelaGestaoGeral {
+  margin-top: 0;
+  padding: 14px 14px 10px;
+}
+
+#secaoDefesas {
+  padding: 12px;
+}
+
+.tabela-gestao th {
+  background: #f7f9fc;
+  color: #5a6679;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tabela-gestao td {
+  background: #fff;
+  color: #2e3b4f;
+}
+
+.paginacao-defesas {
+  padding: 8px 14px 14px;
+}
+
+.gestor-page #site-header {
+  display: none;
 }
 
 .navegacao-antiga-oculta {
@@ -2468,6 +2640,15 @@ input[type='file'] {
     flex: 1 1 auto;
   }
 
+  .gestor-content {
+    min-width: 0;
+  }
+
+  .gestor-conteudo-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .gestor-sidebar-nav {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
@@ -2477,5 +2658,25 @@ input[type='file'] {
 @media (max-width: 600px) {
   .gestor-sidebar-nav {
     grid-template-columns: 1fr;
+  }
+
+  .gestor-topbar {
+    height: auto;
+    gap: 10px;
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 14px;
+  }
+
+  .gestor-conteudo-header,
+  .gestor-card {
+    margin-left: 14px;
+    margin-right: 14px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .gestor-section-title {
+    font-size: 1.5rem;
   }
 }
