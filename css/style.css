@@ -2806,6 +2806,8 @@ input[type='file'] {
 .aluno-content {
   font-family: 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
   color: #1f2937;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .aluno-content .gestor-card {
@@ -2817,6 +2819,8 @@ input[type='file'] {
 .aluno-form-shell {
   padding: 20px;
   min-height: 90px;
+  max-height: calc(100vh - 96px);
+  overflow-y: auto;
 }
 
 .aluno-page #form-container h2,
@@ -2871,6 +2875,16 @@ input[type='file'] {
 }
 
 @media (max-width: 600px) {
+  .aluno-content {
+    height: auto;
+    overflow: visible;
+  }
+
+  .aluno-form-shell {
+    max-height: none;
+    overflow: visible;
+  }
+
   .aluno-content .gestor-card {
     margin-left: 14px;
     margin-right: 14px;
