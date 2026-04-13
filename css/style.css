@@ -962,45 +962,98 @@ footer {
 }
 
 .btn-editar-defesa {
-  min-height: 36px;
-  padding: 0 14px;
-  font-size: 13px;
-  border: 1px solid #1f5fa7;
-  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0;
+  font-size: 0;
+  border: 1px solid #d6deea;
+  border-radius: 10px;
   background: #fff;
-  color: #1f5fa7;
-  font-weight: 600;
+  color: #245ea8;
+  font-weight: 500;
   box-shadow: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.btn-editar-defesa::before {
+  content: "👁";
+  font-size: 14px;
+  line-height: 1;
+}
+
+.btn-editar-defesa:hover {
+  background: #f6f9ff;
+}
+
+.tabela-defesas-resumo {
+  border-spacing: 0;
+  font-size: 14px;
 }
 
 .tabela-defesas-resumo thead th {
-  font-size: 13px;
-  letter-spacing: 0.01em;
+  font-size: 11px;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+  color: #6b7280;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background: #fff;
+  border-bottom: 1px solid #edf1f6;
 }
 
 .tabela-defesas-resumo tbody td {
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #edf1f6;
   vertical-align: middle;
+  color: #1f2937;
+}
+
+.tabela-defesas-resumo tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .tabela-defesas-resumo tbody tr:nth-child(even) {
-  background: #fbfdff;
+  background: #fff;
 }
 
 .tabela-defesas-resumo tbody tr:hover {
-  background: #f3f8ff;
+  background: #f8fbff;
 }
 
 .defesa-situacao-badge {
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .2px;
+}
+
+.defesa-pdf-link {
   display: inline-flex;
   align-items: center;
-  padding: 3px 10px;
-  border-radius: 999px;
-  border: 1px solid #d4e3f8;
-  background: #f4f8fe;
-  color: #234f88;
-  font-size: 12px;
+  gap: 6px;
+  font-size: 13px;
+  color: #245ea8;
+  text-decoration: none;
+}
+
+.defesa-pdf-link:hover {
+  text-decoration: underline;
+}
+
+.tabela-defesas-resumo .col-acao {
+  width: 72px;
+}
+
+.tabela-defesas-resumo .col-pdf {
+  width: 80px;
+}
+
+.tabela-defesas-resumo .col-nome {
   font-weight: 600;
 }
 

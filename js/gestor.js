@@ -485,9 +485,18 @@ function renderTabelaDefesa(lista = []) {
         const situacaoTexto = dataAgendadaFinal
             ? `Agendado: ${formatarDataDiaMesAno(dataAgendadaFinal)}`
             : situacaoTabela;
-        const situacaoHtml = `<span class="defesa-situacao-badge">${escaparHTML(situacaoTexto)}</span>`;
+        const situacaoNormalizada = situacaoTexto.toLowerCase();
+        let situacaoClasse = "status-pendente";
+
+        if (situacaoNormalizada.includes("agendado") || situacaoNormalizada.includes("aprov")) {
+            situacaoClasse = "status-aprovado";
+        } else if (situacaoNormalizada.includes("recus") || situacaoNormalizada.includes("reprov")) {
+            situacaoClasse = "status-recusado";
+        }
+
+        const situacaoHtml = `<span class="status ${situacaoClasse} defesa-situacao-badge">${escaparHTML(situacaoTexto)}</span>`;
         const linkPdfHtml = linkPdfFinal
-            ? `<a class="pdf-icon" href="${escaparHTML(linkPdfFinal)}" target="_blank" rel="noopener noreferrer" aria-label="Ver PDF">📄</a>`
+            ? `<a class="pdf-icon defesa-pdf-link" href="${escaparHTML(linkPdfFinal)}" target="_blank" rel="noopener noreferrer" aria-label="Ver PDF"><span aria-hidden="true">📄</span><span>PDF</span></a>`
             : "—";
 
         return `
@@ -501,6 +510,8 @@ function renderTabelaDefesa(lista = []) {
                         type="button"
                         class="btn-editar-defesa"
                         data-index="${inicio + index}"
+                        aria-label="Ver e actualizar registo de defesa"
+                        title="Ver e actualizar"
                     >Actualizar</button>
                 </td>
             </tr>
