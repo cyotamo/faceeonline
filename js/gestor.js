@@ -251,13 +251,15 @@ let registoDefesaEmEdicao = null;
 let indiceDefesaEmEdicao = null;
 let defesasCache = [];
 let paginaAtualDefesas = 1;
-const REGISTOS_POR_PAGINA_DEFESAS = 12;
+const REGISTOS_POR_PAGINA_DEFESAS = 10;
 
 function actualizarPaginacaoDefesas(totalRegistos = 0) {
     const infoPaginacao = document.getElementById("infoPaginacaoDefesas");
     const btnAnterior = document.getElementById("btnDefesasPaginaAnterior");
     const btnSeguinte = document.getElementById("btnDefesasPaginaSeguinte");
+    const paginacaoContainer = document.querySelector(".paginacao-defesas");
     const totalPaginasDefesas = Math.max(1, Math.ceil(totalRegistos / REGISTOS_POR_PAGINA_DEFESAS));
+    const deveMostrarPaginacao = totalRegistos > 10 && totalPaginasDefesas > 1;
 
     if (paginaAtualDefesas > totalPaginasDefesas) {
         paginaAtualDefesas = totalPaginasDefesas;
@@ -269,6 +271,10 @@ function actualizarPaginacaoDefesas(totalRegistos = 0) {
 
     if (infoPaginacao) {
         infoPaginacao.textContent = `${paginaAtualDefesas} de ${totalPaginasDefesas}`;
+    }
+
+    if (paginacaoContainer) {
+        paginacaoContainer.style.display = deveMostrarPaginacao ? "flex" : "none";
     }
 
     if (btnAnterior) {
@@ -1382,34 +1388,36 @@ function renderizarControlesGestaoGeral() {
         container.appendChild(btnGuardar);
     }
 
-    const barraPaginacao = document.createElement("div");
-    barraPaginacao.style.display = "flex";
-    barraPaginacao.style.alignItems = "center";
-    barraPaginacao.style.gap = "10px";
-    barraPaginacao.style.flexGrow = "1";
-    barraPaginacao.style.justifyContent = "center";
+    const deveMostrarPaginacao = dadosGestaoGeral.length > 10 && totalPaginas > 1;
+    if (deveMostrarPaginacao) {
+        const barraPaginacao = document.createElement("div");
+        barraPaginacao.style.display = "flex";
+        barraPaginacao.style.alignItems = "center";
+        barraPaginacao.style.gap = "10px";
+        barraPaginacao.style.flexGrow = "1";
+        barraPaginacao.style.justifyContent = "center";
 
-    const btnAnterior = document.createElement("button");
-    btnAnterior.className = "btn-guardar";
-    btnAnterior.textContent = "<";
-    btnAnterior.onclick = () => mudarPagina(-1);
-    btnAnterior.disabled = paginaAtual === 1;
+        const btnAnterior = document.createElement("button");
+        btnAnterior.className = "btn-guardar";
+        btnAnterior.textContent = "<";
+        btnAnterior.onclick = () => mudarPagina(-1);
+        btnAnterior.disabled = paginaAtual === 1;
 
-    const infoPagina = document.createElement("span");
-    infoPagina.textContent = `Página ${paginaAtual} de ${totalPaginas}`;
-    infoPagina.style.textAlign = "center";
+        const infoPagina = document.createElement("span");
+        infoPagina.textContent = `Página ${paginaAtual} de ${totalPaginas}`;
+        infoPagina.style.textAlign = "center";
 
-    const btnSeguinte = document.createElement("button");
-    btnSeguinte.className = "btn-guardar";
-    btnSeguinte.textContent = ">";
-    btnSeguinte.onclick = () => mudarPagina(1);
-    btnSeguinte.disabled = paginaAtual === totalPaginas;
+        const btnSeguinte = document.createElement("button");
+        btnSeguinte.className = "btn-guardar";
+        btnSeguinte.textContent = ">";
+        btnSeguinte.onclick = () => mudarPagina(1);
+        btnSeguinte.disabled = paginaAtual === totalPaginas;
 
-    barraPaginacao.appendChild(btnAnterior);
-    barraPaginacao.appendChild(infoPagina);
-    barraPaginacao.appendChild(btnSeguinte);
-
-    container.appendChild(barraPaginacao);
+        barraPaginacao.appendChild(btnAnterior);
+        barraPaginacao.appendChild(infoPagina);
+        barraPaginacao.appendChild(btnSeguinte);
+        container.appendChild(barraPaginacao);
+    }
 
     area.appendChild(container);
 }
@@ -1809,6 +1817,7 @@ function renderTabelaPlanosAnaliticos(dados = [], pagina = 1) {
     if (!container) return;
     const totalPaginas = Math.max(1, Math.ceil(dados.length / PLANOS_ANALITICOS_POR_PAGINA));
     const paginaAtual = Math.min(Math.max(pagina, 1), totalPaginas);
+    const deveMostrarPaginacao = dados.length > 10 && totalPaginas > 1;
     const inicio = (paginaAtual - 1) * PLANOS_ANALITICOS_POR_PAGINA;
     const fim = inicio + PLANOS_ANALITICOS_POR_PAGINA;
     const dadosPagina = dados.slice(inicio, fim);
@@ -1870,11 +1879,12 @@ function renderTabelaPlanosAnaliticos(dados = [], pagina = 1) {
                 </tbody>
             </table>
         </div>
+        ${deveMostrarPaginacao ? `
         <div class="paginacao-analiticos" role="navigation" aria-label="Paginação Planos Analíticos">
             <button class="button btn-paginacao" type="button" data-pagina="anterior" ${paginaAtual === 1 ? "disabled" : ""} aria-label="Página anterior">&lt;</button>
             <span class="paginacao-info">${paginaAtual} de ${totalPaginas}</span>
             <button class="button btn-paginacao" type="button" data-pagina="seguinte" ${paginaAtual === totalPaginas ? "disabled" : ""} aria-label="Página seguinte">&gt;</button>
-        </div>
+        </div>` : ""}
         <div class="relatorio-analiticos">
             <h3>Gerar relatório de planos analíticos:</h3>
             <div class="relatorio-analiticos__acoes">
@@ -2762,6 +2772,13 @@ function renderTabelaParecer() {
 function renderizarControlesParecer() {
     const controles = document.getElementById("controlesPaginacao");
     if (!controles) return;
+    const deveMostrarPaginacao = dadosGestaoGeral.length > 10 && totalPaginas > 1;
+
+    if (!deveMostrarPaginacao) {
+        controles.innerHTML = "";
+        reaplicarRestricoesUI();
+        return;
+    }
 
     controles.innerHTML = `
         <button onclick="mudarPaginaParecer(-1)">&lt;</button>
