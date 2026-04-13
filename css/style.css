@@ -2639,6 +2639,159 @@ input[type='file'] {
   padding: 14px 14px 10px;
 }
 
+.credencial-lista-head {
+  display: grid;
+  grid-template-columns: 100px 1.4fr 1.1fr 0.8fr 0.7fr 72px;
+  gap: 10px;
+  padding: 8px 14px 10px;
+  color: #6b7280;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  border-bottom: 1px solid #edf1f6;
+}
+
+.credencial-lista {
+  display: flex;
+  flex-direction: column;
+}
+
+.credencial-linha {
+  display: grid;
+  grid-template-columns: 100px 1.4fr 1.1fr 0.8fr 0.7fr 72px;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border-bottom: 1px solid #edf1f6;
+}
+
+.credencial-linha:last-child {
+  border-bottom: none;
+}
+
+.credencial-data,
+.credencial-curso {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.credencial-nome {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.credencial-pdf-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.credencial-btn-acao {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #d6deea;
+  border-radius: 10px;
+  background: #fff;
+  color: #245ea8;
+  cursor: pointer;
+}
+
+.credencial-btn-acao:hover {
+  background: #f6f9ff;
+}
+
+.credencial-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(18, 28, 45, 0.42);
+  padding: 20px;
+}
+
+.credencial-modal-box {
+  width: min(560px, 96vw);
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.2);
+  border: 1px solid #e5e9f2;
+  overflow: hidden;
+}
+
+.credencial-modal-header,
+.credencial-modal-actions {
+  padding: 16px 20px;
+  border-bottom: 1px solid #edf1f6;
+}
+
+.credencial-modal-actions {
+  border-bottom: none;
+  border-top: 1px solid #edf1f6;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.credencial-modal-title {
+  margin: 0;
+  font-size: 17px;
+  color: #111827;
+}
+
+.credencial-modal-close {
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  line-height: 1;
+  color: #6b7280;
+  cursor: pointer;
+}
+
+.credencial-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.credencial-modal-content {
+  padding: 18px 20px;
+  display: grid;
+  gap: 12px;
+}
+
+.credencial-form-field {
+  display: grid;
+  gap: 6px;
+}
+
+.credencial-form-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4b5563;
+}
+
+.credencial-form-field input,
+.credencial-form-field select,
+.credencial-form-field textarea {
+  border: 1px solid #d8dfeb;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-family: inherit;
+}
+
+.credencial-form-field input[readonly] {
+  background: #f8fafc;
+}
+
+#btnGuardarParecerCredencial {
+  min-width: 110px;
+}
+
 #secaoDefesas {
   padding: 12px;
 }
@@ -2762,6 +2915,15 @@ input[type='file'] {
 }
 
 @media (max-width: 600px) {
+  .credencial-lista-head {
+    display: none;
+  }
+
+  .credencial-linha {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
   .gestor-sidebar-nav {
     grid-template-columns: 1fr;
   }
