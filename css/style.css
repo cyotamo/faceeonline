@@ -2409,10 +2409,10 @@ input[type='file'] {
 
 .gestor-sidebar-subtitle {
   margin: 0;
-  font-size: 12px;
-  font-weight: 500;
-  color: #9ca3af;
-  letter-spacing: 0.05em;
+  font-size: 14px;
+  font-weight: 600;
+  color: #c7d2e6;
+  letter-spacing: 0.02em;
 }
 
 .gestor-sidebar-nav {
