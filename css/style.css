@@ -1112,8 +1112,8 @@ footer {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin: 16px 0 8px;
+  gap: 8px;
+  margin: 12px 0 6px;
   font-family: "Segoe UI", Arial, sans-serif;
 }
 
@@ -1121,49 +1121,65 @@ footer {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin: 16px 0 8px;
+  gap: 8px;
+  margin: 12px 0 6px;
   font-family: "Segoe UI", Arial, sans-serif;
 }
 
 .paginacao-analiticos .paginacao-info {
-  font-weight: 600;
-  color: #003366;
+  font-weight: 500;
+  color: #4b5f7a;
+  font-size: 0.84rem;
 }
 
 .paginacao-defesas .paginacao-info {
-  font-weight: 600;
-  color: #003366;
+  font-weight: 500;
+  color: #4b5f7a;
+  font-size: 0.84rem;
 }
 
 .paginacao-analiticos .btn-paginacao {
-  min-width: 36px;
-  height: 36px;
+  min-width: 30px;
+  height: 30px;
   padding: 0;
-  border-radius: 50%;
+  border-radius: 8px;
+  border: 1px solid #c9d6e8;
+  background: #eef3fa;
+  color: #38506d;
+  box-shadow: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-size: 0.78rem;
 }
 
 .paginacao-defesas .btn-paginacao {
-  min-width: 36px;
-  height: 36px;
+  min-width: 30px;
+  height: 30px;
   padding: 0;
-  border-radius: 50%;
+  border-radius: 8px;
+  border: 1px solid #c9d6e8;
+  background: #eef3fa;
+  color: #38506d;
+  box-shadow: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font-size: 0.78rem;
 }
 
 .paginacao-analiticos .btn-paginacao:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
+  background: #f4f6f9;
+  color: #93a1b3;
 }
 
 .paginacao-defesas .btn-paginacao:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
+  background: #f4f6f9;
+  color: #93a1b3;
 }
 
 .relatorio-analiticos {
@@ -2356,11 +2372,9 @@ input[type='file'] {
 
 .gestor-layout {
   display: flex;
-  align-items: stretch;
+  align-items: flex-start;
   gap: 0;
   min-height: 100vh;
-  height: 100vh;
-  overflow: hidden;
 }
 
 .gestor-sidebar {
@@ -2380,22 +2394,9 @@ input[type='file'] {
 }
 
 .gestor-sidebar-topo {
-  padding: 6px 8px 16px;
+  padding: 10px 8px 14px;
   border-bottom: 1px solid rgba(205, 220, 243, 0.14);
   display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.gestor-sidebar-brand-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #f4f7fc;
-  color: #06264d;
-  font-size: 0.78rem;
-  font-weight: 800;
-  display: inline-flex;
   align-items: center;
   justify-content: center;
 }
@@ -2522,13 +2523,14 @@ input[type='file'] {
 }
 
 .gestor-content-scroll {
-  height: 100vh;
+  max-height: 100vh;
   overflow-y: auto;
-  overflow-x: auto;
+  overflow-x: hidden;
 }
 
 .gestor-content {
   flex: 1;
+  min-width: 0;
   padding: 0;
   background: #f2f4f8;
   border: 0;
@@ -2536,7 +2538,7 @@ input[type='file'] {
   box-shadow: none;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .gestor-topbar {
