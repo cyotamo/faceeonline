@@ -732,6 +732,12 @@ function renderTabelaDefesa(lista = []) {
     const inicio = (paginaAtualDefesas - 1) * REGISTOS_POR_PAGINA_DEFESAS;
     const fim = inicio + REGISTOS_POR_PAGINA_DEFESAS;
     const paginaDados = listaSegura.slice(inicio, fim);
+    console.log("[DefesaMonografia][Diagnostico] Paginação e renderização:", {
+        totalAposTratamento: listaSegura.length,
+        paginaAtual: paginaAtualDefesas,
+        itensPorPagina: REGISTOS_POR_PAGINA_DEFESAS,
+        totalRenderizado: paginaDados.length
+    });
 
     tbody.innerHTML = paginaDados.map((item, index) => {
         const itemSeguro = {
@@ -2150,9 +2156,17 @@ async function carregarDefesas() {
         }
 
         const lista = Array.isArray(res.dados) ? res.dados : [];
-        const defesasVisiveis = lista.filter((item) => !item.defendido || String(item.defendido).trim() === "");
+        console.log("[DefesaMonografia][Diagnostico] Total recebido:", lista.length);
 
-        if (!defesasVisiveis.length) {
+        // Mostra todos os registos recebidos no front e delega a distribuição para a paginação.
+        const defesasTratadas = lista.map((item) => ({
+            ...item,
+            dataAgendada: item.dataAgendada || item.data_agendada || ""
+        }));
+        console.log("[DefesaMonografia][Diagnostico] Total após filtros:", defesasTratadas.length);
+        console.log("[DefesaMonografia][Diagnostico] Total após tratamento:", defesasTratadas.length);
+
+        if (!defesasTratadas.length) {
             defesasCache = [];
             mostrarSecaoDefesas();
             esconderTabelaGestaoGeral();
@@ -2160,10 +2174,7 @@ async function carregarDefesas() {
             return;
         }
 
-        defesasCache = defesasVisiveis.map((item) => ({
-            ...item,
-            dataAgendada: item.dataAgendada || item.data_agendada || ""
-        }));
+        defesasCache = defesasTratadas;
 
         mostrarSecaoDefesas();
         esconderTabelaGestaoGeral();
