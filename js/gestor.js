@@ -2520,117 +2520,127 @@ async function carregarCredenciaisEstagioGestor() {
         }
 
         const lista = Array.isArray(resultado.dados) ? resultado.dados : [];
+        console.log(`[PedidoEstagio] Total bruto recebido: ${lista.length}`);
         const listaFiltrada = lista.filter((item) => {
             const parecerVazio = String(item?.parecer || "").trim() === "";
             const observacoesVazio = String(item?.observacoes || "").trim() === "";
             return parecerVazio && observacoesVazio;
         });
+        console.log(`[PedidoEstagio] Total após filtro: ${listaFiltrada.length}`);
+
         credencialEstagioRegistos = listaFiltrada.map((item) => ({
             ...item,
             id: String(item.id || "").trim(),
             parecer: String(item.parecer || "").trim(),
             observacoes: String(item.observacoes || "").trim()
         }));
-
-        if (listaFiltrada.length === 0) {
-            document.getElementById("tabelaGestaoGeral").innerHTML =
-                '<p class="sem-dados">Sem registos de estágio.</p>';
-            esconderCarregamento();
-            reaplicarRestricoesUI();
-            return;
-        }
-        const estadoPaginacao = calcularEstadoPaginacao(
-            credencialEstagioRegistos.length,
-            paginaAtualCredencialEstagio,
-            linhasPorPagina
-        );
-        paginaAtualCredencialEstagio = estadoPaginacao.paginaAtual;
-        const paginaDados = credencialEstagioRegistos.slice(estadoPaginacao.inicio, estadoPaginacao.fim);
-
-        let html = `
-            <div class="credencial-lista-head">
-                <div>Data</div>
-                <div>Nome</div>
-                <div>Curso</div>
-                <div>Ver</div>
-                <div>Status</div>
-                <div>Acções</div>
-            </div>
-            <div class="credencial-lista table-credencial table-credencial-estagio">
-        `;
-
-        paginaDados.forEach((item, index) => {
-            const idCredencial = String(item.id || "").trim();
-            const linkPDF = item.linkPDF ?? item.pdfURL ?? "";
-            const idEmFalta = !idCredencial;
-            if (idEmFalta) {
-                console.warn("Linha sem ID:", item);
-            }
-            const statusClasse = obterClasseStatusCredencial(item.parecer);
-            const statusLabel = obterLabelStatusCredencial(item.parecer);
-            const linkPDFHtml = linkPDF
-                ? `<a class="pdf-icon credencial-pdf-link" href="${linkPDF}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento PDF"><span aria-hidden="true">📄</span><span>PDF</span></a>`
-                : "—";
-
-            html += `
-                <article class="credencial-linha" data-id="${idCredencial}">
-                    <div class="credencial-data">${formatarDataCurta(item.data || item.timestamp)}</div>
-                    <div class="credencial-estudante">
-                        <p class="credencial-nome">${item.nome || "—"}</p>
-                    </div>
-                    <div class="credencial-curso">${item.curso || "—"}</div>
-                    <div class="credencial-arquivo">${linkPDFHtml}</div>
-                    <div class="credencial-status">
-                        <span class="status ${statusClasse}">${statusLabel}</span>
-                    </div>
-                    <div class="credencial-acao">
-                        <button class="credencial-btn-acao" type="button" data-credencial-acao="${idCredencial}" data-credencial-modulo="estagio" aria-label="Ver e emitir parecer"${idEmFalta ? " disabled" : ""}>
-                            <span aria-hidden="true">👁</span>
-                        </button>
-                    </div>
-                </article>
-            `;
-        });
-
-        html += `
-            </div>
-        `;
-
-        if (estadoPaginacao.deveMostrarPaginacao) {
-            html += markupPaginacaoPadrao({
-                paginaAtual: estadoPaginacao.paginaAtual,
-                totalPaginas: estadoPaginacao.totalPaginas,
-                ariaLabel: "Paginação Pedido de Estágios"
-            });
-        }
-
-        document.getElementById("tabelaGestaoGeral").innerHTML = html;
-        const container = document.getElementById("tabelaGestaoGeral");
-        const btnAnterior = container?.querySelector("[data-pagina='anterior']");
-        const btnSeguinte = container?.querySelector("[data-pagina='seguinte']");
-        if (btnAnterior) {
-            btnAnterior.addEventListener("click", () => {
-                paginaAtualCredencialEstagio = Math.max(1, paginaAtualCredencialEstagio - 1);
-                carregarCredenciaisEstagioGestor();
-            });
-        }
-        if (btnSeguinte) {
-            btnSeguinte.addEventListener("click", () => {
-                paginaAtualCredencialEstagio += 1;
-                carregarCredenciaisEstagioGestor();
-            });
-        }
+        paginaAtualCredencialEstagio = 1;
+        renderTabelaCredenciaisEstagio(credencialEstagioRegistos, paginaAtualCredencialEstagio);
         document.getElementById("btnGuardar")?.remove();
-        esconderCarregamento();
-        reaplicarRestricoesUI();
     } catch (err) {
         console.error("Erro ao carregar credenciais de estágio:", err);
-        esconderCarregamento();
+        credencialEstagioRegistos = [];
+        paginaAtualCredencialEstagio = 1;
+        renderTabelaCredenciaisEstagio([], paginaAtualCredencialEstagio);
         alert(err.message || "Erro ao carregar registos de estágio.");
-        document.getElementById("tabelaGestaoGeral").innerHTML =
-            "<p>Erro ao carregar os dados de estágio.</p>";
+    } finally {
+        esconderCarregamento();
         reaplicarRestricoesUI();
     }
+}
+
+function renderTabelaCredenciaisEstagio(dados = [], pagina = 1) {
+    const container = document.getElementById("tabelaGestaoGeral");
+    if (!container) return;
+
+    if (!dados.length) {
+        container.innerHTML = '<p class="sem-dados">Sem registos de estágio.</p>';
+        return;
+    }
+
+    const estadoPaginacao = calcularEstadoPaginacao(dados.length, pagina, linhasPorPagina);
+    const paginaAtual = estadoPaginacao.paginaAtual;
+    const inicio = estadoPaginacao.inicio;
+    const fim = estadoPaginacao.fim;
+    const paginaDados = dados.slice(inicio, fim);
+
+    console.log(
+        `[PedidoEstagio][Paginação] página=${paginaAtual} início=${inicio} fim=${fim} renderizados=${paginaDados.length}`
+    );
+
+    let html = `
+        <div class="credencial-lista-head">
+            <div>Data</div>
+            <div>Nome</div>
+            <div>Curso</div>
+            <div>Ver</div>
+            <div>Status</div>
+            <div>Acções</div>
+        </div>
+        <div class="credencial-lista table-credencial table-credencial-estagio">
+    `;
+
+    paginaDados.forEach((item) => {
+        const idCredencial = String(item.id || "").trim();
+        const linkPDF = item.linkPDF ?? item.pdfURL ?? "";
+        const idEmFalta = !idCredencial;
+        if (idEmFalta) {
+            console.warn("Linha sem ID:", item);
+        }
+        const statusClasse = obterClasseStatusCredencial(item.parecer);
+        const statusLabel = obterLabelStatusCredencial(item.parecer);
+        const linkPDFHtml = linkPDF
+            ? `<a class="pdf-icon credencial-pdf-link" href="${linkPDF}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento PDF"><span aria-hidden="true">📄</span><span>PDF</span></a>`
+            : "—";
+
+        html += `
+            <article class="credencial-linha" data-id="${idCredencial}">
+                <div class="credencial-data">${formatarDataCurta(item.data || item.timestamp)}</div>
+                <div class="credencial-estudante">
+                    <p class="credencial-nome">${item.nome || "—"}</p>
+                </div>
+                <div class="credencial-curso">${item.curso || "—"}</div>
+                <div class="credencial-arquivo">${linkPDFHtml}</div>
+                <div class="credencial-status">
+                    <span class="status ${statusClasse}">${statusLabel}</span>
+                </div>
+                <div class="credencial-acao">
+                    <button class="credencial-btn-acao" type="button" data-credencial-acao="${idCredencial}" data-credencial-modulo="estagio" aria-label="Ver e emitir parecer"${idEmFalta ? " disabled" : ""}>
+                        <span aria-hidden="true">👁</span>
+                    </button>
+                </div>
+            </article>
+        `;
+    });
+
+    html += "</div>";
+
+    if (estadoPaginacao.deveMostrarPaginacao) {
+        html += markupPaginacaoPadrao({
+            paginaAtual,
+            totalPaginas: estadoPaginacao.totalPaginas,
+            ariaLabel: "Paginação Pedido de Estágios"
+        });
+    }
+
+    container.innerHTML = html;
+    const btnAnterior = container.querySelector("[data-pagina='anterior']");
+    const btnSeguinte = container.querySelector("[data-pagina='seguinte']");
+    if (btnAnterior) {
+        btnAnterior.addEventListener("click", () => {
+            atualizarTabelaCredenciaisEstagio(paginaAtualCredencialEstagio - 1);
+        });
+    }
+    if (btnSeguinte) {
+        btnSeguinte.addEventListener("click", () => {
+            atualizarTabelaCredenciaisEstagio(paginaAtualCredencialEstagio + 1);
+        });
+    }
+}
+
+function atualizarTabelaCredenciaisEstagio(pagina) {
+    paginaAtualCredencialEstagio = pagina;
+    renderTabelaCredenciaisEstagio(credencialEstagioRegistos, paginaAtualCredencialEstagio);
 }
 
 document.addEventListener("click", async (e) => {
