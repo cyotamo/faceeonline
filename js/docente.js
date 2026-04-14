@@ -6,6 +6,9 @@
 const btnPlano = document.getElementById('btnPlano');
 const btnHorarios = document.getElementById('btnHorarios');
 const btnInicio = document.getElementById('btnInicio');
+const btnPedidoDispensa = document.getElementById('btnPedidoDispensa');
+const btnPedidoFerias = document.getElementById('btnPedidoFerias');
+const btnJustificacaoFaltas = document.getElementById('btnJustificacaoFaltas');
 const formPlanoContainer = document.getElementById('formPlanoContainer');
 const horariosContainer = document.getElementById('horariosContainer');
 const containerInicio = document.getElementById('containerInicio');
@@ -22,6 +25,10 @@ const limparSecoesDocente = () => {
 const mostrarInicioDocente = () => {
   limparSecoesDocente();
   if (containerInicio) containerInicio.style.display = 'block';
+};
+
+const mostrarMensagemFuncionalidadeIndisponivel = () => {
+  alert('A funcionalidade estará disponivel oportunamente');
 };
 
 // ===============================
@@ -573,6 +580,18 @@ if (btnHorarios) {
 
 if (btnInicio) {
   btnInicio.addEventListener('click', mostrarInicioDocente);
+}
+
+if (btnPedidoDispensa) {
+  btnPedidoDispensa.addEventListener('click', mostrarMensagemFuncionalidadeIndisponivel);
+}
+
+if (btnPedidoFerias) {
+  btnPedidoFerias.addEventListener('click', mostrarMensagemFuncionalidadeIndisponivel);
+}
+
+if (btnJustificacaoFaltas) {
+  btnJustificacaoFaltas.addEventListener('click', mostrarMensagemFuncionalidadeIndisponivel);
 }
 
 botoesNavegacao.forEach((botao) => {
