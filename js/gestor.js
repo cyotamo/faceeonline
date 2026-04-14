@@ -1876,19 +1876,24 @@ function renderTabelaGestaoGeral() {
         return;
     }
 
+    const classesTabela = ["tabela-gestao"];
+    if (isHomologar) {
+        classesTabela.push("tabela-defesas-resumo", "tabela-homologar-listas");
+    }
+
     let html = `
             <div class="tabela-scroll">
-            <table class="tabela-gestao">
+            <table class="${classesTabela.join(" ")}">
                 <thead>
                     <tr>
-                        <th class="col-ord">Ord</th>
+                        ${!isHomologar ? `<th class="col-ord">Ord</th>` : ""}
                         <th class="col-data">Data</th>
                         <th class="col-nome">Nome</th>
                         <th class="col-curso">Curso</th>
                         ${!isHomologar ? `<th class="col-linha">Linha de Pesquisa</th>` : ""}
                         ${!isHomologar ? `<th class="col-tema">Tema</th>` : ""}
                         ${!isHomologar ? `<th class="col-supervisor">Proposta de Supervisor</th>` : ""}
-                        ${isHomologar ? `<th class="col-supervisor">Supervisor Final</th>` : ""}
+                        ${isHomologar ? `<th class="col-supervisor">Supervisor</th>` : ""}
                         ${isGeral ? `<th class="col-parecer">Parecer</th>` : ""}
                         ${isGeral ? `<th class="col-observacoes">Observações</th>` : ""}
                         ${(isGeral || isHomologar) ? `<th class="col-homologacao">Homologação</th>` : ""}
@@ -1904,7 +1909,7 @@ function renderTabelaGestaoGeral() {
         const homologacaoAtual = String(item.homologado ?? item.homologacao ?? "").trim();
         const rowHtml = `
                 <tr data-id="${idTema}">
-                    <td class="col-ord">${indiceGlobal + 1}</td>
+                    ${!isHomologar ? `<td class="col-ord">${indiceGlobal + 1}</td>` : ""}
                     <td class="col-data">${formatarDataCurta(item.data)}</td>
                     <td class="col-nome">${item.nome}</td>
                     <td class="col-curso">${item.curso}</td>
@@ -1919,7 +1924,7 @@ function renderTabelaGestaoGeral() {
                     ${isHomologar ? `
                     <td class="col-supervisor">${item.supervisorFinal}</td>
                     <td class="col-homologacao">
-                        <select class="homologacao" data-row="${item.row}" data-id="${idTema}" data-original="${homologacaoAtual}">
+                        <select class="homologacao homologacao-homologar-listas" data-row="${item.row}" data-id="${idTema}" data-original="${homologacaoAtual}">
                             <option value=""${homologacaoAtual === "" ? " selected" : ""}>Seleccione…</option>
                             <option${homologacaoAtual === "Homologado" ? " selected" : ""}>Homologado</option>
                         </select>

@@ -1038,6 +1038,41 @@ footer {
   background: #f8fbff;
 }
 
+.tabela-homologar-listas {
+  width: 100%;
+}
+
+.tabela-homologar-listas thead th,
+.tabela-homologar-listas tbody td {
+  text-align: left;
+}
+
+.tabela-homologar-listas .col-data {
+  width: 120px;
+}
+
+.tabela-homologar-listas .col-nome {
+  width: 250px;
+}
+
+.tabela-homologar-listas .col-curso {
+  width: 250px;
+}
+
+.tabela-homologar-listas .col-supervisor {
+  width: 260px;
+}
+
+.tabela-homologar-listas .col-homologacao {
+  width: 150px;
+}
+
+.tabela-homologar-listas .col-homologacao .homologacao-homologar-listas {
+  width: 140px;
+  min-width: 120px;
+  max-width: 100%;
+}
+
 .defesa-situacao-badge {
   padding: 4px 12px;
   font-size: 11px;
