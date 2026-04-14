@@ -432,15 +432,21 @@ function fecharModalParecerTema() {
 }
 
 function obterRegistoAtribuirSupervisorPorId(idTema = "") {
-    const idNormalizado = String(idTema || "").trim();
-    if (!idNormalizado) return null;
-    return dadosGestaoGeral.find((item) => String(item.idTema || "").trim() === idNormalizado) || null;
+    const id = String(idTema).trim();
+    if (!id) return null;
+    return dadosGestaoGeral.find((item) => String(item.idTema).trim() === id) || null;
 }
 
 function abrirModalAtribuirSupervisor(idTema = "") {
     if (!modalAtribuirSupervisor) return;
+    console.log("[MODAL] Abrir modal com idTema:", idTema);
+    console.log("[MODAL] Registos disponíveis:", dadosGestaoGeral);
     const registo = obterRegistoAtribuirSupervisorPorId(idTema);
-    if (!registo) return;
+    if (!registo) {
+        console.error("[ATRIBUIR] Registo não encontrado para idTema:", idTema);
+        alert("Erro: não foi possível localizar os dados deste registo.");
+        return;
+    }
 
     idTemaAtribuirSupervisorAtual = String(registo.idTema || "").trim();
     if (atribuirSupervisorModalNome) atribuirSupervisorModalNome.value = registo.nome || "";
@@ -1330,7 +1336,9 @@ if (tabelaGestaoGeral) {
     tabelaGestaoGeral.addEventListener("click", (e) => {
         const btnAtribuir = e.target.closest("[data-atribuir-acao]");
         if (btnAtribuir && modoTabelaGestao === "atribuirSupervisor") {
-            abrirModalAtribuirSupervisor(btnAtribuir.dataset.atribuirAcao);
+            const idTema = String(btnAtribuir.dataset.atribuirAcao || "").trim();
+            console.log("[CLICK] Botão atribuir clicado:", idTema);
+            abrirModalAtribuirSupervisor(idTema);
             return;
         }
     });
@@ -1718,9 +1726,11 @@ function carregarGestaoGeral() {
             const opcoes = obterOpcoesSupervisores(item);
             const supervisorAtual = item.supervisor ? item.supervisor.toString().trim() : "";
             const supervisorAtualOuVazio = supervisorAtual || "";
+            const idTema = String(item.idTema || item.id || item.linha || index + 1).trim();
 
             return {
                 ...item,
+                idTema,
                 row: linhaPlanilha,
                 opcoesSupervisores: opcoes,
                 supervisorAtualOuVazio
@@ -1826,23 +1836,23 @@ function renderTabelaGestaoGeral() {
             <div class="credencial-lista table-credencial table-tema-parecer">
         `;
 
-        paginaDados.forEach((item) => {
-            const idTema = String(item.idTema || "").trim();
-            const statusClasse = obterClasseStatusAtribuicaoSupervisor(item);
-            const statusLabel = obterLabelStatusAtribuicaoSupervisor(item);
+        paginaDados.forEach((registo) => {
+            const idTema = String(registo.idTema || "").trim();
+            const statusClasse = obterClasseStatusAtribuicaoSupervisor(registo);
+            const statusLabel = obterLabelStatusAtribuicaoSupervisor(registo);
 
             htmlAtribuir += `
                 <article class="credencial-linha tema-parecer-linha" data-id="${escaparHTML(idTema)}">
-                    <div class="credencial-data">${escaparHTML(formatarDataCurta(item.data || item.timestamp))}</div>
+                    <div class="credencial-data">${escaparHTML(formatarDataCurta(registo.data || registo.timestamp))}</div>
                     <div class="credencial-estudante">
-                        <p class="credencial-nome">${escaparHTML(item.nome || "—")}</p>
+                        <p class="credencial-nome">${escaparHTML(registo.nome || "—")}</p>
                     </div>
-                    <div class="credencial-curso">${escaparHTML(item.curso || "—")}</div>
+                    <div class="credencial-curso">${escaparHTML(registo.curso || "—")}</div>
                     <div class="credencial-status">
                         <span class="status ${statusClasse}">${statusLabel}</span>
                     </div>
                     <div class="credencial-acao">
-                        <button class="credencial-btn-acao" type="button" data-atribuir-acao="${escaparHTML(idTema)}" aria-label="Ver detalhes e atribuir supervisor"${idTema ? "" : " disabled"}>
+                        <button class="credencial-btn-acao" type="button" data-atribuir-acao="${escaparHTML(registo.idTema)}" aria-label="Ver detalhes e atribuir supervisor">
                             <span aria-hidden="true">👁</span>
                         </button>
                     </div>
