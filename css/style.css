@@ -1173,25 +1173,28 @@ footer {
 /* Estilo da tabela Planos Analíticos */
 .tabela-analiticos {
   width: 100%;
-  min-width: 1200px;
+  min-width: 980px;
   table-layout: fixed;
-  border-collapse: collapse;
-  font-size: 14px;
-  margin-top: 25px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 13px;
+  margin-top: 18px;
   background: #ffffff;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
+  border: 1px solid #e8edf5;
   font-family: "Segoe UI", Arial, sans-serif;
 }
 
 .tabela-analiticos th,
 .tabela-analiticos td {
-  padding: 6px 10px;
-  vertical-align: top;
+  padding: 10px 8px;
+  vertical-align: middle;
   text-align: left;
   overflow: hidden;
-  border-right: 1px solid rgba(0, 85, 165, 0.15);
-  line-height: 1.2;
+  border-right: none;
+  line-height: 1.35;
+  text-overflow: ellipsis;
 }
 
 .tabela-analiticos th:last-child,
@@ -1200,60 +1203,75 @@ footer {
 }
 
 .tabela-analiticos th {
-  background: #dbe9ff;
+  background: #fff;
   font-weight: 600;
-  color: #003366;
-  border-bottom: 2px solid #b8cfff;
-  letter-spacing: 0.3px;
+  color: #6b7280;
+  border-bottom: 1px solid #edf1f6;
+  letter-spacing: 0.35px;
+  text-transform: uppercase;
+  font-size: 11px;
 }
 
 .tabela-analiticos td {
-  border-bottom: 1px solid #ececec;
-  color: #333;
+  border-bottom: 1px solid #edf1f6;
+  color: #1f2937;
 }
 
 .tabela-analiticos .col-ord {
-  width: 50px;
+  width: 48px;
   text-align: center;
 }
 
 .tabela-analiticos .col-nome {
-  width: 240px;
+  width: 17%;
 }
 
 .tabela-analiticos .col-disciplina {
-  width: 260px;
+  width: 18%;
 }
 
 .tabela-analiticos .col-curso {
-  width: 220px;
+  width: 17%;
 }
 
 .tabela-analiticos .col-regime {
-  width: 140px;
+  width: 8%;
+  white-space: nowrap;
 }
 
 .tabela-analiticos .col-situacao {
-  width: 160px;
+  width: 12%;
+  white-space: nowrap;
 }
 
 .tabela-analiticos .col-plano {
-  width: 120px;
+  width: 7%;
   text-align: center;
 }
 
 .tabela-analiticos .col-data {
-  width: 180px;
+  width: 14%;
   white-space: nowrap;
 }
 
+.tabela-analiticos th.col-ord,
+.tabela-analiticos th.col-plano,
+.tabela-analiticos td.col-ord,
+.tabela-analiticos td.col-plano {
+  text-align: center;
+}
+
 .tabela-analiticos tbody tr:nth-child(even) {
-  background: #f8faff;
+  background: #fff;
 }
 
 .tabela-analiticos tbody tr:hover {
-  background: #eef4ff;
+  background: #f8fbff;
   transition: 0.2s;
+}
+
+.tabela-analiticos tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .paginacao-analiticos {
@@ -3004,7 +3022,8 @@ input[type='file'] {
   padding: 12px;
 }
 
-.tabela-gestao th {
+.tabela-gestao th,
+.tabela-analiticos th {
   background: #f7f9fc;
   color: #6b7280;
   font-size: 12px;
@@ -3014,7 +3033,8 @@ input[type='file'] {
   line-height: 1.5;
 }
 
-.tabela-gestao td {
+.tabela-gestao td,
+.tabela-analiticos td {
   background: #fff;
   color: #1f2937;
   font-size: 13px;
