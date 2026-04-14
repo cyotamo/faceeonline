@@ -344,23 +344,55 @@ function obterResumoTema(registo = {}) {
         ?? "";
 }
 
+function normalizarIdTema(valor) {
+    return String(valor ?? "").trim();
+}
+
+function construirIdTemaRegisto(item = {}, indice = 0) {
+    const idTemaRecebido = normalizarIdTema(item.idTema ?? item.id_tema);
+    if (idTemaRecebido) {
+        return idTemaRecebido;
+    }
+
+    const idOrigem = normalizarIdTema(
+        item.id
+        ?? item.ID
+        ?? item.idRegisto
+        ?? item.id_registo
+        ?? item.idSubmissao
+    );
+    if (idOrigem) {
+        return `tema-id-${idOrigem}`;
+    }
+
+    const rowOrigem = normalizarIdTema(item.row ?? item.linha ?? item.Row);
+    if (rowOrigem) {
+        return `tema-row-${rowOrigem}`;
+    }
+
+    return `tema-idx-${indice + 1}`;
+}
+
 function abrirModalParecerTema(idTema) {
     console.log("[TemasMonografia][Modal] abrirModalParecerTema chamado com idTema:", idTema);
     if (!modalParecerTema) {
         console.error("[TemasMonografia][Modal] #modalParecerTema não encontrado no DOM.");
         return;
     }
-    const registo = temasParecerRegistos.find((item) => String(item.idTema || "").trim() === String(idTema || "").trim());
+    const idTemaNormalizado = normalizarIdTema(idTema);
+    console.log("[TemasMonografia][Modal] Validação idTema normalizado:", idTemaNormalizado);
+    const registo = temasParecerRegistos.find((item) => normalizarIdTema(item.idTema) === idTemaNormalizado);
     if (!registo) {
-        console.warn("[TemasMonografia][Modal] Nenhum registo encontrado para idTema:", idTema);
-        console.log("[TemasMonografia][Modal] IDs disponíveis:", temasParecerRegistos.map((item) => String(item.idTema || "").trim()));
+        console.error("[TemasMonografia][Modal] Nenhum registo encontrado para idTema:", idTemaNormalizado);
+        console.log("[TemasMonografia][Modal] IDs disponíveis:", temasParecerRegistos.map((item) => normalizarIdTema(item.idTema)));
+        alert("Não foi possível localizar o registo deste tema. Actualize a lista e tente novamente.");
         return;
     }
 
     console.log("[TemasMonografia][Modal] Registo encontrado:", registo);
     console.log("[TemasMonografia][Modal] Campos no registo:", Object.keys(registo));
 
-    idTemaModalAtual = String(registo.idTema || "").trim();
+    idTemaModalAtual = normalizarIdTema(registo.idTema);
     temaModalNome.value = registo.nome || "";
     temaModalLinhaPesquisa.value = registo.linhaPesquisa || registo.linha || "";
     temaModalTema.value = registo.tema || "";
@@ -2909,12 +2941,40 @@ function carregarParecer() {
         }
 
         dadosGestaoGeral = dados;
-        temasParecerRegistos = dadosGestaoGeral.map((item) => ({
-            ...item,
-            idTema: String(item.idTema || "").trim(),
-            parecer: String(item.parecer ?? item.Parecer ?? "").trim(),
-            observacoes: String(item.observacoes ?? item.Observacoes ?? "").trim()
-        }));
+        const idsTemaGerados = new Set();
+        temasParecerRegistos = dadosGestaoGeral.map((item, indice) => {
+            const idTemaBase = construirIdTemaRegisto(item, indice);
+            let idTema = idTemaBase;
+            let sufixo = 1;
+            while (idsTemaGerados.has(idTema)) {
+                sufixo += 1;
+                idTema = `${idTemaBase}-${sufixo}`;
+            }
+            idsTemaGerados.add(idTema);
+
+            if (!normalizarIdTema(item.idTema ?? item.id_tema)) {
+                console.warn("[TemasMonografia][Backend] idTema não enviado; gerado fallback para o registo.", {
+                    indice,
+                    idTemaGerado: idTema,
+                    idFonte: item.id ?? item.ID ?? item.idRegisto ?? item.id_registo ?? item.idSubmissao ?? "",
+                    rowFonte: item.row ?? item.linha ?? item.Row ?? ""
+                });
+            }
+
+            console.log("[TemasMonografia][Validação] Registo normalizado com idTema:", {
+                indice,
+                idTema,
+                idOriginal: item.idTema ?? item.id_tema ?? "",
+                row: item.row ?? item.linha ?? item.Row ?? ""
+            });
+
+            return {
+                ...item,
+                idTema,
+                parecer: String(item.parecer ?? item.Parecer ?? "").trim(),
+                observacoes: String(item.observacoes ?? item.Observacoes ?? "").trim()
+            };
+        });
         if (temasParecerRegistos.length > 0) {
             const registo = temasParecerRegistos[0];
             console.log("[TemasMonografia][Frontend] Exemplo do primeiro registo normalizado:", registo);
@@ -2965,7 +3025,7 @@ function renderTabelaParecer() {
     `;
 
     paginaDados.forEach((item) => {
-        const idTema = String(item.idTema || "").trim();
+        const idTema = normalizarIdTema(item.idTema);
         const statusClasse = obterClasseStatusCredencial(item.parecer);
         const statusLabel = obterLabelStatusCredencial(item.parecer);
 
