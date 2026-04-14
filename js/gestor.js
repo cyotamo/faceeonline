@@ -93,23 +93,34 @@ let totalPaginas = 1;
 let dadosGestaoGeral = [];
 
 function mostrarCarregamentoAtribuirSupervisor() {
-    const loading = document.getElementById("loadingAtribuirSupervisor");
-    if (loading) {
-        loading.hidden = false;
-    }
+    mostrarLoadingPainelGestor();
+}
+
+function criarMarkupLoadingPainel(msg = "A carregar…") {
+    return `
+        <div class="gestor-loading-state" id="loadingPainelGestor" role="status" aria-live="polite">
+            <span class="gestor-loading-spinner" aria-hidden="true"></span>
+            <span class="gestor-loading-label">${msg}</span>
+        </div>
+    `;
 }
 
 function mostrarLoadingPainelGestor(msg = "A carregar…") {
     const box = document.getElementById("tabelaGestaoGeral");
     if (!box) return;
-    // IMPORTANTÍSSIMO: o loading tem de ser inserido DEPOIS de limpar
-    box.innerHTML = `<div class="loading" id="loadingPainelGestor">${msg}</div>`;
+    box.classList.add("gestor-loading-container");
+    box.setAttribute("aria-busy", "true");
+    box.innerHTML = criarMarkupLoadingPainel(msg);
 }
 
 function esconderCarregamentoAtribuirSupervisor() {
-    const loading = document.getElementById("loadingAtribuirSupervisor");
+    const box = document.getElementById("tabelaGestaoGeral");
+    if (!box) return;
+    box.classList.remove("gestor-loading-container");
+    box.setAttribute("aria-busy", "false");
+    const loading = box.querySelector("#loadingPainelGestor");
     if (loading) {
-        loading.hidden = true;
+        loading.remove();
     }
 }
 
@@ -1214,10 +1225,6 @@ document.getElementById("btnGestaoGeral").addEventListener("click", () => {
     esconderSecaoDefesas();
     mostrarTabelaGestaoGeral();
     modoTabelaGestao = "geral";
-    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
-    if (tabelaGestaoGeral) {
-        tabelaGestaoGeral.innerHTML = '<div id="loadingAtribuirSupervisor" class="loading-local" hidden>A carregar…</div>';
-    }
     mostrarCarregamentoAtribuirSupervisor();
     carregarGestaoGeral();
     if (window.aplicarRestricoesUI && window.userEmail) {
