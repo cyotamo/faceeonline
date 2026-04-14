@@ -277,7 +277,7 @@ function enviarTema() {
     desativarLoading(botao);
 
     if (res.sucesso === true || res.sucesso === "true") {
-      document.getElementById("form-container").innerHTML = "";
+      limparFormularioAposSucesso(botao);
       mostrarModal(
         "Os seus dados foram enviados com sucesso. Acompanhe o andamento do processo na aba Consulta."
       );
@@ -294,6 +294,17 @@ function enviarTema() {
 
 // Tornar a função acessível no HTML
 window.enviarTema = enviarTema;
+
+function limparFormularioAposSucesso(referenciaBotao = null) {
+  const formularioActivo = referenciaBotao?.closest?.('form');
+  const formularioNoContainer = formContainer?.querySelector('form');
+  const formulario = formularioActivo || formularioNoContainer;
+
+  if (!formulario) return;
+
+  formulario.reset();
+  actualizarEstadoBotao(formulario);
+}
 
 function preencherDepartamentosDefesa() {
   const depSelect = document.getElementById('departamentoDefesa');
@@ -481,7 +492,7 @@ function enviarDefesaMonografia() {
 
     if (res.sucesso === true || res.sucesso === 'true') {
       console.log('[DefesaMonografia] Submissão concluída com sucesso.');
-      document.getElementById('form-container').innerHTML = '';
+      limparFormularioAposSucesso(botao);
       mostrarModal(
         'Os seus dados foram enviados com sucesso. Acompanhe o andamento do processo na aba Consulta.'
       );
@@ -573,7 +584,7 @@ async function enviarMonografiaFinal() {
       return;
     }
     desativarLoading(botao);
-    document.getElementById("form-container").innerHTML = "";
+    limparFormularioAposSucesso(botao);
     mostrarModal("Os seus dados foram enviados com sucesso. Acompanhe o andamento do processo na aba Consulta.");
   } catch (err) {
     desativarLoading(botao);
@@ -632,7 +643,7 @@ function enviarPedidoCredencial() {
     .then((r) => r.json())
     .then((res) => {
       desativarLoading(botao);
-      document.getElementById("form-container").innerHTML = "";
+      limparFormularioAposSucesso(botao);
       mostrarModal("Os seus dados foram enviados com sucesso. Acompanhe o andamento do processo na aba Consulta.");
       // Qualquer link de PDF retornado pelo servidor é intencionalmente ignorado.
     })
@@ -681,7 +692,7 @@ async function enviarPedidoCredencialEstagio() {
 
     desativarLoading(botao);
     if (resposta?.sucesso === true) {
-      document.getElementById("form-container").innerHTML = "";
+      limparFormularioAposSucesso(botao);
       mostrarModal("Os seus dados foram enviados com sucesso. Acompanhe o andamento do processo na aba Consulta.");
       return;
     }
