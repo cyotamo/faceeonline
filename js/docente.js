@@ -5,13 +5,23 @@
 
 const btnPlano = document.getElementById('btnPlano');
 const btnHorarios = document.getElementById('btnHorarios');
+const btnInicio = document.getElementById('btnInicio');
 const formPlanoContainer = document.getElementById('formPlanoContainer');
 const horariosContainer = document.getElementById('horariosContainer');
+const containerInicio = document.getElementById('containerInicio');
 const botoesNavegacao = document.querySelectorAll('.btn-navegacao');
 
 const limparSecoesDocente = () => {
+  if (containerInicio) containerInicio.style.display = 'none';
   if (formPlanoContainer) formPlanoContainer.innerHTML = '';
   if (horariosContainer) horariosContainer.innerHTML = '';
+  if (formPlanoContainer) formPlanoContainer.style.display = 'none';
+  if (horariosContainer) horariosContainer.style.display = 'none';
+};
+
+const mostrarInicioDocente = () => {
+  limparSecoesDocente();
+  if (containerInicio) containerInicio.style.display = 'block';
 };
 
 // ===============================
@@ -232,8 +242,13 @@ const renderizarGradeHorarios = (resultadoEl, itens, docente) => {
 // ===============================
 const mostrarFormularioInicial = async () => {
   if (!formPlanoContainer) return;
-  if (horariosContainer) horariosContainer.innerHTML = '';
+  if (containerInicio) containerInicio.style.display = 'none';
+  if (horariosContainer) {
+    horariosContainer.innerHTML = '';
+    horariosContainer.style.display = 'none';
+  }
   formPlanoContainer.innerHTML = '';
+  formPlanoContainer.style.display = 'block';
 
   const card = criarElemento('div', 'card');
   const titulo = criarElemento('h3', 'card-title', 'Submeter Plano de Disciplina');
@@ -321,9 +336,14 @@ const mostrarFormularioInicial = async () => {
 
 const mostrarSecaoHorarios = async () => {
   if (!horariosContainer) return;
-  if (formPlanoContainer) formPlanoContainer.innerHTML = '';
+  if (containerInicio) containerInicio.style.display = 'none';
+  if (formPlanoContainer) {
+    formPlanoContainer.innerHTML = '';
+    formPlanoContainer.style.display = 'none';
+  }
 
   horariosContainer.innerHTML = '';
+  horariosContainer.style.display = 'block';
 
   const card = criarElemento('div', 'card');
   const titulo = criarElemento('h3', 'card-title', 'Horários');
@@ -551,7 +571,13 @@ if (btnHorarios) {
   btnHorarios.addEventListener('click', mostrarSecaoHorarios);
 }
 
+if (btnInicio) {
+  btnInicio.addEventListener('click', mostrarInicioDocente);
+}
+
 botoesNavegacao.forEach((botao) => {
-  if (botao.id === 'btnPlano' || botao.id === 'btnHorarios') return;
+  if (botao.id === 'btnPlano' || botao.id === 'btnHorarios' || botao.id === 'btnInicio') return;
   botao.addEventListener('click', limparSecoesDocente);
 });
+
+mostrarInicioDocente();
