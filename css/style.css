@@ -221,6 +221,13 @@ main {
   align-items: end;
 }
 
+.horarios-filtros #btnBuscarHorario {
+  width: auto;
+  min-width: 110px;
+  padding: 8px 16px;
+  justify-self: start;
+}
+
 .horarios-campo label {
   display: block;
   margin-bottom: 6px;
