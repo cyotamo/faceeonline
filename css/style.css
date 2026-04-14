@@ -2886,9 +2886,25 @@ input[type='file'] {
   min-height: 0;
 }
 
+#modalAtribuirSupervisor .credencial-modal-box {
+  width: min(620px, 96vw);
+  max-height: min(700px, 92vh);
+}
+
+#modalAtribuirSupervisor .credencial-modal-content {
+  overflow: visible;
+  gap: 10px;
+}
+
+#modalAtribuirSupervisor .credencial-modal-actions {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
 .credencial-form-field {
   display: grid;
   gap: 6px;
+  min-width: 0;
 }
 
 .credencial-form-field label {
@@ -2900,11 +2916,14 @@ input[type='file'] {
 .credencial-form-field input,
 .credencial-form-field select,
 .credencial-form-field textarea {
+  width: 100%;
+  max-width: 100%;
   border: 1px solid #d8dfeb;
   border-radius: 10px;
   padding: 10px 12px;
   font-size: 13px;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .credencial-form-field textarea {
@@ -2916,6 +2935,18 @@ input[type='file'] {
   min-height: 78px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+
+#atribuirSupervisorModalTema {
+  min-height: 88px;
+  max-height: none;
+  height: auto;
+  resize: none;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 .credencial-form-field input[readonly] {

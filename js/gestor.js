@@ -437,6 +437,13 @@ function obterRegistoAtribuirSupervisorPorId(idTema = "") {
     return dadosGestaoGeral.find((item) => String(item.idTema).trim() === id) || null;
 }
 
+function ajustarAlturaTemaModalAtribuirSupervisor() {
+    if (!atribuirSupervisorModalTema) return;
+    atribuirSupervisorModalTema.style.height = "auto";
+    const alturaNecessaria = Math.max(atribuirSupervisorModalTema.scrollHeight, 88);
+    atribuirSupervisorModalTema.style.height = `${alturaNecessaria}px`;
+}
+
 function abrirModalAtribuirSupervisor(idTema = "") {
     if (!modalAtribuirSupervisor) return;
     console.log("[MODAL] Abrir modal com idTema:", idTema);
@@ -453,6 +460,7 @@ function abrirModalAtribuirSupervisor(idTema = "") {
     if (atribuirSupervisorModalCurso) atribuirSupervisorModalCurso.value = registo.curso || "";
     if (atribuirSupervisorModalLinhaPesquisa) atribuirSupervisorModalLinhaPesquisa.value = registo.linhaPesquisa ?? registo.linha ?? "";
     if (atribuirSupervisorModalTema) atribuirSupervisorModalTema.value = registo.tema ?? "";
+    ajustarAlturaTemaModalAtribuirSupervisor();
     if (atribuirSupervisorModalSelect) {
         atribuirSupervisorModalSelect.innerHTML = opcoesSupervisoresHTML(registo.supervisorAtualOuVazio, registo.opcoesSupervisores);
         atribuirSupervisorModalSelect.disabled = false;
