@@ -242,6 +242,13 @@ const temaModalResumo = document.getElementById("temaModalResumo");
 const temaModalParecer = document.getElementById("temaModalParecer");
 const temaModalObservacoes = document.getElementById("temaModalObservacoes");
 const btnGuardarParecerTema = document.getElementById("btnGuardarParecerTema");
+const modalAtribuirSupervisor = document.getElementById("modalAtribuirSupervisor");
+const atribuirSupervisorModalNome = document.getElementById("atribuirSupervisorModalNome");
+const atribuirSupervisorModalCurso = document.getElementById("atribuirSupervisorModalCurso");
+const atribuirSupervisorModalLinhaPesquisa = document.getElementById("atribuirSupervisorModalLinhaPesquisa");
+const atribuirSupervisorModalTema = document.getElementById("atribuirSupervisorModalTema");
+const atribuirSupervisorModalSelect = document.getElementById("atribuirSupervisorModalSelect");
+const btnAtribuirSupervisorModal = document.getElementById("btnAtribuirSupervisorModal");
 
 const SITUACOES_DEFESA = [
     "Em avaliação no RA",
@@ -271,8 +278,19 @@ let idCredencialModalAtual = "";
 let moduloCredencialModalAtual = "pesquisa";
 let temasParecerRegistos = [];
 let idTemaModalAtual = "";
+let idTemaAtribuirSupervisorAtual = "";
 let paginaAtualDefesas = 1;
 const REGISTOS_POR_PAGINA_DEFESAS = 10;
+
+function obterClasseStatusAtribuicaoSupervisor(registo = {}) {
+    const supervisorFinal = String(registo.supervisorFinal ?? registo.supervisor ?? "").trim();
+    return supervisorFinal ? "status-atribuido" : "status-pendente";
+}
+
+function obterLabelStatusAtribuicaoSupervisor(registo = {}) {
+    const supervisorFinal = String(registo.supervisorFinal ?? registo.supervisor ?? "").trim();
+    return supervisorFinal ? "ATRIBUÍDO" : "PENDENTE";
+}
 
 function obterClasseStatusCredencial(valor) {
     const normalizado = normalizarCampo(valor);
@@ -411,6 +429,84 @@ function fecharModalParecerTema() {
     modalParecerTema.style.display = "none";
     modalParecerTema.setAttribute("aria-hidden", "true");
     idTemaModalAtual = "";
+}
+
+function obterRegistoAtribuirSupervisorPorId(idTema = "") {
+    const idNormalizado = String(idTema || "").trim();
+    if (!idNormalizado) return null;
+    return dadosGestaoGeral.find((item) => String(item.idTema || "").trim() === idNormalizado) || null;
+}
+
+function abrirModalAtribuirSupervisor(idTema = "") {
+    if (!modalAtribuirSupervisor) return;
+    const registo = obterRegistoAtribuirSupervisorPorId(idTema);
+    if (!registo) return;
+
+    idTemaAtribuirSupervisorAtual = String(registo.idTema || "").trim();
+    if (atribuirSupervisorModalNome) atribuirSupervisorModalNome.value = registo.nome || "";
+    if (atribuirSupervisorModalCurso) atribuirSupervisorModalCurso.value = registo.curso || "";
+    if (atribuirSupervisorModalLinhaPesquisa) atribuirSupervisorModalLinhaPesquisa.value = registo.linhaPesquisa ?? registo.linha ?? "";
+    if (atribuirSupervisorModalTema) atribuirSupervisorModalTema.value = registo.tema ?? "";
+    if (atribuirSupervisorModalSelect) {
+        atribuirSupervisorModalSelect.innerHTML = opcoesSupervisoresHTML(registo.supervisorAtualOuVazio, registo.opcoesSupervisores);
+        atribuirSupervisorModalSelect.disabled = false;
+    }
+    if (btnAtribuirSupervisorModal) {
+        btnAtribuirSupervisorModal.disabled = false;
+        btnAtribuirSupervisorModal.textContent = "Atribuir";
+    }
+
+    modalAtribuirSupervisor.style.display = "flex";
+    modalAtribuirSupervisor.setAttribute("aria-hidden", "false");
+}
+
+function fecharModalAtribuirSupervisor() {
+    if (!modalAtribuirSupervisor) return;
+    modalAtribuirSupervisor.style.display = "none";
+    modalAtribuirSupervisor.setAttribute("aria-hidden", "true");
+    idTemaAtribuirSupervisorAtual = "";
+}
+
+async function guardarAtribuicaoSupervisorModal() {
+    if (!idTemaAtribuirSupervisorAtual) return;
+    const registo = obterRegistoAtribuirSupervisorPorId(idTemaAtribuirSupervisorAtual);
+    if (!registo) return;
+
+    const supervisor = String(atribuirSupervisorModalSelect?.value || "").trim();
+    if (!supervisor) {
+        alert("Seleccione um supervisor.");
+        return;
+    }
+
+    if (!registo.idEstudante && !registo.row) {
+        alert("Não foi possível identificar o estudante (sem ID/row).");
+        return;
+    }
+
+    const botao = btnAtribuirSupervisorModal;
+    activarLoadingGuardar(botao, "A atribuir...");
+
+    try {
+        const dados = new URLSearchParams();
+        dados.append("action", "atribuirSupervisorLinha");
+        dados.append("supervisor", supervisor);
+        if (registo.idEstudante) dados.append("idEstudante", registo.idEstudante);
+        if (registo.row) dados.append("row", registo.row);
+
+        const resp = await fetch(WEB_URL, { method: "POST", body: dados });
+        const json = await resp.json();
+        if (!json.sucesso) throw new Error(json.mensagem || "Erro ao atribuir supervisor.");
+
+        registo.supervisorAtualOuVazio = supervisor;
+        registo.supervisor = supervisor;
+        registo.supervisorFinal = supervisor;
+        renderTabelaGestaoGeral();
+        fecharModalAtribuirSupervisor();
+    } catch (err) {
+        console.error(err);
+        alert(err.message || "Erro ao atribuir supervisor.");
+        desactivarLoadingGuardar(botao);
+    }
 }
 
 function atualizarLinhaTemaUI(idTema, dadosAtualizados = {}) {
@@ -1035,6 +1131,23 @@ function configurarEventosModalTema() {
     });
 }
 
+function configurarEventosModalAtribuirSupervisor() {
+    document.getElementById("btnFecharModalAtribuirSupervisor")?.addEventListener("click", fecharModalAtribuirSupervisor);
+    btnAtribuirSupervisorModal?.addEventListener("click", guardarAtribuicaoSupervisorModal);
+
+    modalAtribuirSupervisor?.addEventListener("click", (event) => {
+        if (event.target === modalAtribuirSupervisor) {
+            fecharModalAtribuirSupervisor();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && modalAtribuirSupervisor?.style.display === "flex") {
+            fecharModalAtribuirSupervisor();
+        }
+    });
+}
+
 window.abrirModalEdicaoDefesa = abrirModalEdicaoDefesa;
 window.fecharModalEdicaoDefesa = fecharModalEdicaoDefesa;
 window.guardarSituacaoDefesa = guardarSituacaoDefesa;
@@ -1043,6 +1156,7 @@ window.renderTabelaDefesa = renderTabelaDefesa;
 configurarEventosModalDefesa();
 configurarEventosModalCredencial();
 configurarEventosModalTema();
+configurarEventosModalAtribuirSupervisor();
 
 function esconderEstatisticas() {
     estatisticasContainer.style.display = "none";
@@ -1213,54 +1327,11 @@ document.getElementById("btnEstatisticas").addEventListener("click", () => {
 
 const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
 if (tabelaGestaoGeral) {
-    tabelaGestaoGeral.addEventListener("click", async (e) => {
-        const btn = e.target.closest(".btn-atribuir-supervisor");
-        if (!btn) return;
-
-        if (modoTabelaGestao !== "atribuirSupervisor") return;
-
-        const tr = btn.closest("tr");
-        const select = tr?.querySelector("select.supervisorProposto");
-
-        const supervisor = (select?.value || "").trim();
-        const idEstudante = (btn.dataset.estudanteId || "").trim();
-        const row = (btn.dataset.row || "").trim();
-
-        if (!supervisor) {
-            alert("Seleccione um supervisor.");
+    tabelaGestaoGeral.addEventListener("click", (e) => {
+        const btnAtribuir = e.target.closest("[data-atribuir-acao]");
+        if (btnAtribuir && modoTabelaGestao === "atribuirSupervisor") {
+            abrirModalAtribuirSupervisor(btnAtribuir.dataset.atribuirAcao);
             return;
-        }
-
-        if (!idEstudante && !row) {
-            alert("Não foi possível identificar o estudante (sem ID/row).");
-            return;
-        }
-
-        btn.disabled = true;
-        const textoOriginal = btn.textContent;
-        btn.textContent = "A guardar...";
-
-        try {
-            const dados = new URLSearchParams();
-            dados.append("action", "atribuirSupervisorLinha");
-            dados.append("supervisor", supervisor);
-
-            if (idEstudante) dados.append("idEstudante", idEstudante);
-            if (row) dados.append("row", row);
-
-            const resp = await fetch(WEB_URL, { method: "POST", body: dados });
-            const json = await resp.json();
-
-            if (!json.sucesso) throw new Error(json.mensagem || "Erro.");
-
-            select.disabled = true;
-            btn.textContent = "Atribuído";
-            btn.classList.add("ok");
-        } catch (err) {
-            console.error(err);
-            alert(err.message || "Erro ao atribuir supervisor.");
-            btn.disabled = false;
-            btn.textContent = textoOriginal;
         }
     });
 }
@@ -1614,8 +1685,7 @@ function carregarGestaoGeral() {
 
         if (modoTabelaGestao === "atribuirSupervisor") {
             dadosFiltrados = dados.filter(item =>
-                normalizarCampo(item.colL) === "aprovado" &&
-                (!item.supervisorFinal || item.supervisorFinal.toString().trim() === "")
+                normalizarCampo(item.colL) === "aprovado"
             );
         }
 
@@ -1744,6 +1814,50 @@ function renderTabelaGestaoGeral() {
     const isHomologar = modoTabelaGestao === "homologarSupervisor";
     const isAtribuir = modoTabelaGestao === "atribuirSupervisor";
 
+    if (isAtribuir) {
+        let htmlAtribuir = `
+            <div class="credencial-lista-head tema-lista-head">
+                <div>Data</div>
+                <div>Nome</div>
+                <div>Curso</div>
+                <div>Status</div>
+                <div>Acções</div>
+            </div>
+            <div class="credencial-lista table-credencial table-tema-parecer">
+        `;
+
+        paginaDados.forEach((item) => {
+            const idTema = String(item.idTema || "").trim();
+            const statusClasse = obterClasseStatusAtribuicaoSupervisor(item);
+            const statusLabel = obterLabelStatusAtribuicaoSupervisor(item);
+
+            htmlAtribuir += `
+                <article class="credencial-linha tema-parecer-linha" data-id="${escaparHTML(idTema)}">
+                    <div class="credencial-data">${escaparHTML(formatarDataCurta(item.data || item.timestamp))}</div>
+                    <div class="credencial-estudante">
+                        <p class="credencial-nome">${escaparHTML(item.nome || "—")}</p>
+                    </div>
+                    <div class="credencial-curso">${escaparHTML(item.curso || "—")}</div>
+                    <div class="credencial-status">
+                        <span class="status ${statusClasse}">${statusLabel}</span>
+                    </div>
+                    <div class="credencial-acao">
+                        <button class="credencial-btn-acao" type="button" data-atribuir-acao="${escaparHTML(idTema)}" aria-label="Ver detalhes e atribuir supervisor"${idTema ? "" : " disabled"}>
+                            <span aria-hidden="true">👁</span>
+                        </button>
+                    </div>
+                </article>
+            `;
+        });
+
+        htmlAtribuir += `</div>`;
+        container.innerHTML = htmlAtribuir;
+        renderizarControlesGestaoGeral();
+        aplicarDadosBloqueio();
+        reaplicarRestricoesUI();
+        return;
+    }
+
     let html = `
             <div class="tabela-scroll">
             <table class="tabela-gestao">
@@ -1760,7 +1874,6 @@ function renderTabelaGestaoGeral() {
                         ${isGeral ? `<th class="col-parecer">Parecer</th>` : ""}
                         ${isGeral ? `<th class="col-observacoes">Observações</th>` : ""}
                         ${(isGeral || isHomologar) ? `<th class="col-homologacao">Homologação</th>` : ""}
-                        ${isAtribuir ? `<th class="col-acao">Ação</th>` : ""}
                     </tr>
                 </thead>
                 <tbody>
@@ -1812,16 +1925,6 @@ function renderTabelaGestaoGeral() {
                             <option${homologacaoAtual === "Homologado" ? " selected" : ""}>Homologado</option>
                         </select>
                     </td>` : ""}
-                    ${isAtribuir ? `
-                    <td class="col-acao">
-                        <button
-                            type="button"
-                            class="btn-atribuir-supervisor"
-                            data-estudante-id="${item.idEstudante || ""}"
-                            data-row="${item.row || ""}"
-                        >Guardar</button>
-                    </td>
-                    ` : ""}
                 </tr>
             `;
         if (index === 0) {

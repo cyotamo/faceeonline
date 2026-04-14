@@ -271,6 +271,40 @@
           </div>
         </div>
 
+        <div id="modalAtribuirSupervisor" class="credencial-modal-overlay" style="display:none;" aria-hidden="true">
+          <div class="credencial-modal-box" role="dialog" aria-modal="true" aria-labelledby="atribuirSupervisorModalTitulo">
+            <div class="credencial-modal-header">
+              <h3 id="atribuirSupervisorModalTitulo" class="credencial-modal-title">Atribuir Supervisor</h3>
+              <button id="btnFecharModalAtribuirSupervisor" type="button" class="credencial-modal-close" aria-label="Fechar">×</button>
+            </div>
+            <div class="credencial-modal-content">
+              <div class="credencial-form-field">
+                <label for="atribuirSupervisorModalNome">Nome</label>
+                <input id="atribuirSupervisorModalNome" type="text" readonly>
+              </div>
+              <div class="credencial-form-field">
+                <label for="atribuirSupervisorModalCurso">Curso</label>
+                <input id="atribuirSupervisorModalCurso" type="text" readonly>
+              </div>
+              <div class="credencial-form-field">
+                <label for="atribuirSupervisorModalLinhaPesquisa">Linha de Pesquisa</label>
+                <input id="atribuirSupervisorModalLinhaPesquisa" type="text" readonly>
+              </div>
+              <div class="credencial-form-field">
+                <label for="atribuirSupervisorModalTema">Tema</label>
+                <textarea id="atribuirSupervisorModalTema" class="credencial-texto-longo" rows="4" readonly></textarea>
+              </div>
+              <div class="credencial-form-field">
+                <label for="atribuirSupervisorModalSelect">Proposta de Supervisor</label>
+                <select id="atribuirSupervisorModalSelect"></select>
+              </div>
+            </div>
+            <div class="credencial-modal-actions">
+              <button id="btnAtribuirSupervisorModal" type="button">Atribuir</button>
+            </div>
+          </div>
+        </div>
+
 
         <!-- CONTAINER PARA LISTAS E ESTATÍSTICAS (APARECE APENAS QUANDO CLICAR) -->
         <div id="estatisticasContainer" class="estatisticas-container gestor-card" style="display:none;">
