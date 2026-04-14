@@ -285,13 +285,45 @@ let indiceDefesaEmEdicao = null;
 let defesasCache = [];
 let credencialPesquisaRegistos = [];
 let credencialEstagioRegistos = [];
+let monografiaFinalRegistos = [];
 let idCredencialModalAtual = "";
 let moduloCredencialModalAtual = "pesquisa";
 let temasParecerRegistos = [];
 let idTemaModalAtual = "";
 let idTemaAtribuirSupervisorAtual = "";
 let paginaAtualDefesas = 1;
+let paginaAtualCredencialPesquisa = 1;
+let paginaAtualCredencialEstagio = 1;
+let paginaAtualMonografiaFinal = 1;
+let paginaAtualTemasParecer = 1;
 const REGISTOS_POR_PAGINA_DEFESAS = 10;
+
+function calcularEstadoPaginacao(totalRegistos = 0, pagina = 1, registosPorPagina = 10) {
+    const total = Number(totalRegistos) || 0;
+    const porPagina = Math.max(1, Number(registosPorPagina) || 10);
+    const totalPaginas = Math.max(1, Math.ceil(total / porPagina));
+    const paginaAtual = Math.min(Math.max(Number(pagina) || 1, 1), totalPaginas);
+    const inicio = (paginaAtual - 1) * porPagina;
+    const fim = inicio + porPagina;
+
+    return {
+        totalPaginas,
+        paginaAtual,
+        inicio,
+        fim,
+        deveMostrarPaginacao: total > 10 && totalPaginas > 1
+    };
+}
+
+function markupPaginacaoPadrao({ paginaAtual, totalPaginas, ariaLabel = "Paginação" } = {}) {
+    return `
+        <div class="paginacao-analiticos" role="navigation" aria-label="${escaparHTML(ariaLabel)}">
+            <button class="button btn-paginacao" type="button" data-pagina="anterior" ${paginaAtual <= 1 ? "disabled" : ""} aria-label="Página anterior">&lt;</button>
+            <span class="paginacao-info">${paginaAtual} de ${totalPaginas}</span>
+            <button class="button btn-paginacao" type="button" data-pagina="seguinte" ${paginaAtual >= totalPaginas ? "disabled" : ""} aria-label="Página seguinte">&gt;</button>
+        </div>
+    `;
+}
 
 function obterClasseStatusAtribuicaoSupervisor(registo = {}) {
     const supervisorFinal = String(registo.supervisorFinal ?? registo.supervisor ?? "").trim();
@@ -550,7 +582,7 @@ function actualizarPaginacaoDefesas(totalRegistos = 0) {
     const infoPaginacao = document.getElementById("infoPaginacaoDefesas");
     const btnAnterior = document.getElementById("btnDefesasPaginaAnterior");
     const btnSeguinte = document.getElementById("btnDefesasPaginaSeguinte");
-    const paginacaoContainer = document.querySelector(".paginacao-defesas");
+    const paginacaoContainer = document.querySelector("#secaoDefesas .paginacao-analiticos");
     const totalPaginasDefesas = Math.max(1, Math.ceil(totalRegistos / REGISTOS_POR_PAGINA_DEFESAS));
     const deveMostrarPaginacao = totalRegistos > 10 && totalPaginasDefesas > 1;
 
@@ -1237,6 +1269,7 @@ document.getElementById("btnMonografiaFinal")?.addEventListener("click", () => {
     esconderEstatisticas();
     esconderSecaoDefesas();
     mostrarTabelaGestaoGeral();
+    paginaAtualMonografiaFinal = 1;
     mostrarLoadingPainelGestor("A carregar…");
     carregarMonografiaFinal();
     if (window.aplicarRestricoesUI && window.userEmail) {
@@ -1261,6 +1294,7 @@ document.getElementById("btnParecerTec").addEventListener("click", () => {
     esconderEstatisticas();
     esconderSecaoDefesas();
     mostrarTabelaGestaoGeral();
+    paginaAtualTemasParecer = 1;
     mostrarLoadingPainelGestor("A carregar…");
     carregarParecer();
     if (window.aplicarRestricoesUI && window.userEmail) {
@@ -1314,6 +1348,7 @@ document.getElementById("btnCredencialPesquisa").addEventListener("click", () =>
     esconderEstatisticas();
     esconderSecaoDefesas();
     mostrarTabelaGestaoGeral();
+    paginaAtualCredencialPesquisa = 1;
     mostrarLoadingPainelGestor("A carregar…");
     carregarCredencialPesquisa();
     if (window.aplicarRestricoesUI && window.userEmail) {
@@ -1326,6 +1361,7 @@ document.getElementById("btnCredencialEstagio").addEventListener("click", () => 
     esconderEstatisticas();
     esconderSecaoDefesas();
     mostrarTabelaGestaoGeral();
+    paginaAtualCredencialEstagio = 1;
     mostrarLoadingPainelGestor("A carregar…");
     carregarCredenciaisEstagioGestor();
     if (window.aplicarRestricoesUI && window.userEmail) {
@@ -1793,34 +1829,27 @@ function renderizarControlesGestaoGeral() {
         container.appendChild(btnGuardar);
     }
 
-    const deveMostrarPaginacao = dadosGestaoGeral.length > 10 && totalPaginas > 1;
-    if (deveMostrarPaginacao) {
+    const estadoPaginacao = calcularEstadoPaginacao(dadosGestaoGeral.length, paginaAtual, linhasPorPagina);
+    if (estadoPaginacao.deveMostrarPaginacao) {
         const barraPaginacao = document.createElement("div");
-        barraPaginacao.style.display = "flex";
-        barraPaginacao.style.alignItems = "center";
-        barraPaginacao.style.gap = "10px";
-        barraPaginacao.style.flexGrow = "1";
-        barraPaginacao.style.justifyContent = "center";
+        barraPaginacao.innerHTML = markupPaginacaoPadrao({
+            paginaAtual: estadoPaginacao.paginaAtual,
+            totalPaginas: estadoPaginacao.totalPaginas,
+            ariaLabel: "Paginação Gestão Geral"
+        });
 
-        const btnAnterior = document.createElement("button");
-        btnAnterior.className = "btn-guardar";
-        btnAnterior.textContent = "<";
-        btnAnterior.onclick = () => mudarPagina(-1);
-        btnAnterior.disabled = paginaAtual === 1;
-
-        const infoPagina = document.createElement("span");
-        infoPagina.textContent = `Página ${paginaAtual} de ${totalPaginas}`;
-        infoPagina.style.textAlign = "center";
-
-        const btnSeguinte = document.createElement("button");
-        btnSeguinte.className = "btn-guardar";
-        btnSeguinte.textContent = ">";
-        btnSeguinte.onclick = () => mudarPagina(1);
-        btnSeguinte.disabled = paginaAtual === totalPaginas;
-
-        barraPaginacao.appendChild(btnAnterior);
-        barraPaginacao.appendChild(infoPagina);
-        barraPaginacao.appendChild(btnSeguinte);
+        const nav = barraPaginacao.querySelector(".paginacao-analiticos");
+        const btnAnterior = barraPaginacao.querySelector("[data-pagina='anterior']");
+        const btnSeguinte = barraPaginacao.querySelector("[data-pagina='seguinte']");
+        if (btnAnterior) {
+            btnAnterior.addEventListener("click", () => mudarPagina(-1));
+        }
+        if (btnSeguinte) {
+            btnSeguinte.addEventListener("click", () => mudarPagina(1));
+        }
+        if (nav) {
+            nav.style.margin = "0";
+        }
         container.appendChild(barraPaginacao);
     }
 
@@ -1996,19 +2025,24 @@ function carregarMonografiaFinal() {
     })
     .then(r => r.json())
     .then(resposta => {
-        const dados = resposta.dados;
+        const dados = Array.isArray(resposta.dados) ? resposta.dados : [];
         const dadosFiltrados = dados.filter(item => {
             const parecer = item.parecer ?? item.Parecer ?? "";
             return parecer.toString().trim() === "";
         });
+        monografiaFinalRegistos = dadosFiltrados;
+        const estadoPaginacao = calcularEstadoPaginacao(monografiaFinalRegistos.length, paginaAtualMonografiaFinal, linhasPorPagina);
+        paginaAtualMonografiaFinal = estadoPaginacao.paginaAtual;
 
-        if (!dadosFiltrados || dadosFiltrados.length === 0) {
+        if (!monografiaFinalRegistos || monografiaFinalRegistos.length === 0) {
             document.getElementById("tabelaGestaoGeral").innerHTML =
                 '<p class="sem-dados">Não existe nenhum dado para ser apresentado.</p>';
             esconderCarregamento();
             reaplicarRestricoesUI();
             return;
         }
+
+        const paginaDados = monografiaFinalRegistos.slice(estadoPaginacao.inicio, estadoPaginacao.fim);
 
         let html = `
             <div class="tabela-scroll">
@@ -2027,11 +2061,11 @@ function carregarMonografiaFinal() {
                 <tbody>
         `;
 
-        dadosFiltrados.forEach((item, index) => {
+        paginaDados.forEach((item, index) => {
             const idSubmissao = (item.idSubmissao || "").toString().trim();
             html += `
                 <tr data-id="${idSubmissao}">
-                    <td class="col-ord">${index + 1}</td>
+                    <td class="col-ord">${estadoPaginacao.inicio + index + 1}</td>
                     <td class="col-data">${formatarDataCurta(item.timestamp)}</td>
                     <td class="col-nome">${item.nome}</td>
                     <td class="col-curso">${item.curso}</td>
@@ -2056,7 +2090,30 @@ function carregarMonografiaFinal() {
             </div>
         `;
 
+        if (estadoPaginacao.deveMostrarPaginacao) {
+            html += markupPaginacaoPadrao({
+                paginaAtual: estadoPaginacao.paginaAtual,
+                totalPaginas: estadoPaginacao.totalPaginas,
+                ariaLabel: "Paginação Monografia Final"
+            });
+        }
+
         document.getElementById("tabelaGestaoGeral").innerHTML = html;
+        const container = document.getElementById("tabelaGestaoGeral");
+        const btnAnterior = container?.querySelector("[data-pagina='anterior']");
+        const btnSeguinte = container?.querySelector("[data-pagina='seguinte']");
+        if (btnAnterior) {
+            btnAnterior.addEventListener("click", () => {
+                paginaAtualMonografiaFinal = Math.max(1, paginaAtualMonografiaFinal - 1);
+                carregarMonografiaFinal();
+            });
+        }
+        if (btnSeguinte) {
+            btnSeguinte.addEventListener("click", () => {
+                paginaAtualMonografiaFinal += 1;
+                carregarMonografiaFinal();
+            });
+        }
         mostrarBotaoGuardar("monografia");
         esconderCarregamento();
         reaplicarRestricoesUI();
@@ -2176,6 +2233,13 @@ function carregarCredencialPesquisa() {
             reaplicarRestricoesUI();
             return;
         }
+        const estadoPaginacao = calcularEstadoPaginacao(
+            credencialPesquisaRegistos.length,
+            paginaAtualCredencialPesquisa,
+            linhasPorPagina
+        );
+        paginaAtualCredencialPesquisa = estadoPaginacao.paginaAtual;
+        const paginaDados = credencialPesquisaRegistos.slice(estadoPaginacao.inicio, estadoPaginacao.fim);
 
         let html = `
             <div class="credencial-lista-head">
@@ -2189,8 +2253,8 @@ function carregarCredencialPesquisa() {
             <div class="credencial-lista table-credencial">
         `;
 
-        credencialPesquisaRegistos.forEach((item, index) => {
-            const rowNumber = obterRowNumericoCredencial(item.row, index + 2);
+        paginaDados.forEach((item, index) => {
+            const rowNumber = obterRowNumericoCredencial(item.row, estadoPaginacao.inicio + index + 2);
             const idCredencial = String(item.id || "").trim();
 
             if (rowNumber === null) {
@@ -2228,7 +2292,30 @@ function carregarCredencialPesquisa() {
             </div>
         `;
 
+        if (estadoPaginacao.deveMostrarPaginacao) {
+            html += markupPaginacaoPadrao({
+                paginaAtual: estadoPaginacao.paginaAtual,
+                totalPaginas: estadoPaginacao.totalPaginas,
+                ariaLabel: "Paginação Colecta de Dados"
+            });
+        }
+
         document.getElementById("tabelaGestaoGeral").innerHTML = html;
+        const container = document.getElementById("tabelaGestaoGeral");
+        const btnAnterior = container?.querySelector("[data-pagina='anterior']");
+        const btnSeguinte = container?.querySelector("[data-pagina='seguinte']");
+        if (btnAnterior) {
+            btnAnterior.addEventListener("click", () => {
+                paginaAtualCredencialPesquisa = Math.max(1, paginaAtualCredencialPesquisa - 1);
+                carregarCredencialPesquisa();
+            });
+        }
+        if (btnSeguinte) {
+            btnSeguinte.addEventListener("click", () => {
+                paginaAtualCredencialPesquisa += 1;
+                carregarCredencialPesquisa();
+            });
+        }
         document.getElementById("btnGuardar")?.remove();
         esconderCarregamento();
         reaplicarRestricoesUI();
@@ -2242,18 +2329,16 @@ function carregarCredencialPesquisa() {
     });
 }
 
-const PLANOS_ANALITICOS_POR_PAGINA = 10;
 let planosAnaliticosPaginaAtual = 1;
 let planosAnaliticosDados = [];
 
 function renderTabelaPlanosAnaliticos(dados = [], pagina = 1) {
     const container = document.getElementById("tabelaGestaoGeral");
     if (!container) return;
-    const totalPaginas = Math.max(1, Math.ceil(dados.length / PLANOS_ANALITICOS_POR_PAGINA));
-    const paginaAtual = Math.min(Math.max(pagina, 1), totalPaginas);
-    const deveMostrarPaginacao = dados.length > 10 && totalPaginas > 1;
-    const inicio = (paginaAtual - 1) * PLANOS_ANALITICOS_POR_PAGINA;
-    const fim = inicio + PLANOS_ANALITICOS_POR_PAGINA;
+    const estadoPaginacao = calcularEstadoPaginacao(dados.length, pagina, linhasPorPagina);
+    const paginaAtual = estadoPaginacao.paginaAtual;
+    const inicio = estadoPaginacao.inicio;
+    const fim = estadoPaginacao.fim;
     const dadosPagina = dados.slice(inicio, fim);
 
     let html = `
@@ -2313,12 +2398,11 @@ function renderTabelaPlanosAnaliticos(dados = [], pagina = 1) {
                 </tbody>
             </table>
         </div>
-        ${deveMostrarPaginacao ? `
-        <div class="paginacao-analiticos" role="navigation" aria-label="Paginação Planos Analíticos">
-            <button class="button btn-paginacao" type="button" data-pagina="anterior" ${paginaAtual === 1 ? "disabled" : ""} aria-label="Página anterior">&lt;</button>
-            <span class="paginacao-info">${paginaAtual} de ${totalPaginas}</span>
-            <button class="button btn-paginacao" type="button" data-pagina="seguinte" ${paginaAtual === totalPaginas ? "disabled" : ""} aria-label="Página seguinte">&gt;</button>
-        </div>` : ""}
+        ${estadoPaginacao.deveMostrarPaginacao ? markupPaginacaoPadrao({
+            paginaAtual,
+            totalPaginas: estadoPaginacao.totalPaginas,
+            ariaLabel: "Paginação Planos Analíticos"
+        }) : ""}
         <div class="relatorio-analiticos">
             <h3>Gerar relatório de planos analíticos:</h3>
             <div class="relatorio-analiticos__acoes">
@@ -2444,6 +2528,13 @@ async function carregarCredenciaisEstagioGestor() {
             reaplicarRestricoesUI();
             return;
         }
+        const estadoPaginacao = calcularEstadoPaginacao(
+            credencialEstagioRegistos.length,
+            paginaAtualCredencialEstagio,
+            linhasPorPagina
+        );
+        paginaAtualCredencialEstagio = estadoPaginacao.paginaAtual;
+        const paginaDados = credencialEstagioRegistos.slice(estadoPaginacao.inicio, estadoPaginacao.fim);
 
         let html = `
             <div class="credencial-lista-head">
@@ -2457,7 +2548,7 @@ async function carregarCredenciaisEstagioGestor() {
             <div class="credencial-lista table-credencial table-credencial-estagio">
         `;
 
-        listaFiltrada.forEach((item, index) => {
+        paginaDados.forEach((item, index) => {
             const idCredencial = String(item.id || "").trim();
             const linkPDF = item.linkPDF ?? item.pdfURL ?? "";
             const idEmFalta = !idCredencial;
@@ -2494,7 +2585,30 @@ async function carregarCredenciaisEstagioGestor() {
             </div>
         `;
 
+        if (estadoPaginacao.deveMostrarPaginacao) {
+            html += markupPaginacaoPadrao({
+                paginaAtual: estadoPaginacao.paginaAtual,
+                totalPaginas: estadoPaginacao.totalPaginas,
+                ariaLabel: "Paginação Pedido de Estágios"
+            });
+        }
+
         document.getElementById("tabelaGestaoGeral").innerHTML = html;
+        const container = document.getElementById("tabelaGestaoGeral");
+        const btnAnterior = container?.querySelector("[data-pagina='anterior']");
+        const btnSeguinte = container?.querySelector("[data-pagina='seguinte']");
+        if (btnAnterior) {
+            btnAnterior.addEventListener("click", () => {
+                paginaAtualCredencialEstagio = Math.max(1, paginaAtualCredencialEstagio - 1);
+                carregarCredenciaisEstagioGestor();
+            });
+        }
+        if (btnSeguinte) {
+            btnSeguinte.addEventListener("click", () => {
+                paginaAtualCredencialEstagio += 1;
+                carregarCredenciaisEstagioGestor();
+            });
+        }
         document.getElementById("btnGuardar")?.remove();
         esconderCarregamento();
         reaplicarRestricoesUI();
@@ -3064,10 +3178,6 @@ function carregarParecer() {
         if (dados.length === 0) {
             document.getElementById("tabelaGestaoGeral").innerHTML =
                 '<p class="sem-dados">Não existe nenhum dado para ser apresentado.</p>';
-            const controles = document.getElementById("controlesPaginacao");
-            if (controles) {
-                controles.innerHTML = "";
-            }
             esconderCarregamento();
             reaplicarRestricoesUI();
             return;
@@ -3118,17 +3228,13 @@ function carregarParecer() {
         if (temasParecerRegistos.length === 0) {
             document.getElementById("tabelaGestaoGeral").innerHTML =
                 '<p class="sem-dados">Não existe nenhum dado para ser apresentado.</p>';
-            const controles = document.getElementById("controlesPaginacao");
-            if (controles) {
-                controles.innerHTML = "";
-            }
             esconderCarregamento();
             reaplicarRestricoesUI();
             return;
         }
 
-        paginaAtual = 1;
-        totalPaginas = Math.ceil(temasParecerRegistos.length / linhasPorPagina);
+        paginaAtualTemasParecer = 1;
+        totalPaginas = Math.max(1, Math.ceil(temasParecerRegistos.length / linhasPorPagina));
         renderTabelaParecer();
         esconderCarregamento();
     })
@@ -3142,8 +3248,11 @@ function renderTabelaParecer() {
     const container = document.getElementById("tabelaGestaoGeral");
     if (!container) return;
 
-    const inicio = (paginaAtual - 1) * linhasPorPagina;
-    const fim = inicio + linhasPorPagina;
+    const estadoPaginacao = calcularEstadoPaginacao(temasParecerRegistos.length, paginaAtualTemasParecer, linhasPorPagina);
+    paginaAtualTemasParecer = estadoPaginacao.paginaAtual;
+    totalPaginas = estadoPaginacao.totalPaginas;
+    const inicio = estadoPaginacao.inicio;
+    const fim = estadoPaginacao.fim;
     const paginaDados = temasParecerRegistos.slice(inicio, fim);
 
     let html = `
@@ -3186,33 +3295,40 @@ function renderTabelaParecer() {
     `;
 
     container.innerHTML = html;
+    if (estadoPaginacao.deveMostrarPaginacao) {
+        const paginacaoWrapper = document.createElement("div");
+        paginacaoWrapper.innerHTML = markupPaginacaoPadrao({
+            paginaAtual: estadoPaginacao.paginaAtual,
+            totalPaginas: estadoPaginacao.totalPaginas,
+            ariaLabel: "Paginação Temas Monografia"
+        });
+        container.appendChild(paginacaoWrapper.firstElementChild);
+    }
     renderizarControlesParecer();
     reaplicarRestricoesUI();
 }
 
 function renderizarControlesParecer() {
-    const controles = document.getElementById("controlesPaginacao");
-    if (!controles) return;
-    const deveMostrarPaginacao = temasParecerRegistos.length > 10 && totalPaginas > 1;
+    const container = document.getElementById("tabelaGestaoGeral");
+    if (!container) return;
+    const btnAnterior = container.querySelector("[data-pagina='anterior']");
+    const btnSeguinte = container.querySelector("[data-pagina='seguinte']");
 
-    if (!deveMostrarPaginacao) {
-        controles.innerHTML = "";
-        reaplicarRestricoesUI();
-        return;
+    if (btnAnterior) {
+        btnAnterior.addEventListener("click", () => mudarPaginaParecer(-1));
     }
 
-    controles.innerHTML = `
-        <button onclick="mudarPaginaParecer(-1)">&lt;</button>
-        <span>Página ${paginaAtual} de ${totalPaginas}</span>
-        <button onclick="mudarPaginaParecer(1)">&gt;</button>
-    `;
+    if (btnSeguinte) {
+        btnSeguinte.addEventListener("click", () => mudarPaginaParecer(1));
+    }
+
     reaplicarRestricoesUI();
 }
 function mudarPaginaParecer(delta) {
-    const novaPagina = paginaAtual + delta;
+    const novaPagina = paginaAtualTemasParecer + delta;
 
     if (novaPagina < 1 || novaPagina > totalPaginas) return;
 
-    paginaAtual = novaPagina;
+    paginaAtualTemasParecer = novaPagina;
     renderTabelaParecer();
 }
