@@ -27,8 +27,24 @@ const mostrarInicioDocente = () => {
   if (containerInicio) containerInicio.style.display = 'block';
 };
 
-const mostrarMensagemFuncionalidadeIndisponivel = () => {
-  alert('A funcionalidade estará disponivel oportunamente');
+const mostrarSecaoEmBreve = (tituloSecao) => {
+  limparSecoesDocente();
+
+  if (!formPlanoContainer) return;
+
+  formPlanoContainer.style.display = 'block';
+
+  const card = criarElemento('div', 'card');
+  const titulo = criarElemento('h3', 'card-title', tituloSecao);
+  const mensagem = criarElemento(
+    'p',
+    'card-text',
+    'A funcionalidade estará disponível oportunamente.'
+  );
+
+  card.appendChild(titulo);
+  card.appendChild(mensagem);
+  formPlanoContainer.appendChild(card);
 };
 
 // ===============================
@@ -583,15 +599,21 @@ if (btnInicio) {
 }
 
 if (btnPedidoDispensa) {
-  btnPedidoDispensa.addEventListener('click', mostrarMensagemFuncionalidadeIndisponivel);
+  btnPedidoDispensa.addEventListener('click', () => {
+    mostrarSecaoEmBreve('Pedido de Dispensa');
+  });
 }
 
 if (btnPedidoFerias) {
-  btnPedidoFerias.addEventListener('click', mostrarMensagemFuncionalidadeIndisponivel);
+  btnPedidoFerias.addEventListener('click', () => {
+    mostrarSecaoEmBreve('Pedido de Férias');
+  });
 }
 
 if (btnJustificacaoFaltas) {
-  btnJustificacaoFaltas.addEventListener('click', mostrarMensagemFuncionalidadeIndisponivel);
+  btnJustificacaoFaltas.addEventListener('click', () => {
+    mostrarSecaoEmBreve('Justificação de Faltas');
+  });
 }
 
 botoesNavegacao.forEach((botao) => {
