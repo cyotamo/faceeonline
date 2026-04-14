@@ -3223,6 +3223,21 @@ input[type='file'] {
   overflow-x: auto;
 }
 
+#resultadoConsultaEstado {
+  padding: 26px 30px;
+  min-height: 240px;
+  overflow: visible;
+}
+
+#resultadoConsultaEstado p {
+  margin: 0 0 12px;
+  line-height: 1.65;
+}
+
+#resultadoConsultaEstado p:last-child {
+  margin-bottom: 0;
+}
+
 .aluno-page #form-container h2,
 .aluno-content .form-card h2,
 .aluno-content .horarios-titulo {
