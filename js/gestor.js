@@ -302,6 +302,11 @@ const temaModalResumo = document.getElementById("temaModalResumo");
 const temaModalParecer = document.getElementById("temaModalParecer");
 const temaModalObservacoes = document.getElementById("temaModalObservacoes");
 const btnGuardarParecerTema = document.getElementById("btnGuardarParecerTema");
+const modalParecerMonografiaFinal = document.getElementById("modalParecerMonografiaFinal");
+const monoModalNome = document.getElementById("monoModalNome");
+const monoModalParecer = document.getElementById("monoModalParecer");
+const monoModalObservacoes = document.getElementById("monoModalObservacoes");
+const btnGuardarParecerMonografiaFinal = document.getElementById("btnGuardarParecerMonografiaFinal");
 const modalAtribuirSupervisor = document.getElementById("modalAtribuirSupervisor");
 const atribuirSupervisorModalNome = document.getElementById("atribuirSupervisorModalNome");
 const atribuirSupervisorModalCurso = document.getElementById("atribuirSupervisorModalCurso");
@@ -339,6 +344,7 @@ let idCredencialModalAtual = "";
 let moduloCredencialModalAtual = "pesquisa";
 let temasParecerRegistos = [];
 let idTemaModalAtual = "";
+let idMonografiaFinalModalAtual = "";
 let idTemaAtribuirSupervisorAtual = "";
 let paginaAtualDefesas = 1;
 let paginaAtualCredencialPesquisa = 1;
@@ -436,6 +442,39 @@ function fecharModalParecerCredencial() {
 
 function atualizarLinhaCredencialUI(idCredencial, dadosAtualizados = {}) {
     const linha = document.querySelector(`.credencial-linha[data-id="${idCredencial}"]`);
+    if (!linha) return;
+
+    const parecer = dadosAtualizados.parecer ?? "";
+    const badge = linha.querySelector(".credencial-status .status");
+    if (badge) {
+        badge.className = `status ${obterClasseStatusCredencial(parecer)}`;
+        badge.textContent = obterLabelStatusCredencial(parecer);
+    }
+}
+
+function abrirModalParecerMonografiaFinal(idSubmissao) {
+    if (!modalParecerMonografiaFinal) return;
+    const idNormalizado = String(idSubmissao || "").trim();
+    const registo = monografiaFinalRegistos.find((item) => String(item.idSubmissao || "").trim() === idNormalizado);
+    if (!registo) return;
+
+    idMonografiaFinalModalAtual = idNormalizado;
+    monoModalNome.value = registo.nome || "";
+    monoModalParecer.value = registo.parecer || "";
+    monoModalObservacoes.value = registo.observacoes || "";
+    modalParecerMonografiaFinal.style.display = "flex";
+    modalParecerMonografiaFinal.setAttribute("aria-hidden", "false");
+}
+
+function fecharModalParecerMonografiaFinal() {
+    if (!modalParecerMonografiaFinal) return;
+    modalParecerMonografiaFinal.style.display = "none";
+    modalParecerMonografiaFinal.setAttribute("aria-hidden", "true");
+    idMonografiaFinalModalAtual = "";
+}
+
+function atualizarLinhaMonografiaFinalUI(idSubmissao, dadosAtualizados = {}) {
+    const linha = document.querySelector(`.credencial-linha[data-id="${idSubmissao}"]`);
     if (!linha) return;
 
     const parecer = dadosAtualizados.parecer ?? "";
@@ -1238,6 +1277,64 @@ function configurarEventosModalTema() {
     });
 }
 
+async function guardarParecerMonografiaFinalModalBackend() {
+    if (!idMonografiaFinalModalAtual) return;
+    const registo = monografiaFinalRegistos.find(
+        (item) => String(item.idSubmissao || "").trim() === idMonografiaFinalModalAtual
+    );
+    if (!registo) return;
+
+    const parecer = String(monoModalParecer?.value || "").trim();
+    const observacoes = String(monoModalObservacoes?.value || "").trim();
+    const botao = btnGuardarParecerMonografiaFinal;
+    activarLoadingGuardar(botao);
+
+    try {
+        const payload = [{ idSubmissao: idMonografiaFinalModalAtual, parecer, observacoes }];
+        const dados = new FormData();
+        dados.append("action", "atualizarMonografiaFinal");
+        dados.append("linhas", JSON.stringify(payload));
+
+        const resposta = await fetch(WEB_URL, {
+            method: "POST",
+            body: dados
+        });
+        const resultado = await resposta.json();
+
+        if (!resultado || resultado.sucesso !== true) {
+            throw new Error(resultado?.mensagem || "Erro ao guardar parecer.");
+        }
+
+        registo.parecer = parecer;
+        registo.observacoes = observacoes;
+        atualizarLinhaMonografiaFinalUI(idMonografiaFinalModalAtual, { parecer });
+        fecharModalParecerMonografiaFinal();
+    } catch (err) {
+        console.error("Erro ao guardar parecer da monografia final:", err);
+        alert(err?.message || "Erro ao guardar parecer.");
+    } finally {
+        desactivarLoadingGuardar(botao);
+    }
+}
+
+function configurarEventosModalMonografiaFinal() {
+    document.getElementById("btnFecharModalParecerMonografiaFinal")
+        ?.addEventListener("click", fecharModalParecerMonografiaFinal);
+    btnGuardarParecerMonografiaFinal?.addEventListener("click", guardarParecerMonografiaFinalModalBackend);
+
+    modalParecerMonografiaFinal?.addEventListener("click", (event) => {
+        if (event.target === modalParecerMonografiaFinal) {
+            fecharModalParecerMonografiaFinal();
+        }
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && modalParecerMonografiaFinal?.style.display === "flex") {
+            fecharModalParecerMonografiaFinal();
+        }
+    });
+}
+
 function configurarEventosModalAtribuirSupervisor() {
     document.getElementById("btnFecharModalAtribuirSupervisor")?.addEventListener("click", fecharModalAtribuirSupervisor);
     btnAtribuirSupervisorModal?.addEventListener("click", guardarAtribuicaoSupervisorModal);
@@ -1263,6 +1360,7 @@ window.renderTabelaDefesa = renderTabelaDefesa;
 configurarEventosModalDefesa();
 configurarEventosModalCredencial();
 configurarEventosModalTema();
+configurarEventosModalMonografiaFinal();
 configurarEventosModalAtribuirSupervisor();
 
 function esconderEstatisticas() {
@@ -2080,7 +2178,12 @@ function carregarMonografiaFinal() {
             const parecer = item.parecer ?? item.Parecer ?? "";
             return parecer.toString().trim() === "";
         });
-        monografiaFinalRegistos = dadosFiltrados;
+        monografiaFinalRegistos = dadosFiltrados.map((item) => ({
+            ...item,
+            idSubmissao: String(item.idSubmissao || "").trim(),
+            parecer: String(item.parecer ?? item.Parecer ?? "").trim(),
+            observacoes: String(item.observacoes ?? item.Observacoes ?? "").trim()
+        }));
         const estadoPaginacao = calcularEstadoPaginacao(monografiaFinalRegistos.length, paginaAtualMonografiaFinal, linhasPorPagina);
         paginaAtualMonografiaFinal = estadoPaginacao.paginaAtual;
 
@@ -2095,48 +2198,48 @@ function carregarMonografiaFinal() {
         const paginaDados = monografiaFinalRegistos.slice(estadoPaginacao.inicio, estadoPaginacao.fim);
 
         let html = `
-            <div class="tabela-scroll">
-            <table class="tabela-gestao table-monografia-final">
-                <thead>
-                    <tr>
-                        <th class="col-ord">Ord</th>
-                        <th class="col-data">Data</th>
-                        <th class="col-nome">Nome</th>
-                        <th class="col-curso">Curso</th>
-                        <th class="col-pdf">Ver (PDF)</th>
-                        <th class="col-parecer">Parecer</th>
-                        <th class="col-observacoes">Observações</th>
-                    </tr>
-                </thead>
-                <tbody>
+            <div class="credencial-lista-head">
+                <div>Data</div>
+                <div>Nome</div>
+                <div>Curso</div>
+                <div>Ficheiro</div>
+                <div>Status</div>
+                <div>Acções</div>
+            </div>
+            <div class="credencial-lista table-credencial table-monografia-final">
         `;
 
-        paginaDados.forEach((item, index) => {
+        paginaDados.forEach((item) => {
             const idSubmissao = (item.idSubmissao || "").toString().trim();
+            const statusClasse = obterClasseStatusCredencial(item.parecer);
+            const statusLabel = obterLabelStatusCredencial(item.parecer);
+            const linkPDF = item.linkPDF || item.pdfURL || "#";
+            const idEmFalta = !idSubmissao;
             html += `
-                <tr data-id="${idSubmissao}">
-                    <td class="col-ord">${estadoPaginacao.inicio + index + 1}</td>
-                    <td class="col-data">${formatarDataCurta(item.timestamp)}</td>
-                    <td class="col-nome">${item.nome}</td>
-                    <td class="col-curso">${item.curso}</td>
-                    <td class="col-pdf"><a class="pdf-icon" href="${item.linkPDF}" target="_blank" rel="noopener noreferrer">📄</a></td>
-                    <td class="col-parecer">
-                        <select class="parecer">
-                            <option value="">Seleccione…</option>
-                            <option>Aprovado</option>
-                            <option>Recusado</option>
-                        </select>
-                    </td>
-                    <td class="col-observacoes">
-                        <textarea class="observacoes" rows="4" aria-label="Observações"></textarea>
-                    </td>
-                </tr>
+                <article class="credencial-linha" data-id="${idSubmissao}">
+                    <div class="credencial-data">${formatarDataCurta(item.timestamp)}</div>
+                    <div class="credencial-estudante">
+                        <p class="credencial-nome">${item.nome || "—"}</p>
+                    </div>
+                    <div class="credencial-curso">${item.curso || "—"}</div>
+                    <div class="credencial-arquivo">
+                        <a class="pdf-icon credencial-pdf-link" href="${linkPDF}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento PDF">
+                            <span aria-hidden="true">📄</span><span>PDF</span>
+                        </a>
+                    </div>
+                    <div class="credencial-status">
+                        <span class="status ${statusClasse}">${statusLabel}</span>
+                    </div>
+                    <div class="credencial-acao">
+                        <button class="credencial-btn-acao" type="button" data-monografia-acao="${idSubmissao}" aria-label="Ver e emitir parecer"${idEmFalta ? " disabled" : ""}>
+                            <span aria-hidden="true">👁</span>
+                        </button>
+                    </div>
+                </article>
             `;
         });
 
         html += `
-                </tbody>
-            </table>
             </div>
         `;
 
@@ -2164,7 +2267,7 @@ function carregarMonografiaFinal() {
                 carregarMonografiaFinal();
             });
         }
-        mostrarBotaoGuardar("monografia");
+        document.getElementById("btnGuardar")?.remove();
         esconderCarregamento();
         reaplicarRestricoesUI();
     })
@@ -2701,6 +2804,12 @@ document.addEventListener("click", async (e) => {
         console.log("[TemasMonografia][Click] Clique capturado no botão Acções.");
         console.log("[TemasMonografia][Click] data-tema-acao capturado:", botaoAcaoTema.dataset.temaAcao);
         abrirModalParecerTema(botaoAcaoTema.dataset.temaAcao);
+        return;
+    }
+
+    const botaoAcaoMonografiaFinal = e.target?.closest("[data-monografia-acao]");
+    if (botaoAcaoMonografiaFinal) {
+        abrirModalParecerMonografiaFinal(botaoAcaoMonografiaFinal.dataset.monografiaAcao);
         return;
     }
 
