@@ -7,6 +7,11 @@ const mapaAbas = {
     cred_total: { aba: "Credencial", filtro: "todos" },
     cred_aprovados: { aba: "Credencial", filtro: "aprovados" }
 };
+const TIPOS_RELATORIO_PLANOS_ANALITICOS = new Set([
+    "planos_analiticos_submetidos",
+    "planos_analiticos_nao_submetidos",
+    "planos_analiticos_todos"
+]);
 
 let estadoCamposBloqueados = [];
 let modoTabelaGestao = "geral";
@@ -1567,6 +1572,15 @@ function carregarEstatisticas() {
 
 document.getElementById("btnBuscarEstatisticas").addEventListener("click", async () => {
     const parametros = obterParametrosRelatorio();
+    const isRelatorioPlanosAnaliticos = ehRelatorioPlanosAnaliticos(parametros.tipo);
+
+    if (isRelatorioPlanosAnaliticos) {
+        await gerarRelatorioPlanosAnaliticosPorTipo(parametros.tipo);
+        if (window.aplicarRestricoesUI && window.userEmail) {
+            aplicarRestricoesUI(window.userEmail);
+        }
+        return;
+    }
 
     const erroValidacao = validarParametrosRelatorio(parametros);
     if (erroValidacao) {
@@ -1615,6 +1629,10 @@ function obterParametrosRelatorio() {
 }
 
 function validarParametrosRelatorio({ tipo, inicio, fim }) {
+    if (ehRelatorioPlanosAnaliticos(tipo)) {
+        return "";
+    }
+
     if (!tipo || !inicio || !fim) {
         return "Selecione o tipo de relatório e o período completo.";
     }
@@ -1695,60 +1713,45 @@ function mostrarLinkRelatorio(url) {
     reaplicarRestricoesUI();
 }
 
-function normalizarTipoRelatorioAnaliticos(tipo) {
-    if (!tipo) return "";
-    return tipo.replace(/-/g, "_");
+function ehRelatorioPlanosAnaliticos(tipo) {
+    return TIPOS_RELATORIO_PLANOS_ANALITICOS.has(tipo);
 }
 
-function atualizarEstadoRelatorioAnaliticos(container, mensagem, isErro = false) {
-    if (!container) return;
-    const estado = container.querySelector("[data-relatorio-estado]");
-    if (!estado) return;
-    estado.textContent = mensagem;
-    estado.style.color = isErro ? "red" : "inherit";
+function normalizarTipoRelatorioPlanosAnaliticos(tipo) {
+    const mapaTipos = {
+        planos_analiticos_submetidos: "submetidos",
+        planos_analiticos_nao_submetidos: "nao-submetidos",
+        planos_analiticos_todos: "todos"
+    };
+    return mapaTipos[tipo] || "";
 }
 
-function definirLoadingRelatorioAnaliticos(container, botaoAtivo, emLoading) {
-    if (!container) return;
-    const botoes = container.querySelectorAll(".btn-relatorio-analiticos");
+function definirLoadingBotaoRelatorios(emLoading) {
+    const botao = document.getElementById("btnBuscarEstatisticas");
+    if (!botao) return;
 
-    botoes.forEach(botao => {
-        const isBotaoAtivo = botao === botaoAtivo;
-
-        if (emLoading) {
-            if (isBotaoAtivo && !botao.disabled) {
-                botao.dataset.textoOriginal = botao.textContent;
-            }
-            botao.disabled = true;
-
-            if (isBotaoAtivo) {
-                botao.textContent = "A gerar...";
-            }
-        } else {
-            botao.disabled = false;
-
-            if (isBotaoAtivo) {
-                botao.textContent = botao.dataset.textoOriginal || botao.textContent;
-            }
+    if (emLoading) {
+        if (!botao.disabled) {
+            botao.dataset.textoOriginal = botao.textContent;
         }
-    });
+        botao.disabled = true;
+        botao.textContent = "A gerar...";
+        return;
+    }
+
+    botao.disabled = false;
+    botao.textContent = botao.dataset.textoOriginal || "Buscar";
 }
 
-async function gerarRelatorioPlanosAnaliticos(botao) {
-    const container = botao.closest(".relatorio-analiticos");
-    if (!container) return;
-
-    const tipo = botao.dataset.relatorio || "";
-    const tipoNormalizado = normalizarTipoRelatorioAnaliticos(tipo);
-    if (!tipoNormalizado) return;
-
-    const link = container.querySelector("[data-relatorio-link]");
-
-    definirLoadingRelatorioAnaliticos(container, botao, true);
-    if (link) {
-        link.hidden = true;
+async function gerarRelatorioPlanosAnaliticosPorTipo(tipo) {
+    const tipoNormalizado = normalizarTipoRelatorioPlanosAnaliticos(tipo);
+    if (!tipoNormalizado) {
+        actualizarEstadoRelatorio("O tipo de relatório seleccionado não é válido.", true);
+        return;
     }
-    atualizarEstadoRelatorioAnaliticos(container, "A gerar relatório...");
+
+    definirLoadingBotaoRelatorios(true);
+    actualizarEstadoRelatorio("A gerar relatório…");
 
     try {
         const parametros = new URLSearchParams();
@@ -1781,36 +1784,18 @@ async function gerarRelatorioPlanosAnaliticos(botao) {
             throw new Error("Nenhum link do relatório foi retornado.");
         }
 
-        if (link) {
-            link.href = url;
-            link.target = "_blank";
-            link.rel = "noopener";
-            link.textContent = "Baixe aqui o relatório";
-            link.hidden = false;
-        }
-
-        atualizarEstadoRelatorioAnaliticos(container, "Relatório gerado com sucesso!");
+        mostrarLinkRelatorio(url);
     } catch (erro) {
         console.error("Erro ao gerar relatório de planos analíticos:", erro);
-        atualizarEstadoRelatorioAnaliticos(
-            container,
+        actualizarEstadoRelatorio(
             erro?.message || "Ocorreu um erro ao gerar o relatório.",
             true
         );
-        if (link) {
-            link.hidden = true;
-        }
     } finally {
-        definirLoadingRelatorioAnaliticos(container, botao, false);
+        definirLoadingBotaoRelatorios(false);
         reaplicarRestricoesUI();
     }
 }
-
-document.addEventListener("click", event => {
-    const botao = event.target.closest(".btn-relatorio-analiticos");
-    if (!botao) return;
-    gerarRelatorioPlanosAnaliticos(botao);
-});
 
 function ordenarDadosPorDataAscendente(lista) {
     return [...lista].sort((a, b) => {
@@ -2564,27 +2549,9 @@ function renderTabelaPlanosAnaliticos(dados = [], pagina = 1) {
             totalPaginas: estadoPaginacao.totalPaginas,
             ariaLabel: "Paginação Planos Analíticos"
         }) : ""}
-        <div class="relatorio-analiticos">
-            <h3>Gerar relatório de planos analíticos:</h3>
-            <div class="relatorio-analiticos__acoes">
-                <button class="button btn-relatorio-analiticos btn-relatorio-submetidos" type="button" data-relatorio="submetidos">Submetidos</button>
-                <button class="button btn-relatorio-analiticos btn-relatorio-nao-submetidos" type="button" data-relatorio="nao-submetidos">Não Submetidos</button>
-                <button class="button btn-relatorio-analiticos btn-relatorio-todos" type="button" data-relatorio="todos">Todos</button>
-            </div>
-            <a class="relatorio-analiticos__link" href="#" data-relatorio-link>Baixe aqui o relatório</a>
-            <span class="relatorio-analiticos__estado" data-relatorio-estado></span>
-        </div>
     `;
 
     container.innerHTML = html;
-    const linkRelatorio = container.querySelector("[data-relatorio-link]");
-    if (linkRelatorio) {
-        linkRelatorio.href = "#";
-        linkRelatorio.textContent = "Baixe aqui o relatório";
-        linkRelatorio.hidden = true;
-        linkRelatorio.removeAttribute("target");
-        linkRelatorio.removeAttribute("rel");
-    }
     const btnAnterior = container.querySelector("[data-pagina='anterior']");
     const btnSeguinte = container.querySelector("[data-pagina='seguinte']");
 
