@@ -1891,9 +1891,11 @@ function carregarGestaoGeral() {
         let dadosFiltrados = dados;
 
         if (modoTabelaGestao === "atribuirSupervisor") {
-            dadosFiltrados = dados.filter(item =>
-                normalizarCampo(item.colL) === "aprovado"
-            );
+            dadosFiltrados = dados.filter(item => {
+                const estadoTemaAprovado = normalizarCampo(item.colL) === "aprovado";
+                const supervisorJaAtribuido = String(item.supervisorFinal ?? item.supervisor ?? "").trim() !== "";
+                return estadoTemaAprovado && !supervisorJaAtribuido;
+            });
         }
 
         if (modoTabelaGestao === "homologarSupervisor") {
