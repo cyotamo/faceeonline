@@ -356,7 +356,6 @@ let paginaAtualCredencialPesquisa = 1;
 let paginaAtualCredencialEstagio = 1;
 let paginaAtualMonografiaFinal = 1;
 let paginaAtualTemasParecer = 1;
-const REGISTOS_POR_PAGINA_DEFESAS = 10;
 
 function calcularEstadoPaginacao(totalRegistos = 0, pagina = 1, registosPorPagina = 10) {
     const total = Number(totalRegistos) || 0;
@@ -671,41 +670,9 @@ function atualizarLinhaTemaUI(idTema, dadosAtualizados = {}) {
     }
 }
 
-function actualizarPaginacaoDefesas(totalRegistos = 0) {
-    const infoPaginacao = document.getElementById("infoPaginacaoDefesas");
-    const btnAnterior = document.getElementById("btnDefesasPaginaAnterior");
-    const btnSeguinte = document.getElementById("btnDefesasPaginaSeguinte");
-    const paginacaoContainer = document.querySelector("#secaoDefesas .paginacao-analiticos");
-    const totalPaginasDefesas = Math.max(1, Math.ceil(totalRegistos / REGISTOS_POR_PAGINA_DEFESAS));
-    const deveMostrarPaginacao = totalRegistos > 10 && totalPaginasDefesas > 1;
-
-    if (paginaAtualDefesas > totalPaginasDefesas) {
-        paginaAtualDefesas = totalPaginasDefesas;
-    }
-
-    if (paginaAtualDefesas < 1) {
-        paginaAtualDefesas = 1;
-    }
-
-    if (infoPaginacao) {
-        infoPaginacao.textContent = `${paginaAtualDefesas} de ${totalPaginasDefesas}`;
-    }
-
-    if (paginacaoContainer) {
-        paginacaoContainer.style.display = deveMostrarPaginacao ? "flex" : "none";
-    }
-
-    if (btnAnterior) {
-        btnAnterior.disabled = paginaAtualDefesas <= 1 || totalRegistos === 0;
-    }
-
-    if (btnSeguinte) {
-        btnSeguinte.disabled = paginaAtualDefesas >= totalPaginasDefesas || totalRegistos === 0;
-    }
-}
-
 function mostrarMensagemTabelaDefesa(mensagem) {
     const tbody = document.getElementById("listaDefesas");
+    const paginacaoContainer = document.getElementById("paginacaoDefesas");
     if (!tbody) {
         return;
     }
@@ -716,7 +683,9 @@ function mostrarMensagemTabelaDefesa(mensagem) {
         </tr>
     `;
     paginaAtualDefesas = 1;
-    actualizarPaginacaoDefesas(0);
+    if (paginacaoContainer) {
+        paginacaoContainer.innerHTML = "";
+    }
 }
 
 function defesaEstaAgendada(registo = {}) {
@@ -809,26 +778,27 @@ function preencherSelectSituacaoDefesa(registo = {}, valorSelecionado = "") {
 
 function renderTabelaDefesa(lista = []) {
     const tbody = document.getElementById("listaDefesas");
+    const paginacaoContainer = document.getElementById("paginacaoDefesas");
     if (!tbody) {
         return;
     }
 
     const listaSegura = Array.isArray(lista) ? lista : [];
-    const totalPaginasDefesas = Math.max(1, Math.ceil(listaSegura.length / REGISTOS_POR_PAGINA_DEFESAS));
-    paginaAtualDefesas = Math.min(Math.max(paginaAtualDefesas, 1), totalPaginasDefesas);
+    const estadoPaginacao = calcularEstadoPaginacao(listaSegura.length, paginaAtualDefesas, linhasPorPagina);
+    paginaAtualDefesas = estadoPaginacao.paginaAtual;
 
     if (!listaSegura.length) {
         mostrarMensagemTabelaDefesa("Nenhum registo de defesa encontrado.");
         return;
     }
 
-    const inicio = (paginaAtualDefesas - 1) * REGISTOS_POR_PAGINA_DEFESAS;
-    const fim = inicio + REGISTOS_POR_PAGINA_DEFESAS;
+    const inicio = estadoPaginacao.inicio;
+    const fim = estadoPaginacao.fim;
     const paginaDados = listaSegura.slice(inicio, fim);
     console.log("[DefesaMonografia][Diagnostico] Paginação e renderização:", {
         totalAposTratamento: listaSegura.length,
         paginaAtual: paginaAtualDefesas,
-        itensPorPagina: REGISTOS_POR_PAGINA_DEFESAS,
+        itensPorPagina: linhasPorPagina,
         totalRenderizado: paginaDados.length
     });
 
@@ -879,8 +849,24 @@ function renderTabelaDefesa(lista = []) {
             </tr>
         `;
     }).join("");
+    if (paginacaoContainer) {
+        paginacaoContainer.innerHTML = estadoPaginacao.deveMostrarPaginacao
+            ? markupPaginacaoPadrao({
+                paginaAtual: estadoPaginacao.paginaAtual,
+                totalPaginas: estadoPaginacao.totalPaginas,
+                ariaLabel: "Paginação Defesas"
+            })
+            : "";
+        const btnAnterior = paginacaoContainer.querySelector("[data-pagina='anterior']");
+        const btnSeguinte = paginacaoContainer.querySelector("[data-pagina='seguinte']");
+        btnAnterior?.addEventListener("click", () => atualizarTabelaDefesas(paginaAtualDefesas - 1));
+        btnSeguinte?.addEventListener("click", () => atualizarTabelaDefesas(paginaAtualDefesas + 1));
+    }
+}
 
-    actualizarPaginacaoDefesas(listaSegura.length);
+function atualizarTabelaDefesas(pagina = 1) {
+    paginaAtualDefesas = pagina;
+    renderTabelaDefesa(defesasCache);
 }
 
 function abrirModalEdicaoDefesa(registo = {}, indice = null) {
@@ -1148,22 +1134,6 @@ function configurarEventosModalDefesa() {
         abrirModalEdicaoDefesa(defesasCache[index], index);
     });
 
-    document.getElementById("btnDefesasPaginaAnterior")?.addEventListener("click", () => {
-        if (paginaAtualDefesas <= 1) {
-            return;
-        }
-        paginaAtualDefesas -= 1;
-        renderTabelaDefesa(defesasCache);
-    });
-
-    document.getElementById("btnDefesasPaginaSeguinte")?.addEventListener("click", () => {
-        const totalPaginasDefesas = Math.max(1, Math.ceil(defesasCache.length / REGISTOS_POR_PAGINA_DEFESAS));
-        if (paginaAtualDefesas >= totalPaginasDefesas) {
-            return;
-        }
-        paginaAtualDefesas += 1;
-        renderTabelaDefesa(defesasCache);
-    });
 }
 
 function guardarParecerModalCredencial({ fecharModal = true } = {}) {
@@ -1925,8 +1895,7 @@ function carregarGestaoGeral() {
 
         dadosGestaoGeral = dadosOrdenados;
         paginaAtual = 1;
-        totalPaginas = Math.max(1, Math.ceil(dadosGestaoGeral.length / linhasPorPagina));
-        renderTabelaGestaoGeral();
+        renderTabelaGestaoGeral(dadosGestaoGeral, paginaAtual);
         esconderCarregamento();
     })
     .catch(err => {
@@ -1991,14 +1960,17 @@ function renderizarControlesGestaoGeral() {
     area.appendChild(container);
 }
 
-function renderTabelaGestaoGeral() {
+function renderTabelaGestaoGeral(dados = dadosGestaoGeral, pagina = 1) {
     const container = document.getElementById("tabelaGestaoGeral");
 
     if (!container) return;
 
-    const inicio = (paginaAtual - 1) * linhasPorPagina;
-    const fim = inicio + linhasPorPagina;
-    const paginaDados = dadosGestaoGeral.slice(inicio, fim);
+    const estadoPaginacao = calcularEstadoPaginacao(dados.length, pagina, linhasPorPagina);
+    paginaAtual = estadoPaginacao.paginaAtual;
+    totalPaginas = estadoPaginacao.totalPaginas;
+    const inicio = estadoPaginacao.inicio;
+    const fim = estadoPaginacao.fim;
+    const paginaDados = dados.slice(inicio, fim);
     const isGeral = modoTabelaGestao === "geral";
     const isHomologar = modoTabelaGestao === "homologarSupervisor";
     const isAtribuir = modoTabelaGestao === "atribuirSupervisor";
@@ -2140,14 +2112,12 @@ function renderTabelaGestaoGeral() {
 }
 
 function mudarPagina(delta) {
-    const novaPagina = paginaAtual + delta;
+    atualizarTabelaGestaoGeral(paginaAtual + delta);
+}
 
-    if (novaPagina < 1 || novaPagina > totalPaginas) {
-        return;
-    }
-
-    paginaAtual = novaPagina;
-    renderTabelaGestaoGeral();
+function atualizarTabelaGestaoGeral(pagina = 1) {
+    paginaAtual = pagina;
+    renderTabelaGestaoGeral(dadosGestaoGeral, paginaAtual);
 }
 
 function carregarMonografiaFinal() {
@@ -2171,9 +2141,6 @@ function carregarMonografiaFinal() {
             parecer: String(item.parecer ?? item.Parecer ?? "").trim(),
             observacoes: String(item.observacoes ?? item.Observacoes ?? "").trim()
         }));
-        const estadoPaginacao = calcularEstadoPaginacao(monografiaFinalRegistos.length, paginaAtualMonografiaFinal, linhasPorPagina);
-        paginaAtualMonografiaFinal = estadoPaginacao.paginaAtual;
-
         if (!monografiaFinalRegistos || monografiaFinalRegistos.length === 0) {
             document.getElementById("tabelaGestaoGeral").innerHTML =
                 '<p class="sem-dados">Não existe nenhum dado para ser apresentado.</p>';
@@ -2182,7 +2149,27 @@ function carregarMonografiaFinal() {
             return;
         }
 
-        const paginaDados = monografiaFinalRegistos.slice(estadoPaginacao.inicio, estadoPaginacao.fim);
+        paginaAtualMonografiaFinal = 1;
+        renderTabelaMonografiaFinal(monografiaFinalRegistos, paginaAtualMonografiaFinal);
+        document.getElementById("btnGuardar")?.remove();
+        esconderCarregamento();
+        reaplicarRestricoesUI();
+    })
+    .catch(err => {
+        console.error("Erro ao carregar dados:", err);
+        esconderCarregamento();
+        document.getElementById("tabelaGestaoGeral").innerHTML =
+            "<p>Erro ao carregar os dados da monografia final.</p>";
+        reaplicarRestricoesUI();
+    });
+}
+
+function renderTabelaMonografiaFinal(dados = [], pagina = 1) {
+    const container = document.getElementById("tabelaGestaoGeral");
+    if (!container) return;
+    const estadoPaginacao = calcularEstadoPaginacao(dados.length, pagina, linhasPorPagina);
+    paginaAtualMonografiaFinal = estadoPaginacao.paginaAtual;
+    const paginaDados = dados.slice(estadoPaginacao.inicio, estadoPaginacao.fim);
 
         let html = `
             <div class="credencial-lista-head">
@@ -2238,33 +2225,24 @@ function carregarMonografiaFinal() {
             });
         }
 
-        document.getElementById("tabelaGestaoGeral").innerHTML = html;
-        const container = document.getElementById("tabelaGestaoGeral");
-        const btnAnterior = container?.querySelector("[data-pagina='anterior']");
-        const btnSeguinte = container?.querySelector("[data-pagina='seguinte']");
+        container.innerHTML = html;
+        const btnAnterior = container.querySelector("[data-pagina='anterior']");
+        const btnSeguinte = container.querySelector("[data-pagina='seguinte']");
         if (btnAnterior) {
             btnAnterior.addEventListener("click", () => {
-                paginaAtualMonografiaFinal = Math.max(1, paginaAtualMonografiaFinal - 1);
-                carregarMonografiaFinal();
+                atualizarTabelaMonografiaFinal(paginaAtualMonografiaFinal - 1);
             });
         }
         if (btnSeguinte) {
             btnSeguinte.addEventListener("click", () => {
-                paginaAtualMonografiaFinal += 1;
-                carregarMonografiaFinal();
+                atualizarTabelaMonografiaFinal(paginaAtualMonografiaFinal + 1);
             });
         }
-        document.getElementById("btnGuardar")?.remove();
-        esconderCarregamento();
-        reaplicarRestricoesUI();
-    })
-    .catch(err => {
-        console.error("Erro ao carregar dados:", err);
-        esconderCarregamento();
-        document.getElementById("tabelaGestaoGeral").innerHTML =
-            "<p>Erro ao carregar os dados da monografia final.</p>";
-        reaplicarRestricoesUI();
-    });
+}
+
+function atualizarTabelaMonografiaFinal(pagina = 1) {
+    paginaAtualMonografiaFinal = pagina;
+    renderTabelaMonografiaFinal(monografiaFinalRegistos, paginaAtualMonografiaFinal);
 }
 
 async function carregarDefesas() {
@@ -2321,6 +2299,9 @@ async function carregarDefesas() {
         mostrarSecaoDefesas();
         esconderTabelaGestaoGeral();
         mostrarMensagemTabelaDefesa("Ocorreu um erro ao carregar as defesas.");
+    } finally {
+        esconderCarregamento();
+        reaplicarRestricoesUI();
     }
 }
 
@@ -2379,13 +2360,27 @@ function carregarCredencialPesquisa() {
             reaplicarRestricoesUI();
             return;
         }
-        const estadoPaginacao = calcularEstadoPaginacao(
-            credencialPesquisaRegistos.length,
-            paginaAtualCredencialPesquisa,
-            linhasPorPagina
-        );
-        paginaAtualCredencialPesquisa = estadoPaginacao.paginaAtual;
-        const paginaDados = credencialPesquisaRegistos.slice(estadoPaginacao.inicio, estadoPaginacao.fim);
+        paginaAtualCredencialPesquisa = 1;
+        renderTabelaCredencialPesquisa(credencialPesquisaRegistos, paginaAtualCredencialPesquisa);
+        document.getElementById("btnGuardar")?.remove();
+        esconderCarregamento();
+        reaplicarRestricoesUI();
+    })
+    .catch(err => {
+        console.error("Erro ao carregar dados:", err);
+        esconderCarregamento();
+        document.getElementById("tabelaGestaoGeral").innerHTML =
+            "<p>Erro ao carregar os dados da credencial de pesquisa.</p>";
+        reaplicarRestricoesUI();
+    });
+}
+
+function renderTabelaCredencialPesquisa(dados = [], pagina = 1) {
+    const container = document.getElementById("tabelaGestaoGeral");
+    if (!container) return;
+    const estadoPaginacao = calcularEstadoPaginacao(dados.length, pagina, linhasPorPagina);
+    paginaAtualCredencialPesquisa = estadoPaginacao.paginaAtual;
+    const paginaDados = dados.slice(estadoPaginacao.inicio, estadoPaginacao.fim);
 
         let html = `
             <div class="credencial-lista-head">
@@ -2446,33 +2441,24 @@ function carregarCredencialPesquisa() {
             });
         }
 
-        document.getElementById("tabelaGestaoGeral").innerHTML = html;
-        const container = document.getElementById("tabelaGestaoGeral");
-        const btnAnterior = container?.querySelector("[data-pagina='anterior']");
-        const btnSeguinte = container?.querySelector("[data-pagina='seguinte']");
+        container.innerHTML = html;
+        const btnAnterior = container.querySelector("[data-pagina='anterior']");
+        const btnSeguinte = container.querySelector("[data-pagina='seguinte']");
         if (btnAnterior) {
             btnAnterior.addEventListener("click", () => {
-                paginaAtualCredencialPesquisa = Math.max(1, paginaAtualCredencialPesquisa - 1);
-                carregarCredencialPesquisa();
+                atualizarTabelaCredencialPesquisa(paginaAtualCredencialPesquisa - 1);
             });
         }
         if (btnSeguinte) {
             btnSeguinte.addEventListener("click", () => {
-                paginaAtualCredencialPesquisa += 1;
-                carregarCredencialPesquisa();
+                atualizarTabelaCredencialPesquisa(paginaAtualCredencialPesquisa + 1);
             });
         }
-        document.getElementById("btnGuardar")?.remove();
-        esconderCarregamento();
-        reaplicarRestricoesUI();
-    })
-    .catch(err => {
-        console.error("Erro ao carregar dados:", err);
-        esconderCarregamento();
-        document.getElementById("tabelaGestaoGeral").innerHTML =
-            "<p>Erro ao carregar os dados da credencial de pesquisa.</p>";
-        reaplicarRestricoesUI();
-    });
+}
+
+function atualizarTabelaCredencialPesquisa(pagina = 1) {
+    paginaAtualCredencialPesquisa = pagina;
+    renderTabelaCredencialPesquisa(credencialPesquisaRegistos, paginaAtualCredencialPesquisa);
 }
 
 let planosAnaliticosPaginaAtual = 1;
@@ -3383,8 +3369,7 @@ function carregarParecer() {
         }
 
         paginaAtualTemasParecer = 1;
-        totalPaginas = Math.max(1, Math.ceil(temasParecerRegistos.length / linhasPorPagina));
-        renderTabelaParecer();
+        renderTabelaParecer(temasParecerRegistos, paginaAtualTemasParecer);
         esconderCarregamento();
     })
     .catch(err => {
@@ -3393,16 +3378,15 @@ function carregarParecer() {
     });
 }
 
-function renderTabelaParecer() {
+function renderTabelaParecer(dados = temasParecerRegistos, pagina = 1) {
     const container = document.getElementById("tabelaGestaoGeral");
     if (!container) return;
 
-    const estadoPaginacao = calcularEstadoPaginacao(temasParecerRegistos.length, paginaAtualTemasParecer, linhasPorPagina);
+    const estadoPaginacao = calcularEstadoPaginacao(dados.length, pagina, linhasPorPagina);
     paginaAtualTemasParecer = estadoPaginacao.paginaAtual;
-    totalPaginas = estadoPaginacao.totalPaginas;
     const inicio = estadoPaginacao.inicio;
     const fim = estadoPaginacao.fim;
-    const paginaDados = temasParecerRegistos.slice(inicio, fim);
+    const paginaDados = dados.slice(inicio, fim);
 
     let html = `
         <div class="credencial-lista-head tema-lista-head">
@@ -3474,10 +3458,10 @@ function renderizarControlesParecer() {
     reaplicarRestricoesUI();
 }
 function mudarPaginaParecer(delta) {
-    const novaPagina = paginaAtualTemasParecer + delta;
+    atualizarTabelaTemasParecer(paginaAtualTemasParecer + delta);
+}
 
-    if (novaPagina < 1 || novaPagina > totalPaginas) return;
-
-    paginaAtualTemasParecer = novaPagina;
-    renderTabelaParecer();
+function atualizarTabelaTemasParecer(pagina = 1) {
+    paginaAtualTemasParecer = pagina;
+    renderTabelaParecer(temasParecerRegistos, paginaAtualTemasParecer);
 }
