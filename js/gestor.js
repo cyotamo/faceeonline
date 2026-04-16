@@ -3393,6 +3393,11 @@ function carregarParecer() {
                 observacoes: String(item.observacoes ?? item.Observacoes ?? "").trim()
             };
         });
+
+        temasParecerRegistos = temasParecerRegistos.filter((item) => {
+            const status = String(item.parecer || item.status || "").toLowerCase();
+            return status !== "aprovado";
+        });
         if (temasParecerRegistos.length > 0) {
             const registo = temasParecerRegistos[0];
             console.log("[TemasMonografia][Frontend] Exemplo do primeiro registo normalizado:", registo);
