@@ -190,6 +190,55 @@ function formatarDataDiaMesAno(valor) {
     return valorTexto;
 }
 
+function normalizarDataPt(valor) {
+    if (valor === null || valor === undefined || valor === "") {
+        return "";
+    }
+
+    if (typeof valor === "number" && Number.isFinite(valor)) {
+        const dataExcel = new Date(Math.round((valor - 25569) * 86400 * 1000));
+        if (!Number.isNaN(dataExcel.getTime())) {
+            const dia = String(dataExcel.getDate()).padStart(2, "0");
+            const mes = String(dataExcel.getMonth() + 1).padStart(2, "0");
+            const ano = dataExcel.getFullYear();
+            return `${dia}/${mes}/${ano}`;
+        }
+    }
+
+    const valorTexto = String(valor).trim();
+    if (!valorTexto) {
+        return "";
+    }
+
+    const correspondenciaDiaMesAno = valorTexto.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+    if (correspondenciaDiaMesAno) {
+        const [, dia, mes, ano] = correspondenciaDiaMesAno;
+        return `${String(dia).padStart(2, "0")}/${String(mes).padStart(2, "0")}/${ano}`;
+    }
+
+    return formatarDataDiaMesAno(valorTexto);
+}
+
+function obterSituacaoDefesaParaTabela(item = {}) {
+    const dataAgendada = String(item.dataAgendada || item.data_agendada || "").trim();
+    if (dataAgendada) {
+        return `Agendado: ${normalizarDataPt(dataAgendada)}`;
+    }
+
+    const enviadoRA = item.enviadoRA ?? item.enviadoAoRA ?? "";
+    const enviadoRATexto = String(enviadoRA).trim();
+    if (enviadoRATexto) {
+        return `Enviado ao RA em ${normalizarDataPt(enviadoRA)}`;
+    }
+
+    const situacao = String(item.situacao || "").trim();
+    if (situacao) {
+        return situacao;
+    }
+
+    return "Aguardando actualização";
+}
+
 function normalizarCampo(valor) {
     return String(valor ?? "")
         .normalize("NFD")
@@ -751,13 +800,8 @@ function renderTabelaDefesa(lista = []) {
             situacao: item.situacao || ""
         };
         const linkPdf = item.link || "";
-        const dataAgendada = item.dataAgendada || "";
         const linkPdfFinal = linkPdf || item.linkPDF || item.linkPdf || item.pdf || item.PDF || "";
-        const dataAgendadaFinal = dataAgendada || item.data_agendada || "";
-        const situacaoTabela = String(itemSeguro.situacao || "").trim() || "Aguardando actualização";
-        const situacaoTexto = dataAgendadaFinal
-            ? `Agendado: ${formatarDataDiaMesAno(dataAgendadaFinal)}`
-            : situacaoTabela;
+        const situacaoTexto = obterSituacaoDefesaParaTabela(item);
         const situacaoNormalizada = situacaoTexto.toLowerCase();
         let situacaoClasse = "status-pendente";
 
@@ -2161,7 +2205,8 @@ async function carregarDefesas() {
         // Mostra todos os registos recebidos no front e delega a distribuição para a paginação.
         const defesasTratadas = lista.map((item) => ({
             ...item,
-            dataAgendada: item.dataAgendada || item.data_agendada || ""
+            dataAgendada: item.dataAgendada || item.data_agendada || "",
+            enviadoRA: normalizarDataPt(item.enviadoRA || item.enviadoAoRA || "")
         }));
         console.log("[DefesaMonografia][Diagnostico] Total após filtros:", defesasTratadas.length);
         console.log("[DefesaMonografia][Diagnostico] Total após tratamento:", defesasTratadas.length);
