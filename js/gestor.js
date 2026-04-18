@@ -370,7 +370,7 @@ function calcularEstadoPaginacao(totalRegistos = 0, pagina = 1, registosPorPagin
         paginaAtual,
         inicio,
         fim,
-        deveMostrarPaginacao: total > 10 && totalPaginas > 1
+        deveMostrarPaginacao: total > porPagina && totalPaginas > 1
     };
 }
 
