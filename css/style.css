@@ -3367,6 +3367,10 @@ input[type='file'] {
   overflow-x: auto;
 }
 
+.aluno-page #form-container {
+  margin-top: 0;
+}
+
 #resultadoConsultaEstado {
   padding: 26px 30px;
   min-height: 240px;
@@ -3589,5 +3593,15 @@ input[type='file'] {
   .aluno-page .aluno-content.gestor-content-scroll {
     max-height: none;
     overflow-y: visible;
+  }
+
+  .aluno-page .aluno-inicio-card h2,
+  .aluno-page .aluno-inicio-subtitulo {
+    text-align: center;
+  }
+
+  .aluno-page .aluno-inicio-card p,
+  .aluno-page .aluno-inicio-funcionalidades li {
+    text-align: justify;
   }
 }
