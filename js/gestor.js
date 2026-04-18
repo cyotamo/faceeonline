@@ -1385,7 +1385,32 @@ function reaplicarRestricoesUI() {
     }
 }
 
+function carregarInicioGestor() {
+    esconderEstatisticas();
+    esconderSecaoDefesas();
+    mostrarTabelaGestaoGeral();
+    modoTabelaGestao = "geral";
+
+    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
+    if (!tabelaGestaoGeral) return;
+
+    tabelaGestaoGeral.classList.remove("gestor-loading-container");
+    tabelaGestaoGeral.setAttribute("aria-busy", "false");
+    tabelaGestaoGeral.innerHTML = `
+        <section class="gestor-boas-vindas" aria-label="Mensagem de boas-vindas">
+            <h2>Bem-vindo ao painel do gestor da Secretaria Online – FACEE.</h2>
+            <p>Seleccione uma funcionalidade no menu lateral para começar.</p>
+        </section>
+    `;
+
+    reaplicarRestricoesUI();
+}
+
 // Tema Monografia
+document.getElementById("btnInicio")?.addEventListener("click", () => {
+    carregarInicioGestor();
+});
+
 document.getElementById("btnGestaoGeral").addEventListener("click", () => {
     esconderEstatisticas();
     esconderSecaoDefesas();
