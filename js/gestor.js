@@ -2176,20 +2176,23 @@ function carregarMonografiaFinal() {
 function renderTabelaMonografiaFinal(dados = [], pagina = 1) {
     const container = document.getElementById("tabelaGestaoGeral");
     if (!container) return;
+    container.classList.add("gestor-card-listagem");
     const { estadoPaginacao, paginaDados } = obterDadosPaginados(dados, pagina, linhasPorPagina);
     paginaAtualMonografiaFinal = estadoPaginacao.paginaAtual;
 
         let html = `
-            <div class="credencial-lista-head">
-                <div>Data</div>
-                <div>Nome</div>
-                <div>Curso</div>
-                <div>Ficheiro</div>
-                <div>Status</div>
-                <div>Acções</div>
-            </div>
-            <div class="credencial-lista table-credencial table-monografia-final">
-        `;
+            <div class="gestor-listagem-bloco">
+                <div class="tabela-scroll tabela-scroll-monografia">
+                    <div class="credencial-lista-head">
+                        <div>Data</div>
+                        <div>Nome</div>
+                        <div>Curso</div>
+                        <div>Ficheiro</div>
+                        <div>Status</div>
+                        <div>Acções</div>
+                    </div>
+                    <div class="credencial-lista table-credencial table-monografia-final">
+            `;
 
         paginaDados.forEach((item) => {
             const idSubmissao = (item.idSubmissao || "").toString().trim();
@@ -2222,7 +2225,8 @@ function renderTabelaMonografiaFinal(dados = [], pagina = 1) {
         });
 
         html += `
-            </div>
+                    </div>
+                </div>
         `;
 
         if (estadoPaginacao.deveMostrarPaginacao) {
@@ -2232,6 +2236,10 @@ function renderTabelaMonografiaFinal(dados = [], pagina = 1) {
                 ariaLabel: "Paginação Monografia Final"
             });
         }
+
+        html += `
+            </div>
+        `;
 
         container.innerHTML = html;
         const btnAnterior = container.querySelector("[data-pagina='anterior']");
