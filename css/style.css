@@ -426,6 +426,12 @@ main {
   gap: 6px;
 }
 
+.icon-doc {
+  width: 18px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
 form {
   display: flex;
   flex-direction: column;
