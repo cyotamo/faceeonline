@@ -2802,9 +2802,31 @@ input[type='file'] {
   overflow: hidden;
 }
 
+#tabelaGestaoGeral.gestor-card-listagem {
+  overflow: visible;
+}
+
 #tabelaGestaoGeral {
   margin-top: 0;
   padding: 14px 14px 10px;
+}
+
+.gestor-listagem-bloco {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tabela-scroll-monografia {
+  padding-bottom: 0;
+}
+
+.table-monografia-final {
+  min-width: 860px;
+}
+
+.gestor-listagem-bloco .paginacao-analiticos {
+  margin: 12px 14px 10px;
 }
 
 .credencial-lista-head {
