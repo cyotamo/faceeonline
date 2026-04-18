@@ -19,7 +19,7 @@
 
     <main class="main-container gestor-main">
       <div class="gestor-layout">
-        <aside class="gestor-sidebar" aria-label="Menu principal do gestor">
+        <aside class="gestor-sidebar" id="gestorSidebar" aria-label="Menu principal do gestor">
           <div class="gestor-sidebar-topo">
             <div class="gestor-sidebar-brand-texto">
               <p class="gestor-sidebar-subtitle">Secretaria Online - FACEE</p>
@@ -70,8 +70,20 @@
           </div>
         </aside>
 
+        <div class="gestor-sidebar-overlay" id="gestorSidebarOverlay" aria-hidden="true"></div>
+
         <section class="page-section gestor-content gestor-content-scroll">
         <div class="gestor-topbar">
+          <button
+            class="gestor-menu-toggle"
+            id="gestorMenuToggle"
+            type="button"
+            aria-label="Abrir menu de navegação"
+            aria-controls="gestorSidebar"
+            aria-expanded="false"
+          >
+            <span class="gestor-menu-toggle-icon" aria-hidden="true"></span>
+          </button>
           <h1 class="gestor-topbar-title" id="gestorSectionTitleTop">Início</h1>
           <div class="gestor-topbar-user">
             <span>Logado como: <strong id="gestorTopbarUserName">gestor@unirovuma.ac.mz</strong></span>
@@ -437,6 +449,48 @@
     const menuItems = Array.from(document.querySelectorAll('.gestor-menu-item'));
     const sectionTitle = document.getElementById('gestorSectionTitle');
     const sectionTitleTop = document.getElementById('gestorSectionTitleTop');
+    const gestorLayout = document.querySelector('.gestor-layout');
+    const gestorMenuToggle = document.getElementById('gestorMenuToggle');
+    const gestorSidebarOverlay = document.getElementById('gestorSidebarOverlay');
+    const mobileBreakpoint = window.matchMedia('(max-width: 980px)');
+
+    const isMobileViewport = () => mobileBreakpoint.matches;
+
+    const atualizarEstadoBotaoHamburguer = (aberto) => {
+      if (!gestorMenuToggle) return;
+      gestorMenuToggle.setAttribute('aria-expanded', aberto ? 'true' : 'false');
+      gestorMenuToggle.setAttribute('aria-label', aberto ? 'Fechar menu de navegação' : 'Abrir menu de navegação');
+    };
+
+    const abrirMenuMobile = () => {
+      if (!isMobileViewport() || !gestorLayout) return;
+      gestorLayout.classList.add('mobile-menu-open');
+      atualizarEstadoBotaoHamburguer(true);
+    };
+
+    const fecharMenuMobile = () => {
+      if (!gestorLayout) return;
+      gestorLayout.classList.remove('mobile-menu-open');
+      atualizarEstadoBotaoHamburguer(false);
+    };
+
+    const alternarMenuMobile = () => {
+      if (!isMobileViewport() || !gestorLayout) return;
+      if (gestorLayout.classList.contains('mobile-menu-open')) {
+        fecharMenuMobile();
+      } else {
+        abrirMenuMobile();
+      }
+    };
+
+    const sincronizarEstadoMenuPorViewport = () => {
+      if (isMobileViewport()) {
+        fecharMenuMobile();
+      } else if (gestorLayout) {
+        gestorLayout.classList.remove('mobile-menu-open');
+        atualizarEstadoBotaoHamburguer(false);
+      }
+    };
 
     const setActiveMenu = (targetButtonId) => {
       menuItems.forEach((item) => {
@@ -476,6 +530,9 @@
         if (targetButton) {
           targetButton.click();
           setActiveMenu(targetButtonId);
+          if (isMobileViewport()) {
+            fecharMenuMobile();
+          }
         }
       });
 
@@ -501,11 +558,24 @@
     };
 
     sincronizarVisibilidadeMenu();
+    sincronizarEstadoMenuPorViewport();
+
     const botaoInicio = document.getElementById('btnInicio');
     if (botaoInicio) {
       botaoInicio.click();
       setActiveMenu('btnInicio');
     }
+
+    gestorMenuToggle?.addEventListener('click', alternarMenuMobile);
+    gestorSidebarOverlay?.addEventListener('click', fecharMenuMobile);
+
+    mobileBreakpoint.addEventListener('change', sincronizarEstadoMenuPorViewport);
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && isMobileViewport()) {
+        fecharMenuMobile();
+      }
+    });
 
     if (!atualizarNomeUtilizador()) {
       const timer = setInterval(() => {

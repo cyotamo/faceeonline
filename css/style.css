@@ -2722,6 +2722,72 @@ input[type='file'] {
   z-index: 10;
 }
 
+.gestor-menu-toggle {
+  display: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid #d8dfeb;
+  background: #fff;
+  color: #1f2937;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.gestor-menu-toggle:hover {
+  background: #f8fafc;
+}
+
+.gestor-menu-toggle-icon,
+.gestor-menu-toggle-icon::before,
+.gestor-menu-toggle-icon::after {
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+  display: block;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.gestor-menu-toggle-icon {
+  position: relative;
+}
+
+.gestor-menu-toggle-icon::before,
+.gestor-menu-toggle-icon::after {
+  content: "";
+  position: absolute;
+  left: 0;
+}
+
+.gestor-menu-toggle-icon::before {
+  top: -6px;
+}
+
+.gestor-menu-toggle-icon::after {
+  top: 6px;
+}
+
+.gestor-layout.mobile-menu-open .gestor-menu-toggle-icon {
+  background: transparent;
+}
+
+.gestor-layout.mobile-menu-open .gestor-menu-toggle-icon::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+.gestor-layout.mobile-menu-open .gestor-menu-toggle-icon::after {
+  top: 0;
+  transform: rotate(-45deg);
+}
+
+.gestor-sidebar-overlay {
+  display: none;
+}
+
 .gestor-topbar-title {
   margin: 0;
   font-size: 20px;
@@ -3127,28 +3193,32 @@ input[type='file'] {
 
 @media (max-width: 980px) {
   .gestor-layout {
-    flex-direction: column;
-    height: auto;
-    overflow: visible;
+    position: relative;
+    min-height: 100vh;
   }
 
   .gestor-sidebar {
-    width: 100%;
-    flex: 1 1 auto;
-    position: static;
-    height: auto;
-    overflow: visible;
+    width: min(82vw, 300px);
+    flex: 0 0 auto;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 40;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    overflow-y: auto;
   }
 
   .gestor-content {
+    width: 100%;
     min-width: 0;
-    height: auto;
-    overflow: visible;
+    min-height: 100vh;
   }
 
   .gestor-content-scroll {
-    height: auto;
-    overflow: visible;
+    max-height: none;
+    overflow-x: hidden;
   }
 
   .gestor-conteudo-header {
@@ -3156,9 +3226,31 @@ input[type='file'] {
     align-items: flex-start;
   }
 
-  .gestor-sidebar-nav {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  .gestor-menu-toggle {
+    display: inline-flex;
+    margin-right: auto;
+  }
+
+  .gestor-layout.mobile-menu-open .gestor-sidebar {
+    transform: translateX(0);
+  }
+
+  .gestor-sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 19, 34, 0.45);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 30;
+  }
+
+  .gestor-layout.mobile-menu-open .gestor-sidebar-overlay {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
   }
 }
 
@@ -3172,35 +3264,58 @@ input[type='file'] {
     gap: 8px;
   }
 
-  .gestor-sidebar-nav {
-    grid-template-columns: 1fr;
-  }
-
   .gestor-topbar {
+    min-height: 64px;
     height: auto;
     gap: 10px;
-    align-items: flex-start;
-    flex-direction: column;
-    padding: 14px;
-    position: static;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+    padding: 10px 14px;
+    position: sticky;
+    top: 0;
   }
 
   .gestor-topbar-title {
     position: static;
     transform: none;
-    text-align: left;
+    text-align: center;
+    font-size: 18px;
+  }
+
+  .gestor-topbar-user {
+    width: 100%;
+    font-size: 12px;
+    justify-content: flex-start;
   }
 
   .gestor-conteudo-header,
   .gestor-card {
     margin-left: 14px;
     margin-right: 14px;
+  }
+
+  .gestor-conteudo-header {
     padding-left: 14px;
     padding-right: 14px;
   }
 
+  .gestor-card {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
   .gestor-section-title {
     font-size: 20px;
+  }
+
+  .tabela-scroll,
+  .tabela-scroll-monografia {
+    overflow-x: auto;
+  }
+
+  .table-monografia-final {
+    min-width: 720px;
   }
 }
 
