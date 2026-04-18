@@ -1565,6 +1565,11 @@ documentos: [
     nome: 'Credencial Academia Militar',
     link: 'https://drive.google.com/file/d/1bmndSyOnPgEXJ61I1CJN7yfmA7JIVhDq/view?usp=drive_link',
   },
+  {
+    nome: 'Nome do documento',
+    link: 'https://docs.google.com/document/d/1mesBiVEvpdQ7Te7VV1aRmKQrfzXGbWmR/edit?usp=drive_link&ouid=110574457742739947778&rtpof=true&sd=true',
+    tipo: 'docx',
+  },
 ],
       },
     ];
@@ -1577,8 +1582,15 @@ documentos: [
       nomeSpan.textContent = `${doc.nome} – `;
 
       const pdfIcon = document.createElement('img');
-      pdfIcon.src = 'https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg';
-      pdfIcon.alt = 'PDF';
+
+      if (doc.tipo === 'docx') {
+        pdfIcon.src = 'https://upload.wikimedia.org/wikipedia/commons/f/fd/Microsoft_Word_2013_logo.svg';
+        pdfIcon.alt = 'DOCX';
+      } else {
+        pdfIcon.src = 'https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg';
+        pdfIcon.alt = 'PDF';
+      }
+
       pdfIcon.width = 22;
 
       pdfLink.href = doc.link;
