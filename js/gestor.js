@@ -2453,8 +2453,8 @@ function renderTabelaCredencialPesquisa(dados = [], pagina = 1) {
                     </div>
                     <div class="credencial-curso">${item.curso || "—"}</div>
                     <div class="credencial-arquivo">
-                        <a class="pdf-icon credencial-pdf-link" href="${item.pdfURL || item.linkPDF || "#"}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento DOCX">
-                            <span aria-hidden="true">📄</span><span>DOCX</span>
+                        <a class="pdf-icon credencial-pdf-link" href="${item.pdfURL || item.linkPDF || "#"}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento PDF">
+                            <span aria-hidden="true">📄</span><span>PDF</span>
                         </a>
                     </div>
                     <div class="credencial-status">
