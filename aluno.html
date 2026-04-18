@@ -19,7 +19,7 @@
 
     <main class="main-container gestor-main aluno-main">
       <div class="gestor-layout aluno-layout">
-        <aside class="gestor-sidebar aluno-sidebar" aria-label="Menu principal do estudante">
+        <aside class="gestor-sidebar aluno-sidebar" id="alunoSidebar" aria-label="Menu principal do estudante">
           <div class="gestor-sidebar-topo">
             <div class="gestor-sidebar-brand-texto">
               <p class="gestor-sidebar-subtitle">Secretaria Online - FACEE</p>
@@ -39,8 +39,20 @@
           </nav>
         </aside>
 
+        <div class="gestor-sidebar-overlay" id="alunoSidebarOverlay" aria-hidden="true"></div>
+
         <section class="page-section gestor-content aluno-content gestor-content-scroll">
           <div class="gestor-topbar">
+            <button
+              class="gestor-menu-toggle"
+              id="alunoMenuToggle"
+              type="button"
+              aria-label="Abrir menu de navegação"
+              aria-controls="alunoSidebar"
+              aria-expanded="false"
+            >
+              <span class="gestor-menu-toggle-icon" aria-hidden="true"></span>
+            </button>
             <h1 class="gestor-topbar-title">Portal do Estudante</h1>
           </div>
 
@@ -153,12 +165,70 @@
   </script>
 
   <script>
+    const alunoLayout = document.querySelector('.aluno-layout');
+    const alunoMenuToggle = document.getElementById('alunoMenuToggle');
+    const alunoSidebarOverlay = document.getElementById('alunoSidebarOverlay');
+    const mobileBreakpoint = window.matchMedia('(max-width: 980px)');
+    const isMobileViewport = () => mobileBreakpoint.matches;
+
+    const atualizarEstadoBotaoHamburguer = (aberto) => {
+      if (!alunoMenuToggle) return;
+      alunoMenuToggle.setAttribute('aria-expanded', aberto ? 'true' : 'false');
+      alunoMenuToggle.setAttribute('aria-label', aberto ? 'Fechar menu de navegação' : 'Abrir menu de navegação');
+    };
+
+    const fecharMenuMobile = () => {
+      if (!alunoLayout) return;
+      alunoLayout.classList.remove('mobile-menu-open');
+      atualizarEstadoBotaoHamburguer(false);
+    };
+
+    const abrirMenuMobile = () => {
+      if (!alunoLayout || !isMobileViewport()) return;
+      alunoLayout.classList.add('mobile-menu-open');
+      atualizarEstadoBotaoHamburguer(true);
+    };
+
+    const alternarMenuMobile = () => {
+      if (!alunoLayout || !isMobileViewport()) return;
+      if (alunoLayout.classList.contains('mobile-menu-open')) {
+        fecharMenuMobile();
+      } else {
+        abrirMenuMobile();
+      }
+    };
+
+    const sincronizarEstadoMenuPorViewport = () => {
+      if (!alunoLayout) return;
+      if (isMobileViewport()) {
+        fecharMenuMobile();
+      } else {
+        alunoLayout.classList.remove('mobile-menu-open');
+        atualizarEstadoBotaoHamburguer(false);
+      }
+    };
+
+    alunoMenuToggle?.addEventListener('click', alternarMenuMobile);
+    alunoSidebarOverlay?.addEventListener('click', fecharMenuMobile);
+    mobileBreakpoint.addEventListener('change', sincronizarEstadoMenuPorViewport);
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && isMobileViewport()) {
+        fecharMenuMobile();
+      }
+    });
+
     document.querySelectorAll('.gestor-sidebar .btn-navegacao').forEach((botao) => {
       botao.addEventListener('click', () => {
         document.querySelectorAll('.gestor-sidebar .btn-navegacao').forEach((item) => item.classList.remove('active'));
         botao.classList.add('active');
+        if (isMobileViewport()) {
+          fecharMenuMobile();
+        }
       });
     });
+
+    sincronizarEstadoMenuPorViewport();
   </script>
 
   <script>
