@@ -3580,6 +3580,10 @@ input[type='file'] {
     min-height: 100vh;
   }
 
+  .aluno-page .aluno-content > #form-container.gestor-card {
+    margin-top: 6px;
+  }
+
   .aluno-page .aluno-sidebar {
     top: var(--aluno-topbar-height);
     height: calc(100vh - var(--aluno-topbar-height));
