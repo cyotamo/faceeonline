@@ -1697,26 +1697,80 @@ function extrairUrlRelatorio(resposta) {
     return "";
 }
 
-function actualizarEstadoRelatorio(mensagem, isErro = false) {
+function escaparTextoHtml(texto = "") {
+    return String(texto)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function renderizarFeedbackRelatorio({
+    variante = "info",
+    titulo = "Atualização do relatório",
+    mensagem = "",
+    acao = null
+}) {
     const areaLink = document.getElementById("resultadoRelatorio");
     if (!areaLink) return;
 
-    const cor = isErro ? "red" : "inherit";
-    areaLink.innerHTML = `<p style="color:${cor};">${mensagem}</p>`;
+    const classeVariante = {
+        sucesso: "relatorio-feedback-card--sucesso",
+        erro: "relatorio-feedback-card--erro",
+        info: "relatorio-feedback-card--info"
+    }[variante] || "relatorio-feedback-card--info";
+
+    const icone = {
+        sucesso: "✓",
+        erro: "!",
+        info: "…"
+    }[variante] || "…";
+
+    const tituloSeguro = escaparTextoHtml(titulo);
+    const mensagemSeguro = mensagem ? `<p class="relatorio-feedback-message">${escaparTextoHtml(mensagem)}</p>` : "";
+    const urlAcao = acao?.url && /^(https?:\/\/|\/)/i.test(acao.url) ? acao.url : "";
+
+    const acaoHtml = urlAcao
+        ? `<div class="relatorio-feedback-action">
+            <a href="${encodeURI(urlAcao)}" target="_blank" rel="noopener noreferrer" class="relatorio-feedback-link">
+                📄 ${escaparTextoHtml(acao.label || "Baixar relatório em PDF")}
+            </a>
+        </div>`
+        : "";
+
+    areaLink.innerHTML = `
+        <div class="relatorio-feedback-card ${classeVariante}">
+            <span class="relatorio-feedback-icon" aria-hidden="true">${icone}</span>
+            <div class="relatorio-feedback-content">
+                <p class="relatorio-feedback-title">${tituloSeguro}</p>
+                ${mensagemSeguro}
+                ${acaoHtml}
+            </div>
+        </div>
+    `;
+
     reaplicarRestricoesUI();
 }
 
-function mostrarLinkRelatorio(url) {
-    const areaLink = document.getElementById("resultadoRelatorio");
-    if (!areaLink) return;
+function actualizarEstadoRelatorio(mensagem, isErro = false) {
+    renderizarFeedbackRelatorio({
+        variante: isErro ? "erro" : "info",
+        titulo: isErro ? "Não foi possível gerar o relatório" : "A gerar relatório",
+        mensagem
+    });
+}
 
-    areaLink.innerHTML = `
-        <p>✔ Relatório gerado com sucesso!</p>
-        <a href="${url}" target="_blank" style="color:blue;font-weight:bold;">
-            👉 Baixar PDF do Relatório
-        </a>
-    `;
-    reaplicarRestricoesUI();
+function mostrarLinkRelatorio(url) {
+    renderizarFeedbackRelatorio({
+        variante: "sucesso",
+        titulo: "Relatório gerado com sucesso",
+        mensagem: "O ficheiro está pronto e pode ser descarregado em PDF.",
+        acao: {
+            url,
+            label: "Baixar relatório em PDF"
+        }
+    });
 }
 
 function ehRelatorioPlanosAnaliticos(tipo) {
