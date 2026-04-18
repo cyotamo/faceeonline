@@ -1574,6 +1574,15 @@ documentos: [
       },
     ];
 
+    const detectarTipoDocumento = (doc) => {
+      if (doc.tipo) return doc.tipo.toLowerCase();
+      if (!doc.link) return 'pdf';
+
+      const link = doc.link.toLowerCase();
+      if (link.includes('.docx') || link.includes('/document/')) return 'docx';
+      return 'pdf';
+    };
+
     const criarItemDocumento = (doc) => {
       const item = document.createElement('li');
       const nomeSpan = document.createElement('span');
@@ -1582,16 +1591,16 @@ documentos: [
       nomeSpan.textContent = `${doc.nome} – `;
 
       const pdfIcon = document.createElement('img');
+      const tipoDocumento = detectarTipoDocumento(doc);
+      pdfIcon.className = 'icon-doc';
 
-      if (doc.tipo === 'docx') {
-        pdfIcon.src = 'https://upload.wikimedia.org/wikipedia/commons/f/fd/Microsoft_Word_2013_logo.svg';
+      if (tipoDocumento === 'docx') {
+        pdfIcon.src = 'https://cdn-icons-png.flaticon.com/512/337/337932.png';
         pdfIcon.alt = 'DOCX';
       } else {
-        pdfIcon.src = 'https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg';
+        pdfIcon.src = 'https://cdn-icons-png.flaticon.com/512/337/337946.png';
         pdfIcon.alt = 'PDF';
       }
-
-      pdfIcon.width = 22;
 
       pdfLink.href = doc.link;
       pdfLink.target = '_blank';
