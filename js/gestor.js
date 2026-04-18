@@ -374,6 +374,17 @@ function calcularEstadoPaginacao(totalRegistos = 0, pagina = 1, registosPorPagin
     };
 }
 
+function obterDadosPaginados(dados = [], pagina = 1, registosPorPagina = linhasPorPagina) {
+    const lista = Array.isArray(dados) ? dados : [];
+    const estadoPaginacao = calcularEstadoPaginacao(lista.length, pagina, registosPorPagina);
+    const paginaDados = lista.slice(estadoPaginacao.inicio, estadoPaginacao.fim);
+
+    return {
+        estadoPaginacao,
+        paginaDados
+    };
+}
+
 function markupPaginacaoPadrao({ paginaAtual, totalPaginas, ariaLabel = "Paginação" } = {}) {
     return `
         <div class="paginacao-analiticos" role="navigation" aria-label="${escaparHTML(ariaLabel)}">
@@ -1907,7 +1918,7 @@ function carregarGestaoGeral() {
     });
 }
 
-function renderizarControlesGestaoGeral() {
+function renderizarControlesGestaoGeral(totalRegistos = dadosGestaoGeral.length) {
     const area = document.getElementById("tabelaGestaoGeral");
     const controlesExistentes = document.getElementById("controlesGestaoGeral");
 
@@ -1933,7 +1944,7 @@ function renderizarControlesGestaoGeral() {
         container.appendChild(btnGuardar);
     }
 
-    const estadoPaginacao = calcularEstadoPaginacao(dadosGestaoGeral.length, paginaAtual, linhasPorPagina);
+    const estadoPaginacao = calcularEstadoPaginacao(totalRegistos, paginaAtual, linhasPorPagina);
     if (estadoPaginacao.deveMostrarPaginacao) {
         const barraPaginacao = document.createElement("div");
         barraPaginacao.innerHTML = markupPaginacaoPadrao({
@@ -1965,12 +1976,10 @@ function renderTabelaGestaoGeral(dados = dadosGestaoGeral, pagina = 1) {
 
     if (!container) return;
 
-    const estadoPaginacao = calcularEstadoPaginacao(dados.length, pagina, linhasPorPagina);
+    const { estadoPaginacao, paginaDados } = obterDadosPaginados(dados, pagina, linhasPorPagina);
     paginaAtual = estadoPaginacao.paginaAtual;
     totalPaginas = estadoPaginacao.totalPaginas;
     const inicio = estadoPaginacao.inicio;
-    const fim = estadoPaginacao.fim;
-    const paginaDados = dados.slice(inicio, fim);
     const isGeral = modoTabelaGestao === "geral";
     const isHomologar = modoTabelaGestao === "homologarSupervisor";
     const isAtribuir = modoTabelaGestao === "atribuirSupervisor";
@@ -2013,7 +2022,7 @@ function renderTabelaGestaoGeral(dados = dadosGestaoGeral, pagina = 1) {
 
         htmlAtribuir += `</div>`;
         container.innerHTML = htmlAtribuir;
-        renderizarControlesGestaoGeral();
+        renderizarControlesGestaoGeral(dados.length);
         aplicarDadosBloqueio();
         reaplicarRestricoesUI();
         return;
@@ -2106,7 +2115,7 @@ function renderTabelaGestaoGeral(dados = dadosGestaoGeral, pagina = 1) {
         `;
 
     container.innerHTML = html;
-    renderizarControlesGestaoGeral();
+    renderizarControlesGestaoGeral(dados.length);
     aplicarDadosBloqueio();
     reaplicarRestricoesUI();
 }
@@ -2167,9 +2176,8 @@ function carregarMonografiaFinal() {
 function renderTabelaMonografiaFinal(dados = [], pagina = 1) {
     const container = document.getElementById("tabelaGestaoGeral");
     if (!container) return;
-    const estadoPaginacao = calcularEstadoPaginacao(dados.length, pagina, linhasPorPagina);
+    const { estadoPaginacao, paginaDados } = obterDadosPaginados(dados, pagina, linhasPorPagina);
     paginaAtualMonografiaFinal = estadoPaginacao.paginaAtual;
-    const paginaDados = dados.slice(estadoPaginacao.inicio, estadoPaginacao.fim);
 
         let html = `
             <div class="credencial-lista-head">
@@ -2378,9 +2386,8 @@ function carregarCredencialPesquisa() {
 function renderTabelaCredencialPesquisa(dados = [], pagina = 1) {
     const container = document.getElementById("tabelaGestaoGeral");
     if (!container) return;
-    const estadoPaginacao = calcularEstadoPaginacao(dados.length, pagina, linhasPorPagina);
+    const { estadoPaginacao, paginaDados } = obterDadosPaginados(dados, pagina, linhasPorPagina);
     paginaAtualCredencialPesquisa = estadoPaginacao.paginaAtual;
-    const paginaDados = dados.slice(estadoPaginacao.inicio, estadoPaginacao.fim);
 
         let html = `
             <div class="credencial-lista-head">
@@ -2467,11 +2474,10 @@ let planosAnaliticosDados = [];
 function renderTabelaPlanosAnaliticos(dados = [], pagina = 1) {
     const container = document.getElementById("tabelaGestaoGeral");
     if (!container) return;
-    const estadoPaginacao = calcularEstadoPaginacao(dados.length, pagina, linhasPorPagina);
+    const { estadoPaginacao, paginaDados: dadosPagina } = obterDadosPaginados(dados, pagina, linhasPorPagina);
     const paginaAtual = estadoPaginacao.paginaAtual;
+    planosAnaliticosPaginaAtual = paginaAtual;
     const inicio = estadoPaginacao.inicio;
-    const fim = estadoPaginacao.fim;
-    const dadosPagina = dados.slice(inicio, fim);
 
     let html = `
         <div class="tabela-scroll">
@@ -2661,11 +2667,11 @@ function renderTabelaCredenciaisEstagio(dados = [], pagina = 1) {
         return;
     }
 
-    const estadoPaginacao = calcularEstadoPaginacao(dados.length, pagina, linhasPorPagina);
+    const { estadoPaginacao, paginaDados } = obterDadosPaginados(dados, pagina, linhasPorPagina);
     const paginaAtual = estadoPaginacao.paginaAtual;
+    paginaAtualCredencialEstagio = paginaAtual;
     const inicio = estadoPaginacao.inicio;
     const fim = estadoPaginacao.fim;
-    const paginaDados = dados.slice(inicio, fim);
 
     console.log(
         `[PedidoEstagio][Paginação] página=${paginaAtual} início=${inicio} fim=${fim} renderizados=${paginaDados.length}`
@@ -3382,11 +3388,8 @@ function renderTabelaParecer(dados = temasParecerRegistos, pagina = 1) {
     const container = document.getElementById("tabelaGestaoGeral");
     if (!container) return;
 
-    const estadoPaginacao = calcularEstadoPaginacao(dados.length, pagina, linhasPorPagina);
+    const { estadoPaginacao, paginaDados } = obterDadosPaginados(dados, pagina, linhasPorPagina);
     paginaAtualTemasParecer = estadoPaginacao.paginaAtual;
-    const inicio = estadoPaginacao.inicio;
-    const fim = estadoPaginacao.fim;
-    const paginaDados = dados.slice(inicio, fim);
 
     let html = `
         <div class="credencial-lista-head tema-lista-head">
