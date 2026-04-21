@@ -63,8 +63,9 @@
           </nav>
 
           <div class="gestor-sidebar-rodape">
-            <div class="gestor-menu-item gestor-menu-item-info" aria-live="polite">
-              <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 20.25a7.5 7.5 0 0 1 15 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Usuário: <strong id="gestorSidebarUserName">gestor@unirovuma.ac.mz</strong></span>
+            <div class="gestor-menu-item gestor-menu-item-info usuario-logado" aria-live="polite">
+              <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 20.25a7.5 7.5 0 0 1 15 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+              <span id="emailUsuario">gestor@faceeonline.ac.mz</span>
             </div>
             <div class="gestor-sidebar-footer-actions">
               <button class="gestor-footer-link" type="button">Alterar Senha</button>
@@ -548,7 +549,7 @@
       }
     });
 
-    const sidebarUserName = document.getElementById('gestorSidebarUserName');
+    const sidebarUserName = document.getElementById('emailUsuario');
 
     const atualizarNomeUtilizador = () => {
       const email = (window.userEmail || '').trim();

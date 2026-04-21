@@ -2671,6 +2671,20 @@ input[type='file'] {
   font-weight: 600;
 }
 
+.usuario-logado {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 12px;
+  font-size: 14px;
+  color: #e5e7eb;
+  cursor: default;
+}
+
+.usuario-logado i {
+  font-size: 16px;
+}
+
 .gestor-sidebar-user {
   display: flex;
   align-items: center;
