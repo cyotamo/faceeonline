@@ -2652,6 +2652,25 @@ input[type='file'] {
   padding: 14px 8px 4px;
 }
 
+.gestor-menu-item-info {
+  cursor: default;
+  margin-bottom: 6px;
+}
+
+.gestor-menu-item-info:hover {
+  background: transparent;
+}
+
+.gestor-menu-item-info span:last-child {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+}
+
+.gestor-menu-item-info strong {
+  font-weight: 600;
+}
+
 .gestor-sidebar-user {
   display: flex;
   align-items: center;

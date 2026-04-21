@@ -63,6 +63,9 @@
           </nav>
 
           <div class="gestor-sidebar-rodape">
+            <div class="gestor-menu-item gestor-menu-item-info" aria-live="polite">
+              <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 20.25a7.5 7.5 0 0 1 15 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Usuário: <strong id="gestorSidebarUserName">gestor@unirovuma.ac.mz</strong></span>
+            </div>
             <div class="gestor-sidebar-footer-actions">
               <button class="gestor-footer-link" type="button">Alterar Senha</button>
               <button class="gestor-footer-link" id="btnLogout" type="button">Sair</button>
@@ -85,9 +88,7 @@
             <span class="gestor-menu-toggle-icon" aria-hidden="true"></span>
           </button>
           <h1 class="gestor-topbar-title" id="gestorSectionTitleTop">Início</h1>
-          <div class="gestor-topbar-user">
-            <span>Logado como: <strong id="gestorTopbarUserName">gestor@unirovuma.ac.mz</strong></span>
-          </div>
+
         </div>
 
         <!-- BOTÕES -->
@@ -547,12 +548,12 @@
       }
     });
 
-    const topbarUserName = document.getElementById('gestorTopbarUserName');
+    const sidebarUserName = document.getElementById('gestorSidebarUserName');
 
     const atualizarNomeUtilizador = () => {
       const email = (window.userEmail || '').trim();
-      if (!email || !topbarUserName) return false;
-      topbarUserName.textContent = email;
+      if (!email || !sidebarUserName) return false;
+      sidebarUserName.textContent = email;
 
       return true;
     };
