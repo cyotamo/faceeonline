@@ -2662,9 +2662,12 @@ input[type='file'] {
 }
 
 .gestor-menu-item-info span:last-child {
-  white-space: normal;
-  overflow-wrap: anywhere;
-  line-height: 1.35;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .gestor-menu-item-info strong {
@@ -2675,14 +2678,13 @@ input[type='file'] {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 11px 12px;
-  font-size: 13px;
+  width: 100%;
+  min-width: 0;
+  padding: 8px 0;
+  font-size: 14px;
+  font-weight: 500;
   color: #e5e7eb;
   cursor: default;
-}
-
-.usuario-logado i {
-  font-size: 16px;
 }
 
 .gestor-sidebar-user {
