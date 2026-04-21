@@ -1481,6 +1481,10 @@ async function carregarDocumentos() {
             link: 'https://drive.google.com/file/d/16Vcj2bRramarXfXYnSk4cXs-XXkpdoQ4/view?usp=drive_link',
           },
           {
+            nome: 'Pedido de reingresso',
+            link: 'https://drive.google.com/file/d/1UPhWggQigMl9BiJxKwkw7U1bfhmemnXN/view?usp=drive_link',
+          },
+          {
             nome: 'Pedido de avaliação em atraso',
             link: 'https://drive.google.com/file/d/1WGCi2v9xz-a1q2ybcuJFcBjVq4Muhgg2/view?usp=drive_link',
           },
