@@ -184,7 +184,7 @@ function aplicarMascaraContacto(input) {
 function iniciarMascaras() {
   // Máscaras para números de estudante
   const camposNumero = document.querySelectorAll(
-    "#numero, #numeroEstudante, #numeroEstudanteConsulta, #numeroDefesa"
+    "#numero, #numeroEstudante, #numeroEstudanteConsulta, #numeroDefesa, #documentoEmitidoNumero"
   );
   camposNumero.forEach(campo => aplicarMascaraNumeroEstudante(campo));
 
@@ -293,7 +293,6 @@ function mostrarModal(mensagem) {
     if (e.target === modal) modal.style.display = "none";
   };
 }
-
 
 
 
