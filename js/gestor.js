@@ -2318,10 +2318,10 @@ function renderSecaoDocumentosEmitidos() {
                     </div>
                     <div class="form-field documentos-emitidos-campo documentos-emitidos-campo-numero documentos-emitidos-campo-inline">
                         <label for="documentoEmitidoNumero">Número</label>
-                        <input id="documentoEmitidoNumero" type="text" placeholder="Digite o número de estudante">
+                        <input id="documentoEmitidoNumero" type="text" inputmode="numeric" maxlength="12" placeholder="Digite o número de estudante">
                     </div>
                     <div class="documentos-emitidos-acao">
-                        <button id="btnBuscarDocumentosEmitidos" type="button">Buscar</button>
+                        <button id="btnBuscarDocumentosEmitidos" class="documentos-emitidos-btn" type="button">Buscar</button>
                     </div>
                 </div>
             </div>
