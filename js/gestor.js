@@ -2306,13 +2306,9 @@ function renderSecaoDocumentosEmitidos() {
     container.setAttribute("aria-busy", "false");
     container.innerHTML = `
         <section class="gestor-listagem-bloco">
-            <div class="form-card">
-                <div class="form-header">
-                    <h3>Documentos emitidos</h3>
-                    <p>Consulte os documentos já emitidos por tipo e número de estudante.</p>
-                </div>
-                <div class="form-grid">
-                    <div class="form-field full-row">
+            <div class="form-card documentos-emitidos-filtros">
+                <div class="documentos-emitidos-linha">
+                    <div class="form-field documentos-emitidos-campo documentos-emitidos-campo-tipo documentos-emitidos-campo-inline">
                         <label for="documentoEmitidoTipo">Tipo de documento</label>
                         <select id="documentoEmitidoTipo">
                             <option value="">Seleccione…</option>
@@ -2320,12 +2316,12 @@ function renderSecaoDocumentosEmitidos() {
                             <option value="Pedido de Estagio">Pedido de Estagio</option>
                         </select>
                     </div>
-                    <div class="form-field full-row">
-                        <label for="documentoEmitidoNumero">Número de estudante</label>
+                    <div class="form-field documentos-emitidos-campo documentos-emitidos-campo-numero documentos-emitidos-campo-inline">
+                        <label for="documentoEmitidoNumero">Número</label>
                         <input id="documentoEmitidoNumero" type="text" placeholder="Digite o número de estudante">
                     </div>
-                    <div class="form-actions">
-                        <button id="btnBuscarDocumentosEmitidos" type="button">Buscar</button>
+                    <div class="documentos-emitidos-acao">
+                        <button id="btnBuscarDocumentosEmitidos" class="button button-small documentos-emitidos-btn" type="button">Buscar</button>
                     </div>
                 </div>
             </div>
@@ -2413,13 +2409,13 @@ function renderTabelaDocumentosEmitidos(dados = [], pagina = 1) {
 
     let html = `
         <div class="tabela-scroll tabela-scroll-monografia">
-            <div class="credencial-lista-head">
+            <div class="credencial-lista-head documentos-emitidos-lista-head">
                 <div>Data</div>
                 <div>Nome</div>
                 <div>Tipo de Pedido</div>
                 <div>PDF</div>
             </div>
-            <div class="credencial-lista table-credencial table-monografia-final">
+            <div class="credencial-lista table-credencial table-monografia-final documentos-emitidos-tabela">
     `;
 
     paginaDados.forEach((item) => {
@@ -2429,8 +2425,8 @@ function renderTabelaDocumentosEmitidos(dados = [], pagina = 1) {
             : "—";
 
         html += `
-            <article class="credencial-linha">
-                <div class="credencial-data">${escaparHTML(formatarDataCurta(item?.data || ""))}</div>
+            <article class="credencial-linha documentos-emitidos-linha-item">
+                <div class="credencial-data">${escaparHTML(formatarDataDocumentoEmitido(item?.data || ""))}</div>
                 <div class="credencial-estudante">
                     <p class="credencial-nome">${escaparHTML(item?.nome || "—")}</p>
                 </div>
@@ -2468,6 +2464,18 @@ function renderTabelaDocumentosEmitidos(dados = [], pagina = 1) {
             renderTabelaDocumentosEmitidos(documentosEmitidosRegistos, paginaAtualDocumentosEmitidos + 1);
         });
     }
+}
+
+function formatarDataDocumentoEmitido(valor) {
+    if (!valor) return "—";
+
+    const valorTexto = String(valor).trim();
+    if (!valorTexto) return "—";
+
+    const valorSemHora = valorTexto.split(/[T\s]/)[0];
+    const dataFormatada = normalizarDataPt(valorSemHora);
+
+    return dataFormatada || valorSemHora;
 }
 
 async function carregarDefesas() {
