@@ -2321,7 +2321,7 @@ function renderSecaoDocumentosEmitidos() {
                         <input id="documentoEmitidoNumero" type="text" placeholder="Digite o número de estudante">
                     </div>
                     <div class="documentos-emitidos-acao">
-                        <button id="btnBuscarDocumentosEmitidos" class="button button-small documentos-emitidos-btn" type="button">Buscar</button>
+                        <button id="btnBuscarDocumentosEmitidos" type="button">Buscar</button>
                     </div>
                 </div>
             </div>
