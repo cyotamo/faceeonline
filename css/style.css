@@ -2928,12 +2928,98 @@ input[type='file'] {
   min-width: 0;
 }
 
+.documentos-emitidos-filtros {
+  padding: 12px 14px;
+}
+
+.documentos-emitidos-linha {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.documentos-emitidos-campo {
+  min-width: 0;
+}
+
+.documentos-emitidos-campo-tipo {
+  flex: 1.8;
+}
+
+.documentos-emitidos-campo-numero {
+  flex: 1;
+}
+
+.documentos-emitidos-campo-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.documentos-emitidos-campo-inline label {
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.documentos-emitidos-campo-inline input,
+.documentos-emitidos-campo-inline select {
+  padding: 8px 10px;
+  min-height: 38px;
+}
+
+.documentos-emitidos-acao {
+  flex: 0 0 auto;
+}
+
+.documentos-emitidos-btn {
+  height: 38px;
+  padding: 0 14px;
+  white-space: nowrap;
+}
+
 .tabela-scroll-monografia {
   padding-bottom: 0;
 }
 
 .table-monografia-final {
   min-width: 860px;
+}
+
+.documentos-emitidos-tabela,
+.documentos-emitidos-lista-head {
+  min-width: 0;
+}
+
+.credencial-lista-head.documentos-emitidos-lista-head,
+.credencial-linha.documentos-emitidos-linha-item {
+  grid-template-columns: 110px minmax(260px, 2fr) minmax(170px, 1.1fr) 72px;
+}
+
+.documentos-emitidos-linha-item .credencial-data,
+.documentos-emitidos-linha-item .credencial-nome {
+  white-space: nowrap;
+}
+
+.documentos-emitidos-linha-item .credencial-nome {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.documentos-emitidos-linha-item .credencial-curso {
+  min-width: 0;
+}
+
+@media (max-width: 980px) {
+  .documentos-emitidos-linha {
+    flex-wrap: wrap;
+    align-items: flex-end;
+  }
+
+  .documentos-emitidos-campo-tipo,
+  .documentos-emitidos-campo-numero {
+    flex: 1 1 100%;
+  }
 }
 
 .gestor-listagem-bloco .paginacao-analiticos {
