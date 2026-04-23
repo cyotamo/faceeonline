@@ -21,6 +21,7 @@ const auth = getAuth(app);
 const PERFIS = {
   "gestor@faceeonline.ac.mz": ["ALL"],
   "administrativo@faceeonline.ac.mz": ["CREDENCIAL", "ESTATISTICAS"],
+  "administrativo@faceeunirovuma.ac.mz": ["CREDENCIAL", "ESTATISTICAS"],
   "parecertecnico@faceeonline.ac.mz": ["PARECER", "ESTATISTICAS"],
   "supervisor@faceeonline.ac.mz": [
     "ATRIBUIR_SUPERVISOR",
