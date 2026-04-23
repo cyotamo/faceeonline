@@ -345,6 +345,7 @@ let defesasCache = [];
 let credencialPesquisaRegistos = [];
 let credencialEstagioRegistos = [];
 let monografiaFinalRegistos = [];
+let documentosEmitidosRegistos = [];
 let idCredencialModalAtual = "";
 let moduloCredencialModalAtual = "pesquisa";
 let temasParecerRegistos = [];
@@ -355,6 +356,7 @@ let paginaAtualDefesas = 1;
 let paginaAtualCredencialPesquisa = 1;
 let paginaAtualCredencialEstagio = 1;
 let paginaAtualMonografiaFinal = 1;
+let paginaAtualDocumentosEmitidos = 1;
 let paginaAtualTemasParecer = 1;
 
 function calcularEstadoPaginacao(totalRegistos = 0, pagina = 1, registosPorPagina = 10) {
@@ -1528,6 +1530,16 @@ document.getElementById("btnCredencialEstagio").addEventListener("click", () => 
     }
 });
 
+// Documentos Emitidos
+document.getElementById("btnDocumentosEmitidos")?.addEventListener("click", () => {
+    esconderEstatisticas();
+    esconderSecaoDefesas();
+    mostrarTabelaGestaoGeral();
+    paginaAtualDocumentosEmitidos = 1;
+    renderSecaoDocumentosEmitidos();
+    reaplicarRestricoesUI();
+});
+
 // Listas e Estatísticas (MOSTRA o container)
 document.getElementById("btnEstatisticas").addEventListener("click", () => {
     esconderSecaoDefesas();
@@ -2284,6 +2296,178 @@ function renderTabelaMonografiaFinal(dados = [], pagina = 1) {
 function atualizarTabelaMonografiaFinal(pagina = 1) {
     paginaAtualMonografiaFinal = pagina;
     renderTabelaMonografiaFinal(monografiaFinalRegistos, paginaAtualMonografiaFinal);
+}
+
+function renderSecaoDocumentosEmitidos() {
+    const container = document.getElementById("tabelaGestaoGeral");
+    if (!container) return;
+
+    container.classList.remove("gestor-loading-container");
+    container.setAttribute("aria-busy", "false");
+    container.innerHTML = `
+        <section class="gestor-listagem-bloco">
+            <div class="form-card">
+                <div class="form-header">
+                    <h3>Documentos emitidos</h3>
+                    <p>Consulte os documentos já emitidos por tipo e número de estudante.</p>
+                </div>
+                <div class="form-grid">
+                    <div class="form-field full-row">
+                        <label for="documentoEmitidoTipo">Tipo de documento</label>
+                        <select id="documentoEmitidoTipo">
+                            <option value="">Seleccione…</option>
+                            <option value="Credencial de Pesquisa">Credencial de Pesquisa</option>
+                            <option value="Pedido de Estagio">Pedido de Estagio</option>
+                        </select>
+                    </div>
+                    <div class="form-field full-row">
+                        <label for="documentoEmitidoNumero">Número de estudante</label>
+                        <input id="documentoEmitidoNumero" type="text" placeholder="Digite o número de estudante">
+                    </div>
+                    <div class="form-actions">
+                        <button id="btnBuscarDocumentosEmitidos" type="button">Buscar</button>
+                    </div>
+                </div>
+            </div>
+            <div id="resultadoDocumentosEmitidos" class="gestor-card-listagem"></div>
+        </section>
+    `;
+
+    document.getElementById("btnBuscarDocumentosEmitidos")?.addEventListener("click", buscarDocumentosEmitidos);
+}
+
+function renderMensagemDocumentosEmitidos(mensagem = "", tipo = "info") {
+    const resultado = document.getElementById("resultadoDocumentosEmitidos");
+    if (!resultado) return;
+
+    if (tipo === "erro") {
+        resultado.innerHTML = `<p>${escaparHTML(mensagem || "Ocorreu um erro ao buscar documentos emitidos.")}</p>`;
+        return;
+    }
+
+    resultado.innerHTML = `<p class="sem-dados">${escaparHTML(mensagem || "Nenhum documento emitido encontrado para este número.")}</p>`;
+}
+
+async function buscarDocumentosEmitidos() {
+    const tipoDocumento = (document.getElementById("documentoEmitidoTipo")?.value || "").trim();
+    const numeroEstudante = (document.getElementById("documentoEmitidoNumero")?.value || "").trim();
+
+    if (!tipoDocumento) {
+        renderMensagemDocumentosEmitidos("Seleccione o tipo de documento.", "info");
+        return;
+    }
+
+    if (!numeroEstudante) {
+        renderMensagemDocumentosEmitidos("Preencha o número de estudante.", "info");
+        return;
+    }
+
+    const resultado = document.getElementById("resultadoDocumentosEmitidos");
+    if (!resultado) return;
+    resultado.innerHTML = criarMarkupLoadingPainel("A carregar…");
+
+    try {
+        const params = new URLSearchParams();
+        params.append("action", "getDocumentosEmitidos");
+        params.append("tipoDocumento", tipoDocumento);
+        params.append("numeroEstudante", numeroEstudante);
+
+        const resposta = await fetch(WEB_URL, {
+            method: "POST",
+            body: params
+        });
+        const retorno = await resposta.json();
+
+        if (!resposta.ok || retorno?.sucesso === false) {
+            throw new Error(retorno?.mensagem || "Não foi possível carregar os documentos emitidos.");
+        }
+
+        documentosEmitidosRegistos = Array.isArray(retorno?.documentos) ? retorno.documentos : [];
+        paginaAtualDocumentosEmitidos = 1;
+
+        if (!documentosEmitidosRegistos.length) {
+            renderMensagemDocumentosEmitidos(retorno?.mensagem || "Nenhum documento emitido encontrado para este número.");
+            return;
+        }
+
+        renderTabelaDocumentosEmitidos(documentosEmitidosRegistos, paginaAtualDocumentosEmitidos);
+    } catch (erro) {
+        console.error("Erro ao buscar documentos emitidos:", erro);
+        renderMensagemDocumentosEmitidos(erro?.message || "Erro ao buscar documentos emitidos.", "erro");
+    } finally {
+        reaplicarRestricoesUI();
+    }
+}
+
+function renderTabelaDocumentosEmitidos(dados = [], pagina = 1) {
+    const container = document.getElementById("resultadoDocumentosEmitidos");
+    if (!container) return;
+
+    if (!dados.length) {
+        renderMensagemDocumentosEmitidos();
+        return;
+    }
+
+    const { estadoPaginacao, paginaDados } = obterDadosPaginados(dados, pagina, linhasPorPagina);
+    paginaAtualDocumentosEmitidos = estadoPaginacao.paginaAtual;
+
+    let html = `
+        <div class="tabela-scroll tabela-scroll-monografia">
+            <div class="credencial-lista-head">
+                <div>Data</div>
+                <div>Nome</div>
+                <div>Tipo de Pedido</div>
+                <div>PDF</div>
+            </div>
+            <div class="credencial-lista table-credencial table-monografia-final">
+    `;
+
+    paginaDados.forEach((item) => {
+        const linkPDF = item?.pdf ? String(item.pdf).trim() : "";
+        const linkPDFHtml = linkPDF
+            ? `<a class="pdf-icon credencial-pdf-link" href="${escaparHTML(linkPDF)}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento PDF"><span aria-hidden="true">📄</span><span>PDF</span></a>`
+            : "—";
+
+        html += `
+            <article class="credencial-linha">
+                <div class="credencial-data">${escaparHTML(formatarDataCurta(item?.data || ""))}</div>
+                <div class="credencial-estudante">
+                    <p class="credencial-nome">${escaparHTML(item?.nome || "—")}</p>
+                </div>
+                <div class="credencial-curso">${escaparHTML(item?.tipoPedido || "—")}</div>
+                <div class="credencial-arquivo">${linkPDFHtml}</div>
+            </article>
+        `;
+    });
+
+    html += `
+            </div>
+        </div>
+    `;
+
+    if (estadoPaginacao.deveMostrarPaginacao) {
+        html += markupPaginacaoPadrao({
+            paginaAtual: paginaAtualDocumentosEmitidos,
+            totalPaginas: estadoPaginacao.totalPaginas,
+            ariaLabel: "Paginação Documentos Emitidos"
+        });
+    }
+
+    container.innerHTML = html;
+
+    const btnAnterior = container.querySelector("[data-pagina='anterior']");
+    const btnSeguinte = container.querySelector("[data-pagina='seguinte']");
+
+    if (btnAnterior) {
+        btnAnterior.addEventListener("click", () => {
+            renderTabelaDocumentosEmitidos(documentosEmitidosRegistos, paginaAtualDocumentosEmitidos - 1);
+        });
+    }
+    if (btnSeguinte) {
+        btnSeguinte.addEventListener("click", () => {
+            renderTabelaDocumentosEmitidos(documentosEmitidosRegistos, paginaAtualDocumentosEmitidos + 1);
+        });
+    }
 }
 
 async function carregarDefesas() {
