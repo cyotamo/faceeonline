@@ -3580,9 +3580,17 @@ function carregarParecer() {
             };
         });
 
+        const normalizarEstadoTema = (valor) => String(valor || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim()
+            .toLowerCase();
+
+        const ESTADOS_OCULTAR_TEMAS = new Set(["aprovado", "recusado", "reprovado"]);
         temasParecerRegistos = temasParecerRegistos.filter((item) => {
-            const status = String(item.parecer || item.status || "").toLowerCase();
-            return status !== "aprovado";
+            const estadoRaw = item.parecer ?? item.status ?? item.situacao ?? item.Parecer ?? "";
+            const estadoNormalizado = normalizarEstadoTema(estadoRaw);
+            return !ESTADOS_OCULTAR_TEMAS.has(estadoNormalizado);
         });
         if (temasParecerRegistos.length > 0) {
             const registo = temasParecerRegistos[0];
