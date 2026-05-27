@@ -3124,6 +3124,26 @@ input[type='file'] {
   background: #f6f9ff;
 }
 
+.credencial-btn-acao.is-loading {
+  position: relative;
+  color: transparent;
+  pointer-events: none;
+}
+
+.credencial-btn-acao.is-loading::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid #245ea8;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: gestor-spinner 0.8s linear infinite;
+}
+
 .credencial-modal-overlay {
   position: fixed;
   inset: 0;
