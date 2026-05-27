@@ -2582,7 +2582,7 @@ async function marcarComoEmitido(origem, linha) {
 
     try {
         const params = new URLSearchParams();
-        params.append("operacao", "marcarDocumentoEmitido");
+        params.append("action", "marcarDocumentoEmitido");
         params.append("origem", String(origem || ""));
         params.append("linha", String(linha || ""));
 
