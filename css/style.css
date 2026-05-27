@@ -3071,6 +3071,12 @@ input[type='file'] {
   flex-direction: column;
 }
 
+.tabela-scroll-monografia .credencial-lista {
+  max-height: 480px;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
 .credencial-linha {
   display: grid;
   grid-template-columns: 100px 1.4fr 1.1fr 0.8fr 0.7fr minmax(92px, auto);
