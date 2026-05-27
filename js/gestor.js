@@ -2572,13 +2572,21 @@ function renderizarDocumentosParaEmitir(documentos = [], pagina = 1) {
 
     container.querySelectorAll("[data-emitir-origem]").forEach((botao) => {
         botao.addEventListener("click", () => {
-            marcarComoEmitido(botao.dataset.emitirOrigem || "", botao.dataset.emitirLinha || "");
+            marcarComoEmitido(
+                botao.dataset.emitirOrigem || "",
+                botao.dataset.emitirLinha || "",
+                botao
+            );
         });
     });
 }
 
-async function marcarComoEmitido(origem, linha) {
-    if (!confirm("Confirma que este documento já foi emitido?")) return;
+async function marcarComoEmitido(origem, linha, botaoAcao) {
+    if (botaoAcao) {
+        botaoAcao.disabled = true;
+        botaoAcao.classList.add("is-loading");
+        botaoAcao.setAttribute("aria-busy", "true");
+    }
 
     try {
         const params = new URLSearchParams();
@@ -2597,11 +2605,16 @@ async function marcarComoEmitido(origem, linha) {
             return;
         }
 
-        alert(retorno?.mensagem || "Documento marcado como emitido com sucesso.");
         await carregarDocumentosParaEmitir();
     } catch (erro) {
         console.error("Erro ao marcar documento como emitido:", erro);
         alert(erro?.message || "Erro de rede ao marcar documento como emitido.");
+    } finally {
+        if (botaoAcao?.isConnected) {
+            botaoAcao.disabled = false;
+            botaoAcao.classList.remove("is-loading");
+            botaoAcao.removeAttribute("aria-busy");
+        }
     }
 }
 
