@@ -1286,20 +1286,22 @@ function mostrarResultadoConsulta(resposta) {
   }
 
   if (isCredencial) {
-    const estado = (dados.parecer || "").toLowerCase();
+    const estadoRaw = (dados.parecer || "").toString().trim();
+    const estado = estadoRaw.toLowerCase();
     const isReprovadoCredencial = ["reprovado", "recusado"].includes(estado);
 
-    if (estado === "aprovado") {
+    if (estado === "emitido") {
       situacaoEl.textContent =
         "Aprovado – Disponível para levantamento";
+      aplicarEstiloSituacao(situacaoEl, "aprovado");
     } else if (estado === "reprovado") {
       situacaoEl.textContent =
         "Reprovado – Contacte a secretaria";
+      aplicarEstiloSituacao(situacaoEl, estadoRaw);
     } else {
-      situacaoEl.textContent =
-        dados.parecer || "Pendente";
+      situacaoEl.textContent = "Pendente";
+      aplicarEstiloSituacao(situacaoEl, "pendente");
     }
-    aplicarEstiloSituacao(situacaoEl, dados.parecer);
 
     document.querySelector('#resParecer')
       .closest('p')
