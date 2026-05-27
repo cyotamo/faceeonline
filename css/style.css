@@ -533,7 +533,9 @@ form button[type='submit']:focus-visible {
   margin: 8px 0 0;
   padding: 10px 12px;
   border-radius: 10px;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   border: 1px solid #ffb3b3;
   background: #fff2f2;
   color: #b00020;
