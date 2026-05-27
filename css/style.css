@@ -2932,6 +2932,11 @@ input[type='file'] {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  overflow: visible;
+}
+
+#resultadoDocumentosEmitidos {
+  overflow: visible;
 }
 
 .documentos-emitidos-filtros {
@@ -3052,6 +3057,7 @@ input[type='file'] {
 
 .gestor-listagem-bloco .paginacao-analiticos {
   margin: 12px 14px 10px;
+  padding-bottom: 8px;
 }
 
 .credencial-lista-head {
