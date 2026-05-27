@@ -2787,7 +2787,8 @@ function renderTabelaCredencialPesquisa(dados = [], pagina = 1) {
             }
 
             const statusClasse = obterClasseStatusCredencial(item.parecer);
-            const statusLabel = obterLabelStatusCredencial(item.parecer);
+            const statusBase = obterLabelStatusCredencial(item.parecer);
+            const statusLabel = statusBase === "PENDENTE" ? "Em processo" : statusBase;
 
             html += `
                 <article class="credencial-linha" data-id="${idCredencial}">
@@ -3074,7 +3075,8 @@ function renderTabelaCredenciaisEstagio(dados = [], pagina = 1) {
             console.warn("Linha sem ID:", item);
         }
         const statusClasse = obterClasseStatusCredencial(item.parecer);
-        const statusLabel = obterLabelStatusCredencial(item.parecer);
+        const statusBase = obterLabelStatusCredencial(item.parecer);
+        const statusLabel = statusBase === "PENDENTE" ? "Em processo" : statusBase;
         const linkPDFHtml = linkPDF
             ? `<a class="pdf-icon credencial-pdf-link" href="${linkPDF}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento PDF"><span aria-hidden="true">📄</span><span>PDF</span></a>`
             : "—";
