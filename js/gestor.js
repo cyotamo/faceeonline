@@ -2421,13 +2421,13 @@ function renderTabelaDocumentosEmitidos(dados = [], pagina = 1) {
 
     let html = `
         <div class="tabela-scroll tabela-scroll-monografia">
-            <div class="credencial-lista-head documentos-emitidos-lista-head">
+            <div class="credencial-lista-head">
                 <div>Data</div>
                 <div>Nome</div>
                 <div>Tipo de Pedido</div>
                 <div>PDF</div>
             </div>
-            <div class="credencial-lista table-credencial table-monografia-final documentos-emitidos-tabela">
+            <div class="credencial-lista table-credencial table-monografia-final">
     `;
 
     paginaDados.forEach((item) => {
@@ -2437,7 +2437,7 @@ function renderTabelaDocumentosEmitidos(dados = [], pagina = 1) {
             : "—";
 
         html += `
-            <article class="credencial-linha documentos-emitidos-linha-item">
+            <article class="credencial-linha">
                 <div class="credencial-data">${escaparHTML(formatarDataDocumentoEmitido(item?.data || ""))}</div>
                 <div class="credencial-estudante">
                     <p class="credencial-nome">${escaparHTML(item?.nome || "—")}</p>
@@ -2526,7 +2526,7 @@ function renderizarDocumentosParaEmitir(documentos = [], pagina = 1) {
 
     let html = `
         <div class="tabela-scroll tabela-scroll-monografia">
-            <div class="credencial-lista-head documentos-emitidos-lista-head">
+            <div class="credencial-lista-head">
                 <div>Data</div>
                 <div>Nome</div>
                 <div>Curso</div>
@@ -2534,7 +2534,7 @@ function renderizarDocumentosParaEmitir(documentos = [], pagina = 1) {
                 <div>Ficheiro</div>
                 <div>Acção</div>
             </div>
-            <div class="credencial-lista table-credencial table-monografia-final documentos-emitidos-tabela">
+            <div class="credencial-lista table-credencial table-monografia-final">
     `;
 
     paginaDados.forEach((documento) => {
@@ -2544,7 +2544,7 @@ function renderizarDocumentosParaEmitir(documentos = [], pagina = 1) {
             : '<span class="sem-dados">Sem ficheiro</span>';
 
         html += `
-            <article class="credencial-linha documentos-emitidos-linha-item">
+            <article class="credencial-linha">
                 <div class="credencial-data">${escaparHTML(documento?.data || "—")}</div>
                 <div class="credencial-estudante"><p class="credencial-nome">${escaparHTML(documento?.nome || "—")}</p></div>
                 <div class="credencial-curso">${escaparHTML(documento?.curso || "—")}</div>
