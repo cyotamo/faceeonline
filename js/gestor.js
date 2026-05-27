@@ -2490,7 +2490,7 @@ async function carregarDocumentosParaEmitir() {
     if (!resultado) return;
 
     try {
-        const resposta = await fetch(`${WEB_URL}?operacao=getDocumentosParaEmitir`);
+        const resposta = await fetch(`${WEB_URL}?action=getDocumentosParaEmitir`);
         const retorno = await resposta.json();
 
         if (!resposta.ok || retorno?.sucesso === false) {
