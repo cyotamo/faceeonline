@@ -346,6 +346,7 @@ let credencialPesquisaRegistos = [];
 let credencialEstagioRegistos = [];
 let monografiaFinalRegistos = [];
 let documentosEmitidosRegistos = [];
+let documentosParaEmitirRegistos = [];
 let idCredencialModalAtual = "";
 let moduloCredencialModalAtual = "pesquisa";
 let temasParecerRegistos = [];
@@ -357,6 +358,7 @@ let paginaAtualCredencialPesquisa = 1;
 let paginaAtualCredencialEstagio = 1;
 let paginaAtualMonografiaFinal = 1;
 let paginaAtualDocumentosEmitidos = 1;
+let paginaAtualDocumentosParaEmitir = 1;
 let paginaAtualTemasParecer = 1;
 
 function calcularEstadoPaginacao(totalRegistos = 0, pagina = 1, registosPorPagina = 10) {
@@ -1540,6 +1542,16 @@ document.getElementById("btnDocumentosEmitidos")?.addEventListener("click", () =
     reaplicarRestricoesUI();
 });
 
+// Emitir Documentos
+document.getElementById("btnEmitirDocumentos")?.addEventListener("click", () => {
+    esconderEstatisticas();
+    esconderSecaoDefesas();
+    mostrarTabelaGestaoGeral();
+    paginaAtualDocumentosParaEmitir = 1;
+    carregarDocumentosParaEmitir();
+    reaplicarRestricoesUI();
+});
+
 // Listas e Estatísticas (MOSTRA o container)
 document.getElementById("btnEstatisticas").addEventListener("click", () => {
     esconderSecaoDefesas();
@@ -2463,6 +2475,137 @@ function renderTabelaDocumentosEmitidos(dados = [], pagina = 1) {
         btnSeguinte.addEventListener("click", () => {
             renderTabelaDocumentosEmitidos(documentosEmitidosRegistos, paginaAtualDocumentosEmitidos + 1);
         });
+    }
+}
+
+async function carregarDocumentosParaEmitir() {
+    const container = document.getElementById("tabelaGestaoGeral");
+    if (!container) return;
+
+    container.classList.remove("gestor-loading-container");
+    container.setAttribute("aria-busy", "false");
+    container.innerHTML = '<section class="gestor-listagem-bloco"><div id="resultadoDocumentosParaEmitir" class="gestor-card-listagem">' + criarMarkupLoadingPainel("A carregar documentos…") + '</div></section>';
+
+    const resultado = document.getElementById("resultadoDocumentosParaEmitir");
+    if (!resultado) return;
+
+    try {
+        const resposta = await fetch(`${WEB_URL}?operacao=getDocumentosParaEmitir`);
+        const retorno = await resposta.json();
+
+        if (!resposta.ok || retorno?.sucesso === false) {
+            throw new Error(retorno?.mensagem || "Não foi possível carregar os documentos para emissão.");
+        }
+
+        documentosParaEmitirRegistos = Array.isArray(retorno?.documentos) ? retorno.documentos : [];
+        paginaAtualDocumentosParaEmitir = 1;
+
+        if (!documentosParaEmitirRegistos.length) {
+            resultado.innerHTML = '<p class="sem-dados">Não existem documentos aprovados pendentes de emissão.</p>';
+            return;
+        }
+
+        renderizarDocumentosParaEmitir(documentosParaEmitirRegistos, paginaAtualDocumentosParaEmitir);
+    } catch (erro) {
+        console.error("Erro ao carregar documentos para emitir:", erro);
+        resultado.innerHTML = `<p>${escaparHTML(erro?.message || "Erro ao carregar documentos para emitir.")}</p>`;
+    }
+}
+
+function renderizarDocumentosParaEmitir(documentos = [], pagina = 1) {
+    const container = document.getElementById("resultadoDocumentosParaEmitir");
+    if (!container) return;
+
+    if (!documentos.length) {
+        container.innerHTML = '<p class="sem-dados">Não existem documentos aprovados pendentes de emissão.</p>';
+        return;
+    }
+
+    const { estadoPaginacao, paginaDados } = obterDadosPaginados(documentos, pagina, linhasPorPagina);
+    paginaAtualDocumentosParaEmitir = estadoPaginacao.paginaAtual;
+
+    let html = `
+        <div class="tabela-scroll tabela-scroll-monografia">
+            <div class="credencial-lista-head documentos-emitidos-lista-head">
+                <div>Data</div>
+                <div>Nome</div>
+                <div>Curso</div>
+                <div>Tipo</div>
+                <div>Ficheiro</div>
+                <div>Acção</div>
+            </div>
+            <div class="credencial-lista table-credencial table-monografia-final documentos-emitidos-tabela">
+    `;
+
+    paginaDados.forEach((documento) => {
+        const linkFicheiro = String(documento?.ficheiro || "").trim();
+        const ficheiroHtml = linkFicheiro
+            ? `<a class="pdf-icon credencial-pdf-link" href="${escaparHTML(linkFicheiro)}" target="_blank" rel="noopener noreferrer">Ver ficheiro</a>`
+            : '<span class="sem-dados">Sem ficheiro</span>';
+
+        html += `
+            <article class="credencial-linha documentos-emitidos-linha-item">
+                <div class="credencial-data">${escaparHTML(documento?.data || "—")}</div>
+                <div class="credencial-estudante"><p class="credencial-nome">${escaparHTML(documento?.nome || "—")}</p></div>
+                <div class="credencial-curso">${escaparHTML(documento?.curso || "—")}</div>
+                <div class="credencial-curso">${escaparHTML(documento?.tipo || "—")}</div>
+                <div class="credencial-arquivo">${ficheiroHtml}</div>
+                <div class="credencial-acoes"><button class="credencial-btn-acao" type="button" data-emitir-origem="${escaparHTML(String(documento?.origem || ""))}" data-emitir-linha="${escaparHTML(String(documento?.linha || ""))}">Emitido</button></div>
+            </article>
+        `;
+    });
+
+    html += `</div></div>`;
+
+    if (estadoPaginacao.deveMostrarPaginacao) {
+        html += markupPaginacaoPadrao({
+            paginaAtual: paginaAtualDocumentosParaEmitir,
+            totalPaginas: estadoPaginacao.totalPaginas,
+            ariaLabel: "Paginação Emitir Documentos"
+        });
+    }
+
+    container.innerHTML = html;
+
+    container.querySelector("[data-pagina='anterior']")?.addEventListener("click", () => {
+        renderizarDocumentosParaEmitir(documentosParaEmitirRegistos, paginaAtualDocumentosParaEmitir - 1);
+    });
+    container.querySelector("[data-pagina='seguinte']")?.addEventListener("click", () => {
+        renderizarDocumentosParaEmitir(documentosParaEmitirRegistos, paginaAtualDocumentosParaEmitir + 1);
+    });
+
+    container.querySelectorAll("[data-emitir-origem]").forEach((botao) => {
+        botao.addEventListener("click", () => {
+            marcarComoEmitido(botao.dataset.emitirOrigem || "", botao.dataset.emitirLinha || "");
+        });
+    });
+}
+
+async function marcarComoEmitido(origem, linha) {
+    if (!confirm("Confirma que este documento já foi emitido?")) return;
+
+    try {
+        const params = new URLSearchParams();
+        params.append("operacao", "marcarDocumentoEmitido");
+        params.append("origem", String(origem || ""));
+        params.append("linha", String(linha || ""));
+
+        const resposta = await fetch(WEB_URL, { method: "POST", body: params });
+        const retorno = await resposta.json();
+
+        if (!resposta.ok || retorno?.sucesso === false) {
+            alert(retorno?.mensagem || "Não foi possível marcar o documento como emitido.");
+            if (retorno?.actualizarLista === true) {
+                await carregarDocumentosParaEmitir();
+            }
+            return;
+        }
+
+        alert(retorno?.mensagem || "Documento marcado como emitido com sucesso.");
+        await carregarDocumentosParaEmitir();
+    } catch (erro) {
+        console.error("Erro ao marcar documento como emitido:", erro);
+        alert(erro?.message || "Erro de rede ao marcar documento como emitido.");
     }
 }
 
