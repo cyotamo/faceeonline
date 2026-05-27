@@ -2453,13 +2453,11 @@ function renderTabelaDocumentosEmitidos(dados = [], pagina = 1) {
         </div>
     `;
 
-    if (estadoPaginacao.deveMostrarPaginacao) {
-        html += markupPaginacaoPadrao({
-            paginaAtual: paginaAtualDocumentosEmitidos,
-            totalPaginas: estadoPaginacao.totalPaginas,
-            ariaLabel: "Paginação Documentos Emitidos"
-        });
-    }
+    html += markupPaginacaoPadrao({
+        paginaAtual: paginaAtualDocumentosEmitidos,
+        totalPaginas: estadoPaginacao.totalPaginas,
+        ariaLabel: "Paginação Documentos Emitidos"
+    });
 
     container.innerHTML = html;
 
@@ -2545,7 +2543,7 @@ function renderizarDocumentosParaEmitir(documentos = [], pagina = 1) {
 
         html += `
             <article class="credencial-linha">
-                <div class="credencial-data">${escaparHTML(documento?.data || "—")}</div>
+                <div class="credencial-data">${escaparHTML(formatarDataDocumentoEmitido(documento?.data || ""))}</div>
                 <div class="credencial-estudante"><p class="credencial-nome">${escaparHTML(documento?.nome || "—")}</p></div>
                 <div class="credencial-curso">${escaparHTML(documento?.curso || "—")}</div>
                 <div class="credencial-curso">${escaparHTML(documento?.tipo || "—")}</div>
@@ -2557,13 +2555,11 @@ function renderizarDocumentosParaEmitir(documentos = [], pagina = 1) {
 
     html += `</div></div>`;
 
-    if (estadoPaginacao.deveMostrarPaginacao) {
-        html += markupPaginacaoPadrao({
-            paginaAtual: paginaAtualDocumentosParaEmitir,
-            totalPaginas: estadoPaginacao.totalPaginas,
-            ariaLabel: "Paginação Emitir Documentos"
-        });
-    }
+    html += markupPaginacaoPadrao({
+        paginaAtual: paginaAtualDocumentosParaEmitir,
+        totalPaginas: estadoPaginacao.totalPaginas,
+        ariaLabel: "Paginação Emitir Documentos"
+    });
 
     container.innerHTML = html;
 
