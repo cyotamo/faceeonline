@@ -1217,10 +1217,10 @@ function mostrarResultadoConsulta(resposta) {
     const parecerAprovado = parecerNormalizado === "aprovado";
     const textoParecer = parecerNormalizado
       ? (parecerRecusado ? "Recusado" : dados.parecer)
-      : "Em processo";
+      : "Pendente";
 
     situacaoEl.textContent = textoParecer;
-    aplicarEstiloSituacao(situacaoEl, textoParecer === "Em processo" ? "pendente" : textoParecer);
+    aplicarEstiloSituacao(situacaoEl, textoParecer);
 
     alternarLinha(linhaNome, true);
     alternarLinha(linhaNumero, true);
@@ -1255,13 +1255,13 @@ function mostrarResultadoConsulta(resposta) {
       atribuicaoOk &&
       ["homologado", "aprovado", "ok"].includes(homologacaoNormalizada);
 
-    const textoAtribuicao = atribuicaoOk ? "Atribuído" : "Em processo";
-    const textoHomologacao = homologacaoOk ? "Homologado" : "Em processo";
+    const textoAtribuicao = atribuicaoOk ? "Atribuído" : "Pendente";
+    const textoHomologacao = homologacaoOk ? "Homologado" : "Pendente";
 
     document.getElementById("resAtribuicao").textContent = textoAtribuicao;
     document.getElementById("resHomologacao").textContent = textoHomologacao;
-    aplicarEstiloSituacao(document.getElementById("resAtribuicao"), atribuicaoOk ? textoAtribuicao : "pendente");
-    aplicarEstiloSituacao(document.getElementById("resHomologacao"), homologacaoOk ? textoHomologacao : "pendente");
+    aplicarEstiloSituacao(document.getElementById("resAtribuicao"), textoAtribuicao);
+    aplicarEstiloSituacao(document.getElementById("resHomologacao"), textoHomologacao);
 
     alternarLinha(linhaAtribuicao, true);
     alternarLinha(linhaHomologacao, true);
@@ -1299,7 +1299,7 @@ function mostrarResultadoConsulta(resposta) {
         "Reprovado – Contacte a secretaria";
       aplicarEstiloSituacao(situacaoEl, estadoRaw);
     } else {
-      situacaoEl.textContent = "Em processo";
+      situacaoEl.textContent = "Pendente";
       aplicarEstiloSituacao(situacaoEl, "pendente");
     }
 
