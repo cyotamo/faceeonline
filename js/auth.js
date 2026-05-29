@@ -20,7 +20,11 @@ const auth = getAuth(app);
 
 const PERFIS = {
   "gestor@faceeonline.ac.mz": ["ALL"],
-  "administrativo@faceeonline.ac.mz": ["CREDENCIAL", "ESTATISTICAS"],
+  "administrativo@faceeonline.ac.mz": [
+    "DOCUMENTOS_EMITIDOS",
+    "EMITIR_DOCUMENTOS",
+    "ESTATISTICAS",
+  ],
   "administrativo@faceeunirovuma.ac.mz": ["CREDENCIAL", "ESTATISTICAS"],
   "parecertecnico@faceeonline.ac.mz": ["PARECER", "ESTATISTICAS"],
   "supervisor@faceeonline.ac.mz": [
@@ -49,10 +53,30 @@ window.esconderErroLogin = function () {
   }
 };
 
+const PERMISSOES_HERDADAS = {
+  DOCUMENTOS_EMITIDOS: ["CREDENCIAL"],
+  EMITIR_DOCUMENTOS: ["CREDENCIAL"],
+};
+
 function obterPermissoes(email) {
   if (!email) return null;
   return PERFIS[email.toLowerCase()] || null;
 }
+
+function temPermissao(email, permissao) {
+  const permissoes = obterPermissoes(email) || [];
+
+  if (!permissao) return true;
+  if (permissoes.includes("ALL")) return true;
+  if (permissoes.includes(permissao)) return true;
+
+  const permissoesMae = PERMISSOES_HERDADAS[permissao] || [];
+  return permissoesMae.some((permissaoMae) => permissoes.includes(permissaoMae));
+}
+
+window.temPermissaoGestor = function (permissao) {
+  return temPermissao(window.userEmail, permissao);
+};
 
 window.aplicarRestricoesUI = function (email) {
   const permissoes = obterPermissoes(email) || [];
@@ -67,14 +91,21 @@ window.aplicarRestricoesUI = function (email) {
     // Gestor vê tudo
     if (isGestor) {
       btn.style.display = "";
+      btn.disabled = false;
+      btn.removeAttribute("aria-disabled");
       return;
     }
 
     // Não-gestor: só vê se a permissão estiver explicitamente no perfil
-    if (permissoes.includes(permissao)) {
+    // ou herdada por uma permissão-mãe (ex.: CREDENCIAL).
+    if (temPermissao(email, permissao)) {
       btn.style.display = "";
+      btn.disabled = false;
+      btn.removeAttribute("aria-disabled");
     } else {
       btn.style.display = "none";
+      btn.disabled = true;
+      btn.setAttribute("aria-disabled", "true");
     }
   });
 };

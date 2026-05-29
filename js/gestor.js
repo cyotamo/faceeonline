@@ -1389,6 +1389,33 @@ function reaplicarRestricoesUI() {
     }
 }
 
+
+function utilizadorTemPermissao(permissao) {
+    if (!permissao) return true;
+    return typeof window.temPermissaoGestor === "function" && window.temPermissaoGestor(permissao);
+}
+
+function bloquearFuncionalidadeSemPermissao(permissao, mensagem = "Não tem permissão para aceder a esta funcionalidade.") {
+    if (utilizadorTemPermissao(permissao)) {
+        return false;
+    }
+
+    esconderCarregamento();
+    esconderEstatisticas();
+    esconderSecaoDefesas();
+    mostrarTabelaGestaoGeral();
+
+    const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
+    if (tabelaGestaoGeral) {
+        tabelaGestaoGeral.classList.remove("gestor-loading-container");
+        tabelaGestaoGeral.setAttribute("aria-busy", "false");
+        tabelaGestaoGeral.innerHTML = `<p class="sem-dados">${mensagem}</p>`;
+    }
+
+    reaplicarRestricoesUI();
+    return true;
+}
+
 function carregarInicioGestor() {
     esconderEstatisticas();
     esconderSecaoDefesas();
@@ -1508,6 +1535,7 @@ document.getElementById("btnPlanosAnaliticos").addEventListener("click", () => {
 
 // Credencial Pesquisa
 document.getElementById("btnCredencialPesquisa").addEventListener("click", () => {
+    if (bloquearFuncionalidadeSemPermissao("CREDENCIAL")) return;
     esconderEstatisticas();
     esconderSecaoDefesas();
     mostrarTabelaGestaoGeral();
@@ -1521,6 +1549,7 @@ document.getElementById("btnCredencialPesquisa").addEventListener("click", () =>
 
 // Estágios
 document.getElementById("btnCredencialEstagio").addEventListener("click", () => {
+    if (bloquearFuncionalidadeSemPermissao("CREDENCIAL")) return;
     esconderEstatisticas();
     esconderSecaoDefesas();
     mostrarTabelaGestaoGeral();
@@ -1534,6 +1563,7 @@ document.getElementById("btnCredencialEstagio").addEventListener("click", () => 
 
 // Documentos Emitidos
 document.getElementById("btnDocumentosEmitidos")?.addEventListener("click", () => {
+    if (bloquearFuncionalidadeSemPermissao("DOCUMENTOS_EMITIDOS")) return;
     esconderEstatisticas();
     esconderSecaoDefesas();
     mostrarTabelaGestaoGeral();
@@ -1544,6 +1574,7 @@ document.getElementById("btnDocumentosEmitidos")?.addEventListener("click", () =
 
 // Emitir Documentos
 document.getElementById("btnEmitirDocumentos")?.addEventListener("click", () => {
+    if (bloquearFuncionalidadeSemPermissao("EMITIR_DOCUMENTOS")) return;
     esconderEstatisticas();
     esconderSecaoDefesas();
     mostrarTabelaGestaoGeral();
@@ -1554,6 +1585,7 @@ document.getElementById("btnEmitirDocumentos")?.addEventListener("click", () => 
 
 // Listas e Estatísticas (MOSTRA o container)
 document.getElementById("btnEstatisticas").addEventListener("click", () => {
+    if (bloquearFuncionalidadeSemPermissao("ESTATISTICAS")) return;
     esconderSecaoDefesas();
     mostrarTabelaGestaoGeral();
     mostrarCarregamentoAtribuirSupervisor();
@@ -2311,6 +2343,7 @@ function atualizarTabelaMonografiaFinal(pagina = 1) {
 }
 
 function renderSecaoDocumentosEmitidos() {
+    if (bloquearFuncionalidadeSemPermissao("DOCUMENTOS_EMITIDOS")) return;
     const container = document.getElementById("tabelaGestaoGeral");
     if (!container) return;
 
@@ -2357,6 +2390,7 @@ function renderMensagemDocumentosEmitidos(mensagem = "", tipo = "info") {
 }
 
 async function buscarDocumentosEmitidos() {
+    if (bloquearFuncionalidadeSemPermissao("DOCUMENTOS_EMITIDOS")) return;
     const tipoDocumento = (document.getElementById("documentoEmitidoTipo")?.value || "").trim();
     const numeroEstudante = (document.getElementById("documentoEmitidoNumero")?.value || "").trim();
 
@@ -2477,6 +2511,7 @@ function renderTabelaDocumentosEmitidos(dados = [], pagina = 1) {
 }
 
 async function carregarDocumentosParaEmitir() {
+    if (bloquearFuncionalidadeSemPermissao("EMITIR_DOCUMENTOS")) return;
     const container = document.getElementById("tabelaGestaoGeral");
     if (!container) return;
 
@@ -2511,6 +2546,7 @@ async function carregarDocumentosParaEmitir() {
 }
 
 function renderizarDocumentosParaEmitir(documentos = [], pagina = 1) {
+    if (bloquearFuncionalidadeSemPermissao("EMITIR_DOCUMENTOS")) return;
     const container = document.getElementById("resultadoDocumentosParaEmitir");
     if (!container) return;
 
@@ -2582,6 +2618,7 @@ function renderizarDocumentosParaEmitir(documentos = [], pagina = 1) {
 }
 
 async function marcarComoEmitido(origem, linha, botaoAcao) {
+    if (bloquearFuncionalidadeSemPermissao("EMITIR_DOCUMENTOS")) return;
     if (botaoAcao) {
         botaoAcao.disabled = true;
         botaoAcao.classList.add("is-loading");
@@ -2712,6 +2749,7 @@ function obterRowNumericoCredencial(valorRow, fallbackRow) {
 }
 
 function carregarCredencialPesquisa() {
+    if (bloquearFuncionalidadeSemPermissao("CREDENCIAL")) return;
     mostrarCarregamentoAtribuirSupervisor();
 
     fetch(WEB_URL,
@@ -2989,6 +3027,7 @@ function carregarPlanosAnaliticos() {
 }
 
 async function carregarCredenciaisEstagioGestor() {
+    if (bloquearFuncionalidadeSemPermissao("CREDENCIAL")) return;
     mostrarCarregamentoAtribuirSupervisor();
 
     try {
@@ -3323,6 +3362,7 @@ document.addEventListener("click", async (e) => {
 });
 
 async function guardarCredencialPesquisa(botaoOrigem = null) {
+    if (bloquearFuncionalidadeSemPermissao("CREDENCIAL")) return false;
     const botao = botaoOrigem || document.getElementById("btnGuardar") || document.getElementById("btnGuardarCredencialPesquisa") || document.getElementById("btnGuardarParecerCredencial");
     console.log("[CRED] ENTROU NA FUNÇÃO guardarCredencialPesquisa", {
         botaoEncontrado: Boolean(botao),
@@ -3396,6 +3436,7 @@ async function guardarCredencialPesquisa(botaoOrigem = null) {
 }
 
 async function guardarCredencialEstagio() {
+    if (bloquearFuncionalidadeSemPermissao("CREDENCIAL")) return;
     const botao = document.getElementById("btnGuardar") || document.getElementById("btnGuardarCredencialEstagio");
     activarLoadingGuardar(botao);
 
@@ -3504,6 +3545,7 @@ async function guardarCredencialEstagio() {
 }
 
 async function guardarCredencialEstagioRegistos(botaoOrigem) {
+    if (bloquearFuncionalidadeSemPermissao("CREDENCIAL")) return false;
     const botao = botaoOrigem || document.getElementById("btnGuardarParecerCredencial");
     activarLoadingGuardar(botao);
 
