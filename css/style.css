@@ -3573,12 +3573,15 @@ input[type='file'] {
 #resultadoConsultaEstado {
   padding: 26px 30px;
   min-height: 240px;
+  height: auto;
+  max-height: none;
   overflow: visible;
 }
 
 #resultadoConsultaEstado p {
   margin: 0 0 12px;
   line-height: 1.65;
+  overflow-wrap: anywhere;
 }
 
 #resultadoConsultaEstado p:last-child {

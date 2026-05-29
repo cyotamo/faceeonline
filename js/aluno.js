@@ -1242,6 +1242,19 @@ function mostrarResultadoConsulta(resposta) {
       alternarLinha(linhaObservacoes, false);
     }
 
+    if (!parecerAprovado) {
+      alternarLinha(linhaAtribuicao, false);
+      alternarLinha(linhaHomologacao, false);
+      comprovativoEl.innerHTML = "";
+      alternarLinha(linhaComprovativo, false);
+
+      if (pdfBox) {
+        pdfBox.style.display = "none";
+      }
+
+      return;
+    }
+
     const homologacaoRaw = (homologacaoValor || "").toString().trim();
     const homologacaoNormalizada = homologacaoRaw.toLowerCase();
     const atribuicaoOk = supervisorAtribuido;
@@ -1258,7 +1271,7 @@ function mostrarResultadoConsulta(resposta) {
     aplicarEstiloSituacao(document.getElementById("resHomologacao"), textoHomologacao);
 
     alternarLinha(linhaAtribuicao, true);
-    alternarLinha(linhaHomologacao, true);
+    alternarLinha(linhaHomologacao, atribuicaoOk);
 
     const linkComprovativo = obterPrimeiroLinkPdf(resposta.dados, dados);
     if (parecerAprovado && homologacaoOk && linkComprovativo) {
