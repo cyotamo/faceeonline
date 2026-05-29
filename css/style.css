@@ -3572,6 +3572,7 @@ input[type='file'] {
 
 #resultadoConsultaEstado {
   padding: 26px 30px;
+  flex: 0 0 auto;
   min-height: 240px;
   height: auto;
   max-height: none;
