@@ -39,6 +39,11 @@ function validarContacto(valor) {
   return digitos.length === 9;
 }
 
+function textoSituacao(valor) {
+  const texto = (valor || "").toString().trim();
+  return texto.toLowerCase() === "pendente" ? "Em Processo" : texto;
+}
+
 function normalizarAtribuicaoSupervisor(valor) {
   return String(valor || "").trim().toLowerCase();
 }
@@ -1158,9 +1163,9 @@ function mostrarResultadoConsulta(resposta) {
         ? `Defesa agendada para o dia ${dataAgendamento}`
         : "Pendente");
 
-    analiseAcademicaEl.textContent = textoAnalise;
-    avaliacaoJuriEl.textContent = textoAvaliacaoJuri;
-    defesaAgendadaEl.textContent = textoDefesaAgendada;
+    analiseAcademicaEl.textContent = textoSituacao(textoAnalise);
+    avaliacaoJuriEl.textContent = textoSituacao(textoAvaliacaoJuri);
+    defesaAgendadaEl.textContent = textoSituacao(textoDefesaAgendada);
 
     aplicarEstiloDefesaMonografia(
       analiseAcademicaEl,
@@ -1202,8 +1207,8 @@ function mostrarResultadoConsulta(resposta) {
   }
 
   const homologacaoValor = dados.homologacao || dados.homologado || "";
-  document.getElementById("resAtribuicao").textContent = textoAtribuicaoBase;
-  document.getElementById("resHomologacao").textContent = homologacaoValor;
+  document.getElementById("resAtribuicao").textContent = textoSituacao(textoAtribuicaoBase);
+  document.getElementById("resHomologacao").textContent = textoSituacao(homologacaoValor);
   aplicarEstiloSituacao(document.getElementById("resAtribuicao"), textoAtribuicaoBase);
   aplicarEstiloSituacao(document.getElementById("resHomologacao"), homologacaoValor);
 
@@ -1219,7 +1224,7 @@ function mostrarResultadoConsulta(resposta) {
       ? (parecerRecusado ? "Recusado" : dados.parecer)
       : "Pendente";
 
-    situacaoEl.textContent = textoParecer;
+    situacaoEl.textContent = textoSituacao(textoParecer);
     aplicarEstiloSituacao(situacaoEl, textoParecer);
 
     alternarLinha(linhaNome, true);
@@ -1258,8 +1263,8 @@ function mostrarResultadoConsulta(resposta) {
     const textoAtribuicao = atribuicaoOk ? "Atribuído" : "Pendente";
     const textoHomologacao = homologacaoOk ? "Homologado" : "Pendente";
 
-    document.getElementById("resAtribuicao").textContent = textoAtribuicao;
-    document.getElementById("resHomologacao").textContent = textoHomologacao;
+    document.getElementById("resAtribuicao").textContent = textoSituacao(textoAtribuicao);
+    document.getElementById("resHomologacao").textContent = textoSituacao(textoHomologacao);
     aplicarEstiloSituacao(document.getElementById("resAtribuicao"), textoAtribuicao);
     aplicarEstiloSituacao(document.getElementById("resHomologacao"), textoHomologacao);
 
@@ -1299,7 +1304,7 @@ function mostrarResultadoConsulta(resposta) {
         "Reprovado – Contacte a secretaria";
       aplicarEstiloSituacao(situacaoEl, estadoRaw);
     } else {
-      situacaoEl.textContent = "Pendente";
+      situacaoEl.textContent = textoSituacao("Pendente");
       aplicarEstiloSituacao(situacaoEl, "pendente");
     }
 
@@ -1335,7 +1340,7 @@ function mostrarResultadoConsulta(resposta) {
     .querySelector('strong')
     .textContent = "Parecer:";
   const parecerBase = dados.parecer || "Pendente";
-  situacaoEl.textContent = parecerBase;
+  situacaoEl.textContent = textoSituacao(parecerBase);
   aplicarEstiloSituacao(situacaoEl, parecerBase);
 
   if (isVersaoFinal) {
