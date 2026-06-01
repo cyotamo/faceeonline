@@ -898,9 +898,6 @@ async function enviarConsulta(payload) {
       WEB_URL,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-        },
         body: new URLSearchParams(payload)
       }
     );
