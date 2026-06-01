@@ -704,7 +704,7 @@ async function enviarPedidoCredencialEstagio() {
   const dados = new FormData();
   dados.append('action', 'credencial_estagio');
 
-  const campos = ['nome', 'numeroEstudante', 'curso', 'titulo', 'ano', 'organizacao', 'supervisor'];
+  const campos = ['nome', 'numeroEstudante', 'curso', 'ano', 'organizacao'];
 
   campos.forEach((campo) => {
     const elemento = document.getElementById(campo);
@@ -724,7 +724,6 @@ async function enviarPedidoCredencialEstagio() {
       ? `Plano_Estagio_${numeroEstudante}.pdf`
       : (planoEstagio.name || 'Plano_Estagio.pdf');
 
-    dados.append('planoEstagio', planoEstagioBase64);
     dados.append('planoEstagioBase64', planoEstagioBase64);
     dados.append('planoEstagioNome', nomePlanoEstagio);
     dados.append('planoEstagioTipo', 'application/pdf');
@@ -732,30 +731,18 @@ async function enviarPedidoCredencialEstagio() {
     console.log("URL:", url);
     console.log("action:", dados.get("action"));
     for (const [k, v] of dados.entries()) {
-      console.log("FD", k, k.toLowerCase().includes('base64') || k === 'planoEstagio' ? '[base64]' : v);
+      console.log("FD", k, k.toLowerCase().includes('base64') ? '[base64]' : v);
     }
 
-    const res = await fetch(url, { method: "POST", body: dados });
-    console.log("HTTP status:", res.status);
-    const txt = await res.text();
-    console.log("Resposta bruta:", txt);
-
-    let resposta;
-    try {
-      resposta = JSON.parse(txt);
-    } catch (parseError) {
-      resposta = null;
-    }
+    await fetch(url, {
+      method: "POST",
+      mode: "no-cors",
+      body: dados
+    });
 
     desativarLoading(botao);
-    if (resposta?.sucesso === true) {
-      limparFormularioAposSucesso(botao);
-      mostrarModal("Os seus dados foram enviados com sucesso. Acompanhe o andamento do processo na aba Consulta.");
-      return;
-    }
-
-    const mensagem = resposta?.mensagem || "Ocorreu um erro ao enviar os dados. Por favor, tente novamente.";
-    mostrarModal(mensagem);
+    limparFormularioAposSucesso(botao);
+    mostrarModal("Pedido de estágio enviado com sucesso!");
   } catch (err) {
     desativarLoading(botao);
     mostrarModal("Ocorreu um erro ao enviar os dados. Por favor, tente novamente.");
