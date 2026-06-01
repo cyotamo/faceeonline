@@ -39,6 +39,28 @@ function validarContacto(valor) {
   return digitos.length === 9;
 }
 
+function ficheiroEhPdf(ficheiro) {
+  if (!ficheiro) return false;
+  return ficheiro.type === 'application/pdf' || ficheiro.name.toLowerCase().endsWith('.pdf');
+}
+
+function lerFicheiroComoBase64(ficheiro) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result;
+      if (typeof result === 'string') {
+        resolve(result.split(',')[1] || '');
+        return;
+      }
+
+      reject(new Error('Falha ao ler o ficheiro.'));
+    };
+    reader.onerror = () => reject(new Error('Erro ao ler o ficheiro.'));
+    reader.readAsDataURL(ficheiro);
+  });
+}
+
 function textoSituacao(valor) {
   const texto = (valor || "").toString().trim();
   return texto.toLowerCase() === "pendente" ? "Em Processo" : texto;
@@ -75,6 +97,10 @@ function opcaoSelecionadaValida(valor) {
 function validarFormulario(form) {
   const camposObrigatorios = form.querySelectorAll('[required]');
   for (const campo of camposObrigatorios) {
+    if (campo.type === 'file') {
+      continue;
+    }
+
     if (!campo.value || campo.value.trim() === '') {
       return false; // campo vazio
     }
@@ -102,9 +128,7 @@ function validarFormulario(form) {
     const { files } = ficheiro;
     if (!files || files.length === 0) return false;
 
-    const file = files[0];
-    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-    if (!isPdf) return false;
+    if (!ficheiroEhPdf(files[0])) return false;
   }
 
   return true;
@@ -661,6 +685,22 @@ function enviarPedidoCredencial() {
 window.enviarPedidoCredencial = enviarPedidoCredencial;
 
 async function enviarPedidoCredencialEstagio() {
+  const planoEstagioInput = document.getElementById('planoEstagio');
+
+  if (!planoEstagioInput || !planoEstagioInput.files || planoEstagioInput.files.length === 0) {
+    mostrarModal("Por favor, anexe o Plano de Estágio em PDF antes de submeter.");
+    return;
+  }
+
+  const planoEstagio = planoEstagioInput.files[0];
+
+  if (!ficheiroEhPdf(planoEstagio)) {
+    mostrarModal("Formato inválido. O Plano de Estágio deve ser enviado em PDF.");
+    planoEstagioInput.value = '';
+    actualizarEstadoBotao(planoEstagioInput.closest('form'));
+    return;
+  }
+
   const dados = new FormData();
   dados.append('action', 'credencial_estagio');
 
@@ -675,14 +715,26 @@ async function enviarPedidoCredencialEstagio() {
 
   const botao = document.activeElement;
   const url = WEB_URL;
-  console.log("URL:", url);
-  console.log("action:", dados.get("action"));
-  for (const [k, v] of dados.entries()) {
-    console.log("FD", k, v);
-  }
   activarLoading(botao);
 
   try {
+    const planoEstagioBase64 = await lerFicheiroComoBase64(planoEstagio);
+    const numeroEstudante = (document.getElementById('numeroEstudante')?.value || '').trim();
+    const nomePlanoEstagio = numeroEstudante
+      ? `Plano_Estagio_${numeroEstudante}.pdf`
+      : (planoEstagio.name || 'Plano_Estagio.pdf');
+
+    dados.append('planoEstagio', planoEstagioBase64);
+    dados.append('planoEstagioBase64', planoEstagioBase64);
+    dados.append('planoEstagioNome', nomePlanoEstagio);
+    dados.append('planoEstagioTipo', 'application/pdf');
+
+    console.log("URL:", url);
+    console.log("action:", dados.get("action"));
+    for (const [k, v] of dados.entries()) {
+      console.log("FD", k, k.toLowerCase().includes('base64') || k === 'planoEstagio' ? '[base64]' : v);
+    }
+
     const res = await fetch(url, { method: "POST", body: dados });
     console.log("HTTP status:", res.status);
     const txt = await res.text();
