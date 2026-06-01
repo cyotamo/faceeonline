@@ -619,7 +619,10 @@
         </form>
       `;
 
-      carregarDadosLinhas().then(() => activarFiltrosFormulario());
+      // O formulário de Pedido de Estágio usa uma lista fixa de cursos e não
+      // depende dos dados de linhas/supervisores; por isso não deve chamar
+      // carregarDadosLinhas() ao abrir a secção.
+      activarFiltrosFormulario();
     });
   </script>
 
