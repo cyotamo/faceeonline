@@ -172,13 +172,21 @@ function desativarLoading(botao) {
 }
 
 async function carregarDadosLinhas() {
-  const resposta = await fetch(WEB_URL, {
-    method: 'POST',
-    body: new URLSearchParams({ action: 'getLinhas' }),
-  });
+  if (window.dadosLinhasCarregados) {
+    return dadosLinhas;
+  }
+
+  const resposta = await fetch(`${WEB_URL}?action=getLinhas`);
+
+  if (!resposta.ok) {
+    throw new Error(`Falha ao carregar dados de linhas (HTTP ${resposta.status}).`);
+  }
 
   const dados = await resposta.json();
   dadosLinhas = dados.linhas || [];
+  window.dadosLinhasCarregados = true;
+
+  return dadosLinhas;
 }
 
 function preencherDepartamentos() {
