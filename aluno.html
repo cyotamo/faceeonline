@@ -596,6 +596,9 @@
             <label for="numeroEstudante">Número de Estudante (sem pontos "." somente números):</label>
             <input type="text" id="numeroEstudante" required>
 
+            <label for="contacto">Contacto:</label>
+            <input type="text" id="contacto" required>
+
             <label for="curso">Curso:</label>
             <select id="curso" required>
             <option value="">Seleccione...</option>
@@ -609,8 +612,11 @@
             <label for="ano">Ano:</label>
             <input type="text" id="ano" inputmode="numeric" placeholder="1 a 4" required oninput="actualizarAnoOrdinal(this)">
 
-            <label for="organizacao">Organização:</label>
+            <label for="organizacao">Organização/Instituição de estágio:</label>
             <input type="text" id="organizacao" required>
+
+            <label for="responsavel">Supervisor ou responsável na organização (se existir):</label>
+            <input type="text" id="responsavel">
 
             <label for="planoEstagio">Plano de Estágio:</label>
             <input type="file" id="planoEstagio" name="planoEstagio" accept="application/pdf" required>
