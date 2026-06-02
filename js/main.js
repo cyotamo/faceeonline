@@ -273,14 +273,18 @@ document.addEventListener("DOMContentLoaded", () => {
   mostrarBotaoInstalacao();
 });
 
-// Modal de sucesso reutilizável
-function mostrarModal(mensagem) {
+// Modal reutilizável
+function mostrarModal(mensagem, titulo = "Operação concluída") {
   const modal = document.getElementById("modalSucesso");
+  const tituloModal = document.getElementById("modalTitulo");
   const texto = document.getElementById("modalMensagem");
   const okBtn = document.getElementById("modalOk");
 
   if (!modal || !texto || !okBtn) return;
 
+  if (tituloModal) {
+    tituloModal.innerText = titulo;
+  }
   texto.innerText = mensagem;
   modal.style.display = "flex";
 

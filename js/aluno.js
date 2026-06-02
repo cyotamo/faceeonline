@@ -823,6 +823,13 @@ async function enviarPedidoCredencialEstagio() {
     method: metodo,
     body: dados,
   };
+  const tituloConfirmacaoPendente = 'Confirmação pendente';
+  const obterMensagemConfirmacaoPendente = () => (
+    'O pedido foi enviado, mas o sistema não conseguiu confirmar a resposta do servidor. ' +
+    'Verifique com a secretaria se o pedido foi registado.\n\n' +
+    `Código de diagnóstico: ${idDiagnostico}`
+  );
+  let objetoDiagnostico = null;
   activarLoading(botao);
 
   try {
@@ -835,7 +842,7 @@ async function enviarPedidoCredencialEstagio() {
     dados.append('planoEstagioNome', nomePlanoEstagio);
     dados.append('planoEstagioTipo', 'application/pdf');
 
-    const objetoDiagnostico = formDataParaObjetoDiagnostico(dados);
+    objetoDiagnostico = formDataParaObjetoDiagnostico(dados);
 
     console.group('[CredencialEstagio][Envio] Diagnóstico antes do fetch');
     console.log('[CredencialEstagio] ID de diagnóstico:', idDiagnostico);
@@ -887,7 +894,7 @@ async function enviarPedidoCredencialEstagio() {
     );
     const mensagemErro = obterMensagemRespostaBackend(
       json,
-      'O servidor respondeu, mas não confirmou a gravação do pedido. Contacte a secretaria para confirmação.'
+      obterMensagemConfirmacaoPendente()
     );
     const mensagemUtilizador = backendConfirmouSucesso ? mensagemSucesso : mensagemErro;
 
@@ -911,8 +918,13 @@ async function enviarPedidoCredencialEstagio() {
         textoBruto,
         json,
         idDiagnostico,
+        objetoEnviado: objetoDiagnostico,
+        action: dados.get('action'),
+        operacao: dados.get('operacao'),
+        op: dados.get('op'),
+        urlAppsScript: url,
       });
-      mostrarModal(mensagemUtilizador);
+      mostrarModal(mensagemUtilizador, tituloConfirmacaoPendente);
       return;
     }
 
@@ -923,20 +935,26 @@ async function enviarPedidoCredencialEstagio() {
     const erroTexto = String(err?.message || err || '').toLowerCase();
     const erroProvavelCorsOuFetch = err instanceof TypeError || erroTexto.includes('failed to fetch') || erroTexto.includes('cors');
     console.error('[CredencialEstagio][Erro] Falha durante o envio ou leitura da resposta:', {
-      erro: err,
+      erroCompleto: err,
       erroProvavelCorsOuFetch,
       idDiagnostico,
+      objetoEnviado: objetoDiagnostico,
       action: dados.get('action'),
       operacao: dados.get('operacao'),
       op: dados.get('op'),
+      urlAppsScript: url,
     });
+    console.error('[CredencialEstagio][Erro] Erro completo:', err);
 
     if (erroProvavelCorsOuFetch) {
-      mostrarModal('O pedido foi enviado, mas não foi possível confirmar a resposta do servidor. Contacte a secretaria para confirmação.');
+      mostrarModal(obterMensagemConfirmacaoPendente(), tituloConfirmacaoPendente);
       return;
     }
 
-    mostrarModal('Ocorreu um erro ao preparar ou enviar o pedido. Verifique o console e tente novamente.');
+    mostrarModal(
+      `Ocorreu um erro ao preparar ou enviar o pedido. Verifique o console e tente novamente.\n\nCódigo de diagnóstico: ${idDiagnostico}`,
+      tituloConfirmacaoPendente
+    );
   }
 }
 
