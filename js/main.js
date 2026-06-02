@@ -190,7 +190,7 @@ function iniciarMascaras() {
 
   // Máscaras para contactos
   const camposContacto = document.querySelectorAll(
-    "#contacto1, #contacto2, #contacto1Defesa, #contacto2Defesa"
+    "#contacto, #contacto1, #contacto2, #contacto1Defesa, #contacto2Defesa"
   );
   camposContacto.forEach(campo => aplicarMascaraContacto(campo));
 }
