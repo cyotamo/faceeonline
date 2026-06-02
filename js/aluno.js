@@ -797,6 +797,7 @@ async function enviarPedidoCredencialEstagio() {
 
   const camposFormulario = {
     nome,
+    numero,
     numeroEstudante: numero,
     contacto,
     contacto1,
@@ -841,6 +842,23 @@ async function enviarPedidoCredencialEstagio() {
     dados.append('planoEstagioBase64', planoEstagioBase64);
     dados.append('planoEstagioNome', nomePlanoEstagio);
     dados.append('planoEstagioTipo', 'application/pdf');
+
+    const formData = dados;
+    console.log("[CredencialEstagio] Verificação dos campos críticos:", {
+      nome: formData.get("nome"),
+      numero: formData.get("numero"),
+      numeroEstudante: formData.get("numeroEstudante"),
+      curso: formData.get("curso"),
+      ano: formData.get("ano"),
+      organizacao: formData.get("organizacao"),
+      planoEstagioBase64Existe: !!formData.get("planoEstagioBase64"),
+      planoEstagioBase64Tamanho: formData.get("planoEstagioBase64") ? formData.get("planoEstagioBase64").length : 0,
+      planoEstagioNome: formData.get("planoEstagioNome"),
+      planoEstagioTipo: formData.get("planoEstagioTipo"),
+      action: formData.get("action"),
+      operacao: formData.get("operacao"),
+      op: formData.get("op")
+    });
 
     objetoDiagnostico = formDataParaObjetoDiagnostico(dados);
 
