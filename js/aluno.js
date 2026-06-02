@@ -768,38 +768,67 @@ async function enviarPedidoCredencialEstagio() {
   }
 
   const operacaoPedidoEstagio = 'credencial_estagio';
+  const idDiagnostico = 'CE-' + Date.now();
   const dados = new FormData();
   dados.append('action', operacaoPedidoEstagio);
   dados.append('operacao', operacaoPedidoEstagio);
   dados.append('op', operacaoPedidoEstagio);
   dados.append('tipoPedido', 'Credencial de Estágio');
   dados.append('tipo', 'Credencial de Estágio');
+  dados.append('idDiagnostico', idDiagnostico);
 
-  const campos = ['nome', 'numeroEstudante', 'contacto', 'contacto1', 'curso', 'ano', 'organizacao', 'supervisor', 'responsavel'];
+  const lerCampo = (id) => {
+    const elemento = document.getElementById(id);
+    if (!elemento) return '';
+    const valor = elemento.value;
+    return valor && valor.trim ? valor.trim() : valor;
+  };
 
-  campos.forEach((campo) => {
-    const elemento = document.getElementById(campo);
-    if (elemento) {
-      dados.append(campo, elemento.value.trim ? elemento.value.trim() : elemento.value);
+  const nome = lerCampo('nome');
+  const numero = lerCampo('numeroEstudante');
+  const contacto = lerCampo('contacto');
+  const contacto1 = lerCampo('contacto1');
+  const curso = lerCampo('curso');
+  const ano = lerCampo('ano');
+  const organizacao = lerCampo('organizacao');
+  const instituicao = organizacao;
+  const supervisor = lerCampo('supervisor');
+  const tipoPedido = dados.get('tipoPedido');
+
+  const camposFormulario = {
+    nome,
+    numeroEstudante: numero,
+    contacto,
+    contacto1,
+    curso,
+    ano,
+    organizacao,
+    instituicao,
+  };
+
+  Object.entries(camposFormulario).forEach(([campo, valor]) => {
+    if (valor !== '') {
+      dados.append(campo, valor);
     }
   });
+
+  if (supervisor !== '') {
+    dados.append('supervisor', supervisor);
+  }
 
   const botao = document.activeElement;
   const url = WEB_URL;
   const metodo = 'POST';
-  const headers = {};
   const fetchOptions = {
     method: metodo,
-    headers,
     body: dados,
   };
   activarLoading(botao);
 
   try {
     const planoEstagioBase64 = await lerFicheiroComoBase64(planoEstagio);
-    const numeroEstudante = (document.getElementById('numeroEstudante')?.value || '').trim();
-    const nomePlanoEstagio = numeroEstudante
-      ? `Plano_Estagio_${numeroEstudante}.pdf`
+    const nomePlanoEstagio = numero
+      ? `Plano_Estagio_${numero}.pdf`
       : (planoEstagio.name || 'Plano_Estagio.pdf');
 
     dados.append('planoEstagioBase64', planoEstagioBase64);
@@ -809,10 +838,23 @@ async function enviarPedidoCredencialEstagio() {
     const objetoDiagnostico = formDataParaObjetoDiagnostico(dados);
 
     console.group('[CredencialEstagio][Envio] Diagnóstico antes do fetch');
+    console.log('[CredencialEstagio] ID de diagnóstico:', idDiagnostico);
+    console.log('[CredencialEstagio] Campos enviados:', {
+      nome,
+      numero,
+      contacto,
+      curso,
+      instituicao,
+      supervisor,
+      tipoPedido,
+      action: dados.get('action'),
+      operacao: dados.get('operacao'),
+      op: dados.get('op'),
+    });
     console.log('Objecto completo que será enviado ao back-end:', objetoDiagnostico);
     console.log('URL usada no fetch:', url);
     console.log('Método usado:', metodo);
-    console.log('Headers usados:', headers);
+    console.log('Headers usados: nenhum header personalizado');
     console.log('Body exacto usado no fetch (FormData inspeccionável):', fetchOptions.body);
     console.log('Resumo das entradas do body:', objetoDiagnostico);
     console.log('Operação da API enviada em action/operacao/op:', {
@@ -823,7 +865,21 @@ async function enviarPedidoCredencialEstagio() {
     console.groupEnd();
 
     const resposta = await fetch(url, fetchOptions);
-    const { textoBruto, json, erroJson } = await converterRespostaParaDiagnostico(resposta);
+    console.log('[CredencialEstagio] HTTP status:', resposta.status, resposta.statusText);
+
+    const textoBruto = await resposta.text();
+    console.log('[CredencialEstagio] Resposta bruta:', textoBruto);
+
+    let json = null;
+    let erroJson = null;
+    try {
+      json = textoBruto.trim() ? JSON.parse(textoBruto) : null;
+      console.log('[CredencialEstagio] JSON convertido:', json);
+    } catch (jsonError) {
+      erroJson = jsonError;
+      console.warn('[CredencialEstagio] Resposta não é JSON válido:', jsonError);
+    }
+
     const backendConfirmouSucesso = resposta.ok && valorSucessoBackend(json);
     const mensagemSucesso = obterMensagemRespostaBackend(
       json,
@@ -831,7 +887,7 @@ async function enviarPedidoCredencialEstagio() {
     );
     const mensagemErro = obterMensagemRespostaBackend(
       json,
-      'O pedido foi enviado, mas o servidor não confirmou a gravação dos dados. Verifique o console e tente novamente.'
+      'O servidor respondeu, mas não confirmou a gravação do pedido. Contacte a secretaria para confirmação.'
     );
     const mensagemUtilizador = backendConfirmouSucesso ? mensagemSucesso : mensagemErro;
 
@@ -841,7 +897,7 @@ async function enviarPedidoCredencialEstagio() {
     console.log('Texto bruto retornado pelo servidor:', textoBruto);
     console.log('JSON convertido:', json);
     if (erroJson) {
-      console.error('Erro ao converter a resposta para JSON:', erroJson);
+      console.warn('Erro ao converter a resposta para JSON:', erroJson);
     }
     console.log('Backend confirmou sucesso:', backendConfirmouSucesso);
     console.log('Mensagem exibida ao utilizador:', mensagemUtilizador);
@@ -854,6 +910,7 @@ async function enviarPedidoCredencialEstagio() {
         status: resposta.status,
         textoBruto,
         json,
+        idDiagnostico,
       });
       mostrarModal(mensagemUtilizador);
       return;
@@ -863,8 +920,23 @@ async function enviarPedidoCredencialEstagio() {
     mostrarModal(mensagemUtilizador);
   } catch (err) {
     desativarLoading(botao);
-    console.error('[CredencialEstagio][Erro] Falha durante o envio ou leitura da resposta do back-end.', err);
-    mostrarModal("Ocorreu um erro ao enviar os dados ou ao confirmar a gravação. Verifique o console e tente novamente.");
+    const erroTexto = String(err?.message || err || '').toLowerCase();
+    const erroProvavelCorsOuFetch = err instanceof TypeError || erroTexto.includes('failed to fetch') || erroTexto.includes('cors');
+    console.error('[CredencialEstagio][Erro] Falha durante o envio ou leitura da resposta:', {
+      erro: err,
+      erroProvavelCorsOuFetch,
+      idDiagnostico,
+      action: dados.get('action'),
+      operacao: dados.get('operacao'),
+      op: dados.get('op'),
+    });
+
+    if (erroProvavelCorsOuFetch) {
+      mostrarModal('O pedido foi enviado, mas não foi possível confirmar a resposta do servidor. Contacte a secretaria para confirmação.');
+      return;
+    }
+
+    mostrarModal('Ocorreu um erro ao preparar ou enviar o pedido. Verifique o console e tente novamente.');
   }
 }
 
