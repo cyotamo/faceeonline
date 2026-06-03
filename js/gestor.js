@@ -842,7 +842,7 @@ function renderTabelaDefesa(lista = []) {
 
         const situacaoHtml = `<span class="status ${situacaoClasse} defesa-situacao-badge">${escaparHTML(situacaoTexto)}</span>`;
         const linkPdfHtml = linkPdfFinal
-            ? `<a class="pdf-icon defesa-pdf-link" href="${escaparHTML(linkPdfFinal)}" target="_blank" rel="noopener noreferrer" aria-label="Ver PDF"><span aria-hidden="true">📄</span><span>PDF</span></a>`
+            ? `<a class="pdf-icon defesa-pdf-link" href="${escaparHTML(linkPdfFinal)}" target="_blank" rel="noopener noreferrer" aria-label="Ver PDF"><span>PDF</span></a>`
             : "—";
 
         return `
@@ -2290,7 +2290,7 @@ function renderTabelaMonografiaFinal(dados = [], pagina = 1) {
                     <div class="credencial-curso">${item.curso || "—"}</div>
                     <div class="credencial-arquivo">
                         <a class="pdf-icon credencial-pdf-link" href="${linkPDF}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento PDF">
-                            <span aria-hidden="true">📄</span><span>PDF</span>
+                            <span>PDF</span>
                         </a>
                     </div>
                     <div class="credencial-status">
@@ -2467,7 +2467,7 @@ function renderTabelaDocumentosEmitidos(dados = [], pagina = 1) {
     paginaDados.forEach((item) => {
         const linkPDF = item?.pdf ? String(item.pdf).trim() : "";
         const linkPDFHtml = linkPDF
-            ? `<a class="pdf-icon credencial-pdf-link" href="${escaparHTML(linkPDF)}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento PDF"><span aria-hidden="true">📄</span><span>PDF</span></a>`
+            ? `<a class="pdf-icon credencial-pdf-link" href="${escaparHTML(linkPDF)}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento PDF"><span>PDF</span></a>`
             : "—";
 
         html += `
@@ -2837,7 +2837,7 @@ function renderTabelaCredencialPesquisa(dados = [], pagina = 1) {
                     <div class="credencial-curso">${item.curso || "—"}</div>
                     <div class="credencial-arquivo">
                         <a class="pdf-icon credencial-pdf-link" href="${item.pdfURL || item.linkPDF || "#"}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento PDF">
-                            <span aria-hidden="true">📄</span><span>PDF</span>
+                            <span>PDF</span>
                         </a>
                     </div>
                     <div class="credencial-status">
@@ -2916,7 +2916,7 @@ function renderTabelaPlanosAnaliticos(dados = [], pagina = 1) {
     dadosPagina.forEach((item, index) => {
         const linkPDF = item.linkPDF ?? item.pdfURL ?? item.urlPDF ?? "";
         const linkPDFHtml = linkPDF
-            ? `<a class="pdf-icon" href="${linkPDF}" target="_blank" rel="noopener">📄</a>`
+            ? `<a class="pdf-icon" href="${linkPDF}" target="_blank" rel="noopener"><span>PDF</span></a>`
             : "—";
         const situacao = (item.situacao ?? "").toString().trim() || "Não Submetido";
         const situacaoNormalizada = situacao
@@ -3119,7 +3119,7 @@ function renderTabelaCredenciaisEstagio(dados = [], pagina = 1) {
         const statusBase = obterLabelStatusCredencial(item.parecer);
         const statusLabel = statusBase === "PENDENTE" ? "Em processo" : statusBase;
         const linkPDFHtml = linkPDF
-            ? `<a class="pdf-icon credencial-pdf-link" href="${linkPDF}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento PDF"><span aria-hidden="true">📄</span><span>PDF</span></a>`
+            ? `<a class="pdf-icon credencial-pdf-link" href="${linkPDF}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento PDF"><span>PDF</span></a>`
             : "—";
         const linkPlanoHtml = linkPlanoEstagio
             ? `<a class="pdf-icon credencial-pdf-link" href="${linkPlanoEstagio}" target="_blank" rel="noopener noreferrer" title="Abrir plano de estágio"><span>PDF</span></a>`
