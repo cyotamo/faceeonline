@@ -69,7 +69,7 @@ window.addEventListener("appinstalled", () => {
   }
 });
 
-const WEB_URL = "https://script.google.com/macros/s/AKfycbx8QeIvxVQpB6XKg5WLd_eZb-RnLk7uUF0D4yG55EJA8mzuuCLRDCd1uaRHyQ0ItJENZw/exec";
+const WEB_URL = "https://script.google.com/macros/s/AKfycby2ZiaQyaCkb0oOsB9-afo_kXGURB50IVndei-G6O6l9qiHyF5cO8uQI-Z1ZAdgyfjgcw/exec";
 
 // Funções gerais e utilitárias usadas em várias páginas
 // Ainda sem lógica funcional completa; serve apenas como base e placeholders.
