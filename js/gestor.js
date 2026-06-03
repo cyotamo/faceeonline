@@ -3095,11 +3095,12 @@ function renderTabelaCredenciaisEstagio(dados = [], pagina = 1) {
     );
 
     let html = `
-        <div class="credencial-lista-head">
+        <div class="credencial-lista-head credencial-estagio-head">
             <div>Data</div>
             <div>Nome</div>
             <div>Curso</div>
             <div>Ver</div>
+            <div>Plano</div>
             <div>Status</div>
             <div>Acções</div>
         </div>
@@ -3108,7 +3109,8 @@ function renderTabelaCredenciaisEstagio(dados = [], pagina = 1) {
 
     paginaDados.forEach((item) => {
         const idCredencial = String(item.id || "").trim();
-        const linkPDF = item.linkPDF ?? item.pdfURL ?? "";
+        const linkPDF = item.linkPDF || item.pdfURL || "";
+        const linkPlanoEstagio = item.linkPlanoEstagio || "";
         const idEmFalta = !idCredencial;
         if (idEmFalta) {
             console.warn("Linha sem ID:", item);
@@ -3119,6 +3121,9 @@ function renderTabelaCredenciaisEstagio(dados = [], pagina = 1) {
         const linkPDFHtml = linkPDF
             ? `<a class="pdf-icon credencial-pdf-link" href="${linkPDF}" target="_blank" rel="noopener noreferrer" aria-label="Ver documento PDF"><span aria-hidden="true">📄</span><span>PDF</span></a>`
             : "—";
+        const linkPlanoHtml = linkPlanoEstagio
+            ? `<a class="pdf-icon credencial-pdf-link" href="${linkPlanoEstagio}" target="_blank" rel="noopener noreferrer" title="Abrir plano de estágio"><span>PDF</span></a>`
+            : "—";
 
         html += `
             <article class="credencial-linha" data-id="${idCredencial}">
@@ -3128,6 +3133,7 @@ function renderTabelaCredenciaisEstagio(dados = [], pagina = 1) {
                 </div>
                 <div class="credencial-curso">${item.curso || "—"}</div>
                 <div class="credencial-arquivo">${linkPDFHtml}</div>
+                <div class="credencial-arquivo">${linkPlanoHtml}</div>
                 <div class="credencial-status">
                     <span class="status ${statusClasse}">${statusLabel}</span>
                 </div>
