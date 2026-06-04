@@ -224,7 +224,26 @@ function normalizarDataPt(valor) {
     return formatarDataDiaMesAno(valorTexto);
 }
 
+function obterDataSemHoraDefesa(valor) {
+    const valorTexto = String(valor ?? "").trim();
+    if (!valorTexto) {
+        return "";
+    }
+
+    const dataSemHora = valorTexto.split(/[T\s]/)[0];
+    return normalizarDataPt(dataSemHora) || dataSemHora;
+}
+
+function defesaAindaPendente(registo = {}) {
+    return String(registo.defendido ?? "").trim() === "";
+}
+
 function obterSituacaoDefesaParaTabela(item = {}) {
+    const banca = String(item.banca || item.avaliacaoBanca || "").trim();
+    if (banca) {
+        return `Em avaliação pela Banca em ${obterDataSemHoraDefesa(banca)}`;
+    }
+
     const dataAgendada = String(item.dataAgendada || item.data_agendada || "").trim();
     if (dataAgendada) {
         return `Agendado: ${normalizarDataPt(dataAgendada)}`;
@@ -799,25 +818,28 @@ function renderTabelaDefesa(lista = []) {
     }
 
     const listaSegura = Array.isArray(lista) ? lista : [];
-    const estadoPaginacao = calcularEstadoPaginacao(listaSegura.length, paginaAtualDefesas, linhasPorPagina);
+    const listaPendente = listaSegura
+        .map((item, indiceOriginal) => ({ item, indiceOriginal }))
+        .filter(({ item }) => defesaAindaPendente(item));
+    const estadoPaginacao = calcularEstadoPaginacao(listaPendente.length, paginaAtualDefesas, linhasPorPagina);
     paginaAtualDefesas = estadoPaginacao.paginaAtual;
 
-    if (!listaSegura.length) {
+    if (!listaPendente.length) {
         mostrarMensagemTabelaDefesa("Nenhum registo de defesa encontrado.");
         return;
     }
 
     const inicio = estadoPaginacao.inicio;
     const fim = estadoPaginacao.fim;
-    const paginaDados = listaSegura.slice(inicio, fim);
+    const paginaDados = listaPendente.slice(inicio, fim);
     console.log("[DefesaMonografia][Diagnostico] Paginação e renderização:", {
-        totalAposTratamento: listaSegura.length,
+        totalAposTratamento: listaPendente.length,
         paginaAtual: paginaAtualDefesas,
         itensPorPagina: linhasPorPagina,
         totalRenderizado: paginaDados.length
     });
 
-    tbody.innerHTML = paginaDados.map((item, index) => {
+    tbody.innerHTML = paginaDados.map(({ item, indiceOriginal }) => {
         const itemSeguro = {
             data: item.data || "",
             nome: item.nome || "",
@@ -856,7 +878,7 @@ function renderTabelaDefesa(lista = []) {
                     <button
                         type="button"
                         class="btn-editar-defesa"
-                        data-index="${inicio + index}"
+                        data-index="${indiceOriginal}"
                         aria-label="Ver e actualizar registo de defesa"
                         title="Ver e actualizar"
                     ></button>
@@ -2692,12 +2714,14 @@ async function carregarDefesas() {
         const lista = Array.isArray(res.dados) ? res.dados : [];
         console.log("[DefesaMonografia][Diagnostico] Total recebido:", lista.length);
 
-        // Mostra todos os registos recebidos no front e delega a distribuição para a paginação.
-        const defesasTratadas = lista.map((item) => ({
-            ...item,
-            dataAgendada: item.dataAgendada || item.data_agendada || "",
-            enviadoRA: normalizarDataPt(item.enviadoRA || item.enviadoAoRA || "")
-        }));
+        // Mostra apenas processos ainda pendentes e delega a distribuição para a paginação.
+        const defesasTratadas = lista
+            .filter((item) => defesaAindaPendente(item))
+            .map((item) => ({
+                ...item,
+                dataAgendada: item.dataAgendada || item.data_agendada || "",
+                enviadoRA: normalizarDataPt(item.enviadoRA || item.enviadoAoRA || "")
+            }));
         console.log("[DefesaMonografia][Diagnostico] Total após filtros:", defesasTratadas.length);
         console.log("[DefesaMonografia][Diagnostico] Total após tratamento:", defesasTratadas.length);
 
