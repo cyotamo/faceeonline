@@ -20,6 +20,30 @@ let modoTabelaGestao = "geral";
 // "atribuirSupervisor"
 // "homologarSupervisor"
 
+function cursoAutorizadoParaModulo(registoOuCurso, modulo) {
+    const curso = typeof registoOuCurso === "object" && registoOuCurso !== null
+        ? registoOuCurso.curso
+        : registoOuCurso;
+
+    if (typeof window.cursoAutorizadoParaPerfil !== "function") {
+        return true;
+    }
+
+    return window.cursoAutorizadoParaPerfil(window.userEmail, modulo, curso);
+}
+
+function filtrarRegistosPorCursoModulo(lista, modulo) {
+    if (typeof window.filtrarListaPorCursoPerfil === "function") {
+        return window.filtrarListaPorCursoPerfil(lista, window.userEmail, modulo, "curso");
+    }
+
+    return Array.isArray(lista) ? lista : [];
+}
+
+function mostrarMensagemAcessoCursoNegado() {
+    alert("Acesso não autorizado para este curso.");
+}
+
 async function carregarDadosBloqueio() {
     try {
      const resposta = await fetch(WEB_URL, {
@@ -647,6 +671,11 @@ function abrirModalAtribuirSupervisor(idTema = "") {
         return;
     }
 
+    if (!cursoAutorizadoParaModulo(registo, "ATRIBUIR_SUPERVISOR")) {
+        mostrarMensagemAcessoCursoNegado();
+        return;
+    }
+
     idTemaAtribuirSupervisorAtual = String(registo.idTema || "").trim();
     if (atribuirSupervisorModalNome) atribuirSupervisorModalNome.value = registo.nome || "";
     if (atribuirSupervisorModalCurso) atribuirSupervisorModalCurso.value = registo.curso || "";
@@ -677,6 +706,12 @@ async function guardarAtribuicaoSupervisorModal() {
     if (!idTemaAtribuirSupervisorAtual) return;
     const registo = obterRegistoAtribuirSupervisorPorId(idTemaAtribuirSupervisorAtual);
     if (!registo) return;
+
+    if (!cursoAutorizadoParaModulo(registo, "ATRIBUIR_SUPERVISOR")) {
+        mostrarMensagemAcessoCursoNegado();
+        fecharModalAtribuirSupervisor();
+        return;
+    }
 
     const supervisor = String(atribuirSupervisorModalSelect?.value || "").trim();
     if (!supervisor) {
@@ -843,7 +878,7 @@ function renderTabelaDefesa(lista = []) {
     const listaSegura = Array.isArray(lista) ? lista : [];
     const listaPendente = listaSegura
         .map((item, indiceOriginal) => ({ item, indiceOriginal }))
-        .filter(({ item }) => defesaAindaPendente(item));
+        .filter(({ item }) => defesaAindaPendente(item) && cursoAutorizadoParaModulo(item, "DEFESAS"));
     const estadoPaginacao = calcularEstadoPaginacao(listaPendente.length, paginaAtualDefesas, linhasPorPagina);
     paginaAtualDefesas = estadoPaginacao.paginaAtual;
 
@@ -931,6 +966,11 @@ function atualizarTabelaDefesas(pagina = 1) {
 
 function abrirModalEdicaoDefesa(registo = {}, indice = null) {
     if (!modalEdicaoDefesa) {
+        return;
+    }
+
+    if (!cursoAutorizadoParaModulo(registo, "DEFESAS")) {
+        mostrarMensagemAcessoCursoNegado();
         return;
     }
 
@@ -1188,6 +1228,11 @@ function configurarEventosModalDefesa() {
 
         const index = Number.parseInt(botaoEditar.dataset.index, 10);
         if (Number.isNaN(index) || !defesasCache[index]) {
+            return;
+        }
+
+        if (!cursoAutorizadoParaModulo(defesasCache[index], "DEFESAS")) {
+            mostrarMensagemAcessoCursoNegado();
             return;
         }
 
@@ -1988,6 +2033,7 @@ function carregarGestaoGeral() {
                 const supervisorJaAtribuido = String(item.supervisorFinal ?? item.supervisor ?? "").trim() !== "";
                 return estadoTemaAprovado && !supervisorJaAtribuido;
             });
+            dadosFiltrados = filtrarRegistosPorCursoModulo(dadosFiltrados, "ATRIBUIR_SUPERVISOR");
         }
 
         if (modoTabelaGestao === "homologarSupervisor") {
@@ -2102,13 +2148,16 @@ function renderTabelaGestaoGeral(dados = dadosGestaoGeral, pagina = 1) {
 
     if (!container) return;
 
-    const { estadoPaginacao, paginaDados } = obterDadosPaginados(dados, pagina, linhasPorPagina);
-    paginaAtual = estadoPaginacao.paginaAtual;
-    totalPaginas = estadoPaginacao.totalPaginas;
-    const inicio = estadoPaginacao.inicio;
     const isGeral = modoTabelaGestao === "geral";
     const isHomologar = modoTabelaGestao === "homologarSupervisor";
     const isAtribuir = modoTabelaGestao === "atribuirSupervisor";
+    const dadosRenderizacao = isAtribuir
+        ? filtrarRegistosPorCursoModulo(dados, "ATRIBUIR_SUPERVISOR")
+        : dados;
+    const { estadoPaginacao, paginaDados } = obterDadosPaginados(dadosRenderizacao, pagina, linhasPorPagina);
+    paginaAtual = estadoPaginacao.paginaAtual;
+    totalPaginas = estadoPaginacao.totalPaginas;
+    const inicio = estadoPaginacao.inicio;
 
     if (isAtribuir) {
         let htmlAtribuir = `
@@ -2148,7 +2197,7 @@ function renderTabelaGestaoGeral(dados = dadosGestaoGeral, pagina = 1) {
 
         htmlAtribuir += `</div>`;
         container.innerHTML = htmlAtribuir;
-        renderizarControlesGestaoGeral(dados.length);
+        renderizarControlesGestaoGeral(dadosRenderizacao.length);
         aplicarDadosBloqueio();
         reaplicarRestricoesUI();
         return;
@@ -2748,7 +2797,10 @@ async function carregarDefesas() {
         console.log("[DefesaMonografia][Diagnostico] Total após filtros:", defesasTratadas.length);
         console.log("[DefesaMonografia][Diagnostico] Total após tratamento:", defesasTratadas.length);
 
-        if (!defesasTratadas.length) {
+        const defesasAutorizadas = filtrarRegistosPorCursoModulo(defesasTratadas, "DEFESAS");
+        console.log("[DefesaMonografia][Diagnostico] Total após filtro por curso:", defesasAutorizadas.length);
+
+        if (!defesasAutorizadas.length) {
             defesasCache = [];
             mostrarSecaoDefesas();
             esconderTabelaGestaoGeral();
@@ -2756,7 +2808,7 @@ async function carregarDefesas() {
             return;
         }
 
-        defesasCache = defesasTratadas;
+        defesasCache = defesasAutorizadas;
 
         mostrarSecaoDefesas();
         esconderTabelaGestaoGeral();
