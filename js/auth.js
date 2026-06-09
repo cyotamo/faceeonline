@@ -33,6 +33,59 @@ const PERFIS = {
     "DEFESAS",
     "PLANOS_ANALITICOS",
   ],
+  "vcumpe@unirovuma.ac.mz": ["DEFESAS", "ESTATISTICAS", "PLANOS_ANALITICOS"],
+  "lpulveira@unirovuma.ac.mz": ["DEFESAS", "ESTATISTICAS", "PLANOS_ANALITICOS"],
+  "ajanuario@unirovuma.ac.mz": ["DEFESAS", "ESTATISTICAS", "PLANOS_ANALITICOS"],
+  "asadate@unirovuma.ac.mz": [
+    "DEFESAS",
+    "ATRIBUIR_SUPERVISOR",
+    "ESTATISTICAS",
+    "PLANOS_ANALITICOS",
+  ],
+  "ineuana@unirovuma.ac.mz": [
+    "DEFESAS",
+    "ATRIBUIR_SUPERVISOR",
+    "ESTATISTICAS",
+    "PLANOS_ANALITICOS",
+  ],
+  "atomas@unirovuma.ac.mz": [
+    "DEFESAS",
+    "ATRIBUIR_SUPERVISOR",
+    "ESTATISTICAS",
+    "PLANOS_ANALITICOS",
+  ],
+};
+
+const CURSOS_POR_PERFIL = {
+  "vcumpe@unirovuma.ac.mz": {
+    DEFESAS: ["Gestão de Recursos Humanos"],
+  },
+  "lpulveira@unirovuma.ac.mz": {
+    DEFESAS: ["Contabilidade e Fiscalidade"],
+  },
+  "ajanuario@unirovuma.ac.mz": {
+    DEFESAS: ["Economia"],
+  },
+  "asadate@unirovuma.ac.mz": {
+    DEFESAS: ["Contabilidade e Fiscalidade"],
+    ATRIBUIR_SUPERVISOR: ["Contabilidade e Fiscalidade"],
+  },
+  "ineuana@unirovuma.ac.mz": {
+    DEFESAS: [
+      "Gestão de Recursos Humanos",
+      "Economia",
+      "Gestão de Empresas",
+    ],
+    ATRIBUIR_SUPERVISOR: [
+      "Gestão de Recursos Humanos",
+      "Economia",
+      "Gestão de Empresas",
+    ],
+  },
+  "atomas@unirovuma.ac.mz": {
+    DEFESAS: ["*"],
+    ATRIBUIR_SUPERVISOR: ["*"],
+  },
 };
 
 function obterElementoErroLogin() {
@@ -62,6 +115,65 @@ function obterPermissoes(email) {
   if (!email) return null;
   return PERFIS[email.toLowerCase()] || null;
 }
+
+function normalizarEmailPerfil(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function normalizarNomeCurso(curso) {
+  return String(curso || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function obterCursosAutorizadosPorPerfil(email, modulo) {
+  const emailNormalizado = normalizarEmailPerfil(email);
+  const permissoes = obterPermissoes(emailNormalizado) || [];
+
+  if (permissoes.includes("ALL")) return ["*"];
+
+  const restricoesPerfil = CURSOS_POR_PERFIL[emailNormalizado];
+  const cursosModulo = restricoesPerfil?.[modulo];
+
+  if (!Array.isArray(cursosModulo) || cursosModulo.length === 0) {
+    return ["*"];
+  }
+
+  return cursosModulo;
+}
+
+function cursoAutorizadoParaPerfil(email, modulo, curso) {
+  const cursosAutorizados = obterCursosAutorizadosPorPerfil(email, modulo);
+
+  if (cursosAutorizados.includes("*")) return true;
+
+  const cursoNormalizado = normalizarNomeCurso(curso);
+  if (!cursoNormalizado) return false;
+
+  return cursosAutorizados.some(
+    (cursoAutorizado) => normalizarNomeCurso(cursoAutorizado) === cursoNormalizado
+  );
+}
+
+function filtrarListaPorCursoPerfil(lista, email, modulo, campoCurso = "curso") {
+  if (!Array.isArray(lista)) return [];
+
+  const cursosAutorizados = obterCursosAutorizadosPorPerfil(email, modulo);
+  if (cursosAutorizados.includes("*")) return lista;
+
+  return lista.filter((item) =>
+    cursoAutorizadoParaPerfil(email, modulo, item?.[campoCurso])
+  );
+}
+
+window.CURSOS_POR_PERFIL = CURSOS_POR_PERFIL;
+window.normalizarNomeCursoPerfil = normalizarNomeCurso;
+window.obterCursosAutorizadosPorPerfil = obterCursosAutorizadosPorPerfil;
+window.cursoAutorizadoParaPerfil = cursoAutorizadoParaPerfil;
+window.filtrarListaPorCursoPerfil = filtrarListaPorCursoPerfil;
 
 function temPermissao(email, permissao) {
   const permissoes = obterPermissoes(email) || [];
