@@ -352,10 +352,33 @@ const MAPA_CAMPOS_SITUACAO_DEFESA = {
 };
 
 const DOCENTES_DEFESA_TESTE = [
-    "Prof. Alberto Manuel",
-    "Prof. Carla João",
-    "Prof. Ernesto Paulo",
-    "Prof. Lúcia Armando"
+    "Dr. Adão Indipita",
+    "Dr. Anli Bugdade",
+    "Dr. António Missomal",
+    "Dr. Cremildo da Silva Filipe",
+    "Dr. Elmano Mendes",
+    "Dr. Isaquiel Estamilo",
+    "Dr. Issufo Yancubo",
+    "Dra. Lúcia Pulveira",
+    "Dra Mónica Calande",
+    "Mestre Abudo Sadate Ucade",
+    "Mestre Alcido Manuel Juaniha",
+    "Mestre Benedito Machado",
+    "Mestre Fabião Jaquissone",
+    "Mestre Faruque Jalilo",
+    "Mestre Inês Neuana",
+    "Mestre Lucília Consolo",
+    "Mestre Itelvina Ribeiro",
+    "Mestre Januário Augusto",
+    "Mestre Reinaldo Cintura",
+    "Mestre King Francisco Chigalo",
+    "Mestre Sadoque Elias Nascimento",
+    "Mestre Valdemiro Cumpe",
+    "Prof. Dr. António Pereira",
+    "Prof. Dr. Armando Agostinho Tomás",
+    "Prof. Dr. Castigo José Castigo",
+    "Prof. Dr. Cremildo José Yotamo",
+    "Prof. Dr. Martinho Niamale"
 ];
 
 let registoDefesaEmEdicao = null;
