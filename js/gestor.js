@@ -20,9 +20,31 @@ let modoTabelaGestao = "geral";
 // "atribuirSupervisor"
 // "homologarSupervisor"
 
+function obterCursoRegistoDefesa(registo = {}) {
+    const camposCurso = [
+        "curso",
+        "Curso",
+        "nomeCurso",
+        "NomeCurso",
+        "cursoNome",
+        "designacaoCurso",
+        "cursoDefesa",
+        "curso_defesa"
+    ];
+
+    for (const campo of camposCurso) {
+        const valor = String(registo?.[campo] ?? "").trim();
+        if (valor) {
+            return valor;
+        }
+    }
+
+    return "";
+}
+
 function cursoAutorizadoParaModulo(registoOuCurso, modulo) {
     const curso = typeof registoOuCurso === "object" && registoOuCurso !== null
-        ? registoOuCurso.curso
+        ? (modulo === "DEFESAS" ? obterCursoRegistoDefesa(registoOuCurso) : registoOuCurso.curso)
         : registoOuCurso;
 
     if (typeof window.cursoAutorizadoParaPerfil !== "function") {
@@ -2791,6 +2813,7 @@ async function carregarDefesas() {
             .filter((item) => defesaAindaPendente(item))
             .map((item) => ({
                 ...item,
+                curso: obterCursoRegistoDefesa(item),
                 dataAgendada: item.dataAgendada || item.data_agendada || "",
                 enviadoRA: normalizarDataPt(item.enviadoRA || item.enviadoAoRA || "")
             }));

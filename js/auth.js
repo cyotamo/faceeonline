@@ -122,6 +122,8 @@ function normalizarEmailPerfil(email) {
 
 function normalizarNomeCurso(curso) {
   return String(curso || "")
+    .replace(/[\u200B-\u200D\uFEFF]/g, " ")
+    .replace(/\u00A0/g, " ")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/\s+/g, " ")
