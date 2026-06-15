@@ -1398,33 +1398,37 @@ function mostrarResultadoConsulta(resposta) {
     const defesaTemValor = valorNaoPendente(defesaAgendada);
     const agendamentoTemValor = valorNaoPendente(agendamentoDefesa);
 
-    const dataAnaliseEstado = extrairDataEstado(analiseAcademica);
-    const dataJuriEstado = extrairDataEstado(avaliacaoJuri);
-    const dataAgendamentoEstado = extrairDataEstado(agendamentoDefesa);
+    const defesaEstaAgendada = defesaTemValor || agendamentoTemValor;
 
-    const textoAnalise = isDefesaMonografiaFluxo
-      ? (juriTemValor
+    let textoAnalise;
+    let textoAvaliacaoJuri;
+    let textoDefesaAgendada;
+    let mostrarAnaliseAcademicaFinanceira;
+    let mostrarAvaliacaoJuri;
+    let mostrarDefesaAgendada;
+
+    if (isDefesaMonografiaFluxo) {
+      mostrarAnaliseAcademicaFinanceira = analiseTemValor;
+      mostrarAvaliacaoJuri = juriTemValor;
+      mostrarDefesaAgendada = defesaEstaAgendada;
+
+      textoAnalise = juriTemValor ? "Concluída" : "Em Processo";
+      textoAvaliacaoJuri = defesaEstaAgendada ? "Concluída" : "Em Processo";
+      textoDefesaAgendada = "Agendada";
+    } else {
+      textoAnalise = dataJuri
         ? "Análise concluída"
-        : (analiseTemValor ? `Em análise... iniciando em ${dataAnaliseEstado}` : "Pendente"))
-      : (
-        dataJuri
-          ? "Análise concluída"
-          : (dataAnalise ? `Em análise... iniciando em ${dataAnalise}` : "Pendente")
-      );
-    const textoAvaliacaoJuri = isDefesaMonografiaFluxo
-      ? ((defesaTemValor || agendamentoTemValor)
+        : (dataAnalise ? `Em análise... iniciando em ${dataAnalise}` : "Pendente");
+      textoAvaliacaoJuri = dataAgendamento
         ? "Avaliação concluída"
-        : (juriTemValor ? `Em análise... iniciado em ${dataJuriEstado}` : "Pendente"))
-      : (dataAgendamento
-        ? "Avaliação concluída"
-        : (dataJuri ? `Em análise... iniciado em ${dataJuri}` : "Pendente"));
-    const textoDefesaAgendada = isDefesaMonografiaFluxo
-      ? (agendamentoTemValor
-        ? `Defesa agendada para o dia ${dataAgendamentoEstado}`
-        : "Pendente")
-      : (dataAgendamento
+        : (dataJuri ? `Em análise... iniciado em ${dataJuri}` : "Pendente");
+      textoDefesaAgendada = dataAgendamento
         ? `Defesa agendada para o dia ${dataAgendamento}`
-        : "Pendente");
+        : "Pendente";
+      mostrarAnaliseAcademicaFinanceira = true;
+      mostrarAvaliacaoJuri = true;
+      mostrarDefesaAgendada = true;
+    }
 
     analiseAcademicaEl.textContent = textoSituacao(textoAnalise);
     avaliacaoJuriEl.textContent = textoSituacao(textoAvaliacaoJuri);
@@ -1433,29 +1437,29 @@ function mostrarResultadoConsulta(resposta) {
     aplicarEstiloDefesaMonografia(
       analiseAcademicaEl,
       isDefesaMonografiaFluxo
-        ? (textoAnalise === "Análise concluída" ? "concluida" : (textoAnalise === "Pendente" ? "pendente" : "analise"))
+        ? (juriTemValor ? "concluida" : "analise")
         : (dataJuri ? "concluida" : (dataAnalise ? "analise" : "pendente"))
     );
     aplicarEstiloDefesaMonografia(
       avaliacaoJuriEl,
       isDefesaMonografiaFluxo
-        ? (textoAvaliacaoJuri === "Avaliação concluída" ? "concluida" : (textoAvaliacaoJuri.toLowerCase() === "pendente" ? "pendente" : "analise"))
+        ? (defesaEstaAgendada ? "concluida" : "analise")
         : (dataAgendamento ? "concluida" : (dataJuri ? "analise" : "pendente"))
     );
     aplicarEstiloDefesaMonografia(
       defesaAgendadaEl,
       isDefesaMonografiaFluxo
-        ? (textoDefesaAgendada.toLowerCase() === "pendente" ? "pendente" : "analise")
+        ? "analise"
         : (dataAgendamento ? "analise" : "pendente")
     );
 
     alternarLinha(linhaNome, true);
     alternarLinha(linhaNumero, true);
     alternarLinha(linhaSubmissao, true);
-    alternarLinha(linhaAnaliseAcademicaFinanceira, true);
-    alternarLinha(linhaAvaliacaoJuri, true);
+    alternarLinha(linhaAnaliseAcademicaFinanceira, mostrarAnaliseAcademicaFinanceira);
+    alternarLinha(linhaAvaliacaoJuri, mostrarAvaliacaoJuri);
     alternarLinha(linhaAgendamentoDefesa, false);
-    alternarLinha(linhaDefesaAgendada, true);
+    alternarLinha(linhaDefesaAgendada, mostrarDefesaAgendada);
 
     alternarLinha(linhaParecer, false);
     alternarLinha(linhaAtribuicao, false);
