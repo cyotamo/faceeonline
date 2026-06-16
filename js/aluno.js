@@ -1568,6 +1568,9 @@ function mostrarResultadoConsulta(resposta) {
       situacaoEl.textContent =
         "Reprovado – Contacte a secretaria";
       aplicarEstiloSituacao(situacaoEl, estadoRaw);
+    } else if (estado === "recusado") {
+      situacaoEl.textContent = "Recusado";
+      aplicarEstiloSituacao(situacaoEl, estadoRaw);
     } else {
       situacaoEl.textContent = textoSituacao("Pendente");
       aplicarEstiloSituacao(situacaoEl, "pendente");
