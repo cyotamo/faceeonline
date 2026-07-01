@@ -954,8 +954,8 @@ function renderTabelaDefesa(lista = []) {
                     <p class="credencial-nome">${escaparHTML(itemSeguro.nome || "—")}</p>
                 </div>
                 <div class="credencial-curso defesa-campo defesa-curso" data-label="Curso">${escaparHTML(itemSeguro.curso || "—")}</div>
-                <div class="credencial-arquivo defesa-campo defesa-arquivo" data-label="Arquivo">${linkPdfHtml}</div>
                 <div class="credencial-status defesa-campo defesa-status" data-label="Status">${situacaoHtml}</div>
+                <div class="credencial-arquivo defesa-campo defesa-arquivo" data-label="Arquivo">${linkPdfHtml}</div>
                 <div class="credencial-acao defesa-campo defesa-acao" data-label="Acção">
                     <button
                         type="button"
