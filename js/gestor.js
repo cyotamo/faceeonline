@@ -792,9 +792,9 @@ function mostrarMensagemTabelaDefesa(mensagem) {
     }
 
     tbody.innerHTML = `
-        <tr>
-            <td colspan="6">${escaparHTML(mensagem)}</td>
-        </tr>
+        <article class="credencial-linha defesa-linha defesa-linha-vazia">
+            <div class="defesa-campo defesa-mensagem-vazia">${escaparHTML(mensagem)}</div>
+        </article>
     `;
     paginaAtualDefesas = 1;
     if (paginacaoContainer) {
@@ -948,13 +948,15 @@ function renderTabelaDefesa(lista = []) {
             : "—";
 
         return `
-            <tr>
-                <td class="col-data">${escaparHTML(formatarDataCurta(itemSeguro.data))}</td>
-                <td class="col-nome">${escaparHTML(itemSeguro.nome)}</td>
-                <td class="col-curso">${escaparHTML(itemSeguro.curso || "—")}</td>
-                <td class="col-arquivo">${linkPdfHtml}</td>
-                <td class="col-status">${situacaoHtml}</td>
-                <td class="col-acao">
+            <article class="credencial-linha defesa-linha defesa-card">
+                <div class="credencial-data defesa-campo defesa-data" data-label="Data">${escaparHTML(formatarDataCurta(itemSeguro.data))}</div>
+                <div class="credencial-estudante defesa-campo defesa-estudante" data-label="Nome">
+                    <p class="credencial-nome">${escaparHTML(itemSeguro.nome || "—")}</p>
+                </div>
+                <div class="credencial-curso defesa-campo defesa-curso" data-label="Curso">${escaparHTML(itemSeguro.curso || "—")}</div>
+                <div class="credencial-arquivo defesa-campo defesa-arquivo" data-label="Arquivo">${linkPdfHtml}</div>
+                <div class="credencial-status defesa-campo defesa-status" data-label="Status">${situacaoHtml}</div>
+                <div class="credencial-acao defesa-campo defesa-acao" data-label="Acção">
                     <button
                         type="button"
                         class="btn-editar-defesa"
@@ -962,8 +964,8 @@ function renderTabelaDefesa(lista = []) {
                         aria-label="Ver e actualizar registo de defesa"
                         title="Ver e actualizar"
                     ></button>
-                </td>
-            </tr>
+                </div>
+            </article>
         `;
     }).join("");
     if (paginacaoContainer) {
