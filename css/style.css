@@ -3598,43 +3598,58 @@ input[type='file'] {
   }
 
   .defesa-linha {
+    display: grid;
     grid-template-columns: 1fr;
-    gap: 8px;
-    align-items: stretch;
+    gap: 12px;
+    align-items: start;
+  }
+
+  .defesa-linha .credencial-data,
+  .defesa-linha .credencial-estudante,
+  .defesa-linha .credencial-nome,
+  .defesa-linha .credencial-curso,
+  .defesa-linha .credencial-status,
+  .defesa-linha .credencial-arquivo,
+  .defesa-linha .credencial-acao {
+    grid-column: 1;
+    width: 100%;
   }
 
   .defesa-campo {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
     min-width: 0;
   }
 
   .defesa-campo::before {
-    content: attr(data-label);
-    flex: 0 0 88px;
-    color: #6b7280;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .3px;
-    text-transform: uppercase;
-  }
-
-  .defesa-campo > * {
-    min-width: 0;
+    content: none;
   }
 
   .defesa-estudante .credencial-nome,
   .defesa-curso,
-  .defesa-status {
-    text-align: right;
+  .defesa-status,
+  .defesa-arquivo {
+    text-align: left;
     overflow-wrap: anywhere;
   }
 
+  .defesa-linha .credencial-status {
+    width: auto;
+    justify-self: start;
+  }
+
+  .defesa-linha .status,
+  .defesa-linha .defesa-situacao-badge {
+    display: inline-flex;
+    width: auto;
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .defesa-linha .credencial-acao {
+    justify-self: start;
+  }
+
   .defesa-acao {
-    justify-content: space-between;
-    text-align: right;
+    text-align: left;
   }
 
   .defesa-mensagem-vazia::before {
