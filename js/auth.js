@@ -308,6 +308,10 @@ window.protegerGestor = function () {
     if (window.iniciarObservadorPermissoes) {
       iniciarObservadorPermissoes(user.email);
     }
+
+    window.dispatchEvent(new CustomEvent("gestor:perfil-permissoes-carregados", {
+      detail: { email: user.email, permissoes }
+    }));
   });
 };
 

@@ -488,7 +488,7 @@ const contadorMenuConfig = {
     temas_monografia: {
         permissao: "PARECER",
         carregar: () => carregarDadosGestaoGeralParaContador(),
-        contar: (lista) => normalizarTemasParecerPendentes(lista).length
+        contar: (lista) => filtrarRegistosPorCursoModulo(normalizarTemasParecerPendentes(lista), "PARECER").length
     },
     atribuir_supervisor: {
         permissao: "ATRIBUIR_SUPERVISOR",
@@ -512,18 +512,29 @@ function utilizadorPodeConsultarContador(config = {}) {
     return utilizadorTemPermissao(config.permissao);
 }
 
+function actualizarBadgeContador(elemento, total) {
+    if (!elemento) return;
+
+    if (total > 0) {
+        elemento.textContent = total;
+        elemento.style.display = "inline-flex";
+    } else {
+        elemento.textContent = "";
+        elemento.style.display = "none";
+    }
+}
+
 function actualizarContadorMenu(chave, valor) {
     const numero = Number(valor) || 0;
     estadoContadoresMenu.valores.set(chave, numero);
     document.querySelectorAll(`[data-counter-key="${chave}"]`).forEach((item) => {
         const contador = item.querySelector(".menu-counter");
         if (!contador) return;
+        actualizarBadgeContador(contador, numero);
         if (numero > 0) {
-            contador.textContent = String(numero);
             contador.classList.add("is-visible");
             contador.setAttribute("aria-label", `${numero} processos pendentes`);
         } else {
-            contador.textContent = "";
             contador.classList.remove("is-visible");
             contador.removeAttribute("aria-label");
         }
@@ -569,11 +580,51 @@ function carregarContadorMenu(chave) {
     return promessa;
 }
 
-function iniciarContadoresMenuGestor() {
+function carregarContadorPedidosEstagio() {
+    return carregarContadorMenu("credencial_estagio");
+}
+
+function carregarContadorTemasMonografia() {
+    return carregarContadorMenu("temas_monografia");
+}
+
+function carregarContadorMonografiaFinal() {
+    return carregarContadorMenu("monografia_final");
+}
+
+function carregarContadorColectaDados() {
+    return carregarContadorMenu("credencial_pesquisa");
+}
+
+function carregarContadorAtribuirSupervisores() {
+    return carregarContadorMenu("atribuir_supervisor");
+}
+
+function carregarContadorHomologarListas() {
+    return carregarContadorMenu("homologar_supervisor");
+}
+
+function carregarContadorPlanosAnaliticos() {
+    return carregarContadorMenu("planos_analiticos");
+}
+
+async function carregarTodosContadoresPendentes() {
+    return Promise.allSettled([
+        carregarContadorPedidosEstagio(),
+        carregarContadorTemasMonografia(),
+        carregarContadorMonografiaFinal(),
+        carregarContadorColectaDados(),
+        carregarContadorAtribuirSupervisores(),
+        carregarContadorHomologarListas(),
+        carregarContadorPlanosAnaliticos()
+    ]);
+}
+
+async function iniciarContadoresMenuGestor() {
     if (estadoContadoresMenu.iniciado) return;
-    if (typeof window.temPermissaoGestor !== "function") return;
+    if (!window.userEmail || typeof window.temPermissaoGestor !== "function") return;
     estadoContadoresMenu.iniciado = true;
-    Object.keys(contadorMenuConfig).forEach((chave) => carregarContadorMenu(chave));
+    await carregarTodosContadoresPendentes();
 }
 
 function agendarInicioContadoresMenuGestor() {
@@ -1971,6 +2022,10 @@ if (tabelaGestaoGeral) {
 document.addEventListener("DOMContentLoaded", () => {
     esconderCarregamento();
     agendarInicioContadoresMenuGestor();
+});
+
+window.addEventListener("gestor:perfil-permissoes-carregados", () => {
+    iniciarContadoresMenuGestor();
 });
 
 // Função para mostrar o container das Estatísticas
