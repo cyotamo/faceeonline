@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { app } from "./firebase.js";
 import {
   getAuth,
   signInWithEmailAndPassword,
@@ -6,16 +6,6 @@ import {
   signOut,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDVvzO7pmEpwY6GPUuWchXVTPl5WReAjgY",
-  authDomain: "seconlinefacee.firebaseapp.com",
-  projectId: "seconlinefacee",
-  storageBucket: "seconlinefacee.firebasestorage.app",
-  messagingSenderId: "1034408809833",
-  appId: "1:1034408809833:web:a5a76c08807925fa7859f8",
-};
-
-const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 const PERFIS = {
