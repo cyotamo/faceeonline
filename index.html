@@ -151,24 +151,7 @@
     }
   </script>
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDVvzO7pmEpwY6GPUuWchXVTPl5WReAjgY",
-      authDomain: "seconlinefacee.firebaseapp.com",
-      projectId: "seconlinefacee",
-      storageBucket: "seconlinefacee.firebasestorage.app",
-      messagingSenderId: "1034408809833",
-      appId: "1:1034408809833:web:b8f0fa590a18f27c7859f8",
-      measurementId: "G-H5VB7HD3WK"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-  </script>
+  <script type="module" src="./js/firebase.js"></script>
 
 </body>
 </html>
