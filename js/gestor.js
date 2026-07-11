@@ -449,6 +449,244 @@ let paginaAtualDocumentosEmitidos = 1;
 let paginaAtualDocumentosParaEmitir = 1;
 let paginaAtualTemasParecer = 1;
 
+
+let promessaGestaoGeralContador = null;
+
+const estadoContadoresMenu = {
+    valores: new Map(),
+    dados: new Map(),
+    promessas: new Map(),
+    iniciado: false
+};
+
+const contadorMenuConfig = {
+    defesa_monografia: {
+        permissao: "DEFESAS",
+        carregar: () => carregarDadosDefesasParaContador(),
+        contar: (lista) => (Array.isArray(lista) ? lista : []).filter((item) => defesaAindaPendente(item) && cursoAutorizadoParaModulo(item, "DEFESAS")).length
+    },
+    monografia_final: {
+        permissao: "ALL",
+        carregar: () => carregarDadosMonografiaFinalParaContador(),
+        contar: (lista) => (Array.isArray(lista) ? lista : []).filter(monografiaFinalPendente).length
+    },
+    credencial_pesquisa: {
+        permissao: "CREDENCIAL",
+        carregar: () => carregarDadosCredencialPesquisaParaContador(),
+        contar: (lista) => filtrarCredenciaisPesquisaPendentes(lista).length
+    },
+    credencial_estagio: {
+        permissao: "CREDENCIAL",
+        carregar: () => carregarDadosCredencialEstagioParaContador(),
+        contar: (lista) => filtrarCredenciaisEstagioPendentes(lista).length
+    },
+    emitir_documentos: {
+        permissao: "EMITIR_DOCUMENTOS",
+        carregar: () => carregarDadosDocumentosParaEmitirParaContador(),
+        contar: (lista) => (Array.isArray(lista) ? lista : []).length
+    },
+    temas_monografia: {
+        permissao: "PARECER",
+        carregar: () => carregarDadosGestaoGeralParaContador(),
+        contar: (lista) => normalizarTemasParecerPendentes(lista).length
+    },
+    atribuir_supervisor: {
+        permissao: "ATRIBUIR_SUPERVISOR",
+        carregar: () => carregarDadosGestaoGeralParaContador(),
+        contar: (lista) => filtrarRegistosPorCursoModulo(filtrarAtribuicoesSupervisorPendentes(lista), "ATRIBUIR_SUPERVISOR").length
+    },
+    homologar_supervisor: {
+        permissao: "ALL",
+        carregar: () => carregarDadosGestaoGeralParaContador(),
+        contar: (lista) => filtrarHomologacoesSupervisorPendentes(lista).length
+    },
+    planos_analiticos: {
+        permissao: "PLANOS_ANALITICOS",
+        carregar: () => carregarDadosPlanosAnaliticosParaContador(),
+        contar: (lista) => (Array.isArray(lista) ? lista : []).filter(planoAnaliticoPendente).length
+    }
+};
+
+function utilizadorPodeConsultarContador(config = {}) {
+    if (!config.permissao || config.permissao === "ALL") return true;
+    return utilizadorTemPermissao(config.permissao);
+}
+
+function actualizarContadorMenu(chave, valor) {
+    const numero = Number(valor) || 0;
+    estadoContadoresMenu.valores.set(chave, numero);
+    document.querySelectorAll(`[data-counter-key="${chave}"]`).forEach((item) => {
+        const contador = item.querySelector(".menu-counter");
+        if (!contador) return;
+        if (numero > 0) {
+            contador.textContent = String(numero);
+            contador.classList.add("is-visible");
+            contador.setAttribute("aria-label", `${numero} processos pendentes`);
+        } else {
+            contador.textContent = "";
+            contador.classList.remove("is-visible");
+            contador.removeAttribute("aria-label");
+        }
+    });
+}
+
+function guardarDadosContador(chave, dados) {
+    const lista = Array.isArray(dados) ? dados : [];
+    estadoContadoresMenu.dados.set(chave, lista);
+    const config = contadorMenuConfig[chave];
+    if (config?.contar) {
+        actualizarContadorMenu(chave, config.contar(lista));
+    }
+    return lista;
+}
+
+function recalcularContadorMenu(chave) {
+    const config = contadorMenuConfig[chave];
+    if (!config) return;
+    actualizarContadorMenu(chave, config.contar(estadoContadoresMenu.dados.get(chave) || []));
+}
+
+function carregarContadorMenu(chave) {
+    const config = contadorMenuConfig[chave];
+    if (!config || !utilizadorPodeConsultarContador(config)) return Promise.resolve([]);
+    if (estadoContadoresMenu.dados.has(chave)) {
+        recalcularContadorMenu(chave);
+        return Promise.resolve(estadoContadoresMenu.dados.get(chave));
+    }
+    if (estadoContadoresMenu.promessas.has(chave)) return estadoContadoresMenu.promessas.get(chave);
+
+    const promessa = Promise.resolve()
+        .then(() => config.carregar())
+        .then((dados) => guardarDadosContador(chave, dados))
+        .catch((erro) => {
+            console.error(`[ContadoresMenu] Erro ao carregar ${chave}:`, erro);
+            actualizarContadorMenu(chave, 0);
+            return [];
+        })
+        .finally(() => estadoContadoresMenu.promessas.delete(chave));
+
+    estadoContadoresMenu.promessas.set(chave, promessa);
+    return promessa;
+}
+
+function iniciarContadoresMenuGestor() {
+    if (estadoContadoresMenu.iniciado) return;
+    if (typeof window.temPermissaoGestor !== "function") return;
+    estadoContadoresMenu.iniciado = true;
+    Object.keys(contadorMenuConfig).forEach((chave) => carregarContadorMenu(chave));
+}
+
+function agendarInicioContadoresMenuGestor() {
+    const tentar = () => {
+        iniciarContadoresMenuGestor();
+        if (!estadoContadoresMenu.iniciado) {
+            setTimeout(tentar, 400);
+        }
+    };
+    tentar();
+}
+
+function monografiaFinalPendente(item = {}) {
+    return String(item.parecer ?? item.Parecer ?? "").trim() === "";
+}
+
+function filtrarCredenciaisPesquisaPendentes(lista = []) {
+    const dados = Array.isArray(lista) ? lista : [];
+    const temParecer = dados.length > 0 && dados.some(item => Object.prototype.hasOwnProperty.call(item, "parecer") || Object.prototype.hasOwnProperty.call(item, "Parecer"));
+    return temParecer ? dados.filter(item => String(item.parecer ?? item.Parecer ?? "").trim() === "") : dados;
+}
+
+function filtrarCredenciaisEstagioPendentes(lista = []) {
+    return (Array.isArray(lista) ? lista : []).filter((item) => {
+        const parecerVazio = String(item?.parecer || "").trim() === "";
+        const observacoesVazio = String(item?.observacoes || "").trim() === "";
+        return parecerVazio && observacoesVazio;
+    });
+}
+
+function temaParecerPendente(item = {}) {
+    const estadoRaw = item.parecer ?? item.status ?? item.situacao ?? item.Parecer ?? "";
+    const estadoNormalizado = normalizarCampo(estadoRaw);
+    return !new Set(["aprovado", "recusado", "reprovado"]).has(estadoNormalizado);
+}
+
+function normalizarTemasParecerPendentes(lista = []) {
+    return (Array.isArray(lista) ? lista : []).filter(temaParecerPendente);
+}
+
+function filtrarAtribuicoesSupervisorPendentes(lista = []) {
+    return (Array.isArray(lista) ? lista : []).filter((item) => {
+        const estadoTemaAprovado = normalizarCampo(item.colL) === "aprovado";
+        const supervisorJaAtribuido = String(item.supervisorFinal ?? item.supervisor ?? "").trim() !== "";
+        return estadoTemaAprovado && !supervisorJaAtribuido;
+    });
+}
+
+function filtrarHomologacoesSupervisorPendentes(lista = []) {
+    return (Array.isArray(lista) ? lista : []).filter(item => item.supervisorFinal && item.supervisorFinal.toString().trim() !== "" && (!item.homologado || item.homologado.toString().trim() === ""));
+}
+
+function planoAnaliticoPendente(item = {}) {
+    return normalizarCampo(item?.situacao || "Não Submetido") === "nao submetido";
+}
+
+async function carregarDadosGestaoGeralParaContador() {
+    const chavesGestao = ["temas_monografia", "atribuir_supervisor", "homologar_supervisor"];
+    const chaveComDados = chavesGestao.find((chave) => estadoContadoresMenu.dados.has(chave));
+    if (chaveComDados) return estadoContadoresMenu.dados.get(chaveComDados) || [];
+    if (!promessaGestaoGeralContador) {
+        promessaGestaoGeralContador = fetch(WEB_URL, { method: "POST", body: new URLSearchParams({ action: "getGestaoGeral" }) })
+            .then((resposta) => resposta.json())
+            .then((json) => Array.isArray(json?.dados) ? json.dados : [])
+            .finally(() => { promessaGestaoGeralContador = null; });
+    }
+    return promessaGestaoGeralContador;
+}
+
+async function carregarDadosMonografiaFinalParaContador() {
+    const resposta = await fetch(WEB_URL, { method: "POST", body: new URLSearchParams({ action: "getMonografiaFinal" }) });
+    const json = await resposta.json();
+    return Array.isArray(json?.dados) ? json.dados : [];
+}
+
+async function carregarDadosCredencialPesquisaParaContador() {
+    const resposta = await fetch(WEB_URL, { method: "POST", body: new URLSearchParams({ action: "getCredencialPesquisa" }) });
+    const json = await resposta.json();
+    return Array.isArray(json?.dados) ? json.dados : [];
+}
+
+async function carregarDadosCredencialEstagioParaContador() {
+    const dados = new FormData();
+    dados.append("action", "getCredencialEstagio");
+    const resposta = await fetch(WEB_URL, { method: "POST", body: dados });
+    const json = await resposta.json();
+    return Array.isArray(json?.dados) ? json.dados : [];
+}
+
+async function carregarDadosDefesasParaContador() {
+    const resposta = await fetch(`${WEB_URL}?action=getDefesas`);
+    const json = await resposta.json();
+    const lista = Array.isArray(json?.dados) ? json.dados : [];
+    return lista.map((item) => ({ ...item, curso: obterCursoRegistoDefesa(item) }));
+}
+
+async function carregarDadosDocumentosParaEmitirParaContador() {
+    const resposta = await fetch(`${WEB_URL}?action=getDocumentosParaEmitir`);
+    const json = await resposta.json();
+    return Array.isArray(json?.documentos) ? json.documentos : [];
+}
+
+async function carregarDadosPlanosAnaliticosParaContador() {
+    const resposta = await fetch(WEB_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "listarPlanosAnaliticos" })
+    });
+    const json = await resposta.json();
+    const lista = Array.isArray(json?.dados) ? json.dados : [];
+    return lista.map(item => ({ ...item, situacao: (item?.situacao ?? "").toString().trim() || "Não Submetido" }));
+}
+
 function calcularEstadoPaginacao(totalRegistos = 0, pagina = 1, registosPorPagina = 10) {
     const total = Number(totalRegistos) || 0;
     const porPagina = Math.max(1, Number(registosPorPagina) || 10);
@@ -764,6 +1002,8 @@ async function guardarAtribuicaoSupervisorModal() {
         registo.supervisor = supervisor;
         registo.supervisorFinal = supervisor;
         renderTabelaGestaoGeral();
+        guardarDadosContador("atribuir_supervisor", dadosGestaoGeral);
+        guardarDadosContador("homologar_supervisor", dadosGestaoGeral);
         fecharModalAtribuirSupervisor();
     } catch (err) {
         console.error(err);
@@ -1131,6 +1371,7 @@ async function guardarSituacaoDefesa() {
         });
 
         actualizarSituacaoNaTabela(situacao);
+        guardarDadosContador("defesa_monografia", defesasCache);
         preencherSelectSituacaoDefesa(registoDefesaEmEdicao, "");
         actualizarEstadoBotaoSituacaoDefesa();
     } catch (erro) {
@@ -1212,6 +1453,7 @@ async function guardarEdicaoDefesa() {
             };
         }
         renderTabelaDefesa(defesasCache);
+        guardarDadosContador("defesa_monografia", defesasCache);
         fecharModalEdicaoDefesa();
     } catch (erro) {
         console.error("[Defesa] Erro ao guardar edição:", erro);
@@ -1355,6 +1597,7 @@ async function guardarParecerTemaModalBackend() {
         registo.parecer = parecer;
         registo.observacoes = observacoes;
         atualizarLinhaTemaUI(idTemaModalAtual, { parecer });
+        guardarDadosContador("temas_monografia", temasParecerRegistos);
         fecharModalParecerTema();
     } catch (err) {
         console.error("Erro ao guardar parecer de tema:", err);
@@ -1412,6 +1655,7 @@ async function guardarParecerMonografiaFinalModalBackend() {
         registo.parecer = parecer;
         registo.observacoes = observacoes;
         atualizarLinhaMonografiaFinalUI(idMonografiaFinalModalAtual, { parecer });
+        guardarDadosContador("monografia_final", monografiaFinalRegistos);
         fecharModalParecerMonografiaFinal();
     } catch (err) {
         console.error("Erro ao guardar parecer da monografia final:", err);
@@ -1724,7 +1968,10 @@ if (tabelaGestaoGeral) {
     });
 }
 
-document.addEventListener("DOMContentLoaded", esconderCarregamento);
+document.addEventListener("DOMContentLoaded", () => {
+    esconderCarregamento();
+    agendarInicioContadoresMenuGestor();
+});
 
 // Função para mostrar o container das Estatísticas
 function carregarEstatisticas() {
@@ -2330,6 +2577,22 @@ function atualizarTabelaGestaoGeral(pagina = 1) {
 
 function carregarMonografiaFinal() {
     mostrarCarregamentoAtribuirSupervisor();
+    if (estadoContadoresMenu.dados.has("monografia_final")) {
+        monografiaFinalRegistos = (estadoContadoresMenu.dados.get("monografia_final") || []).filter(monografiaFinalPendente).map((item) => ({
+            ...item,
+            idSubmissao: String(item.idSubmissao || "").trim(),
+            parecer: String(item.parecer ?? item.Parecer ?? "").trim(),
+            observacoes: String(item.observacoes ?? item.Observacoes ?? "").trim()
+        }));
+        guardarDadosContador("monografia_final", monografiaFinalRegistos);
+        paginaAtualMonografiaFinal = 1;
+        if (monografiaFinalRegistos.length) renderTabelaMonografiaFinal(monografiaFinalRegistos, paginaAtualMonografiaFinal);
+        else document.getElementById("tabelaGestaoGeral").innerHTML = '<p class="sem-dados">Não existe nenhum dado para ser apresentado.</p>';
+        document.getElementById("btnGuardar")?.remove();
+        esconderCarregamento();
+        reaplicarRestricoesUI();
+        return;
+    }
 
     fetch(WEB_URL,
     {
@@ -2349,6 +2612,7 @@ function carregarMonografiaFinal() {
             parecer: String(item.parecer ?? item.Parecer ?? "").trim(),
             observacoes: String(item.observacoes ?? item.Observacoes ?? "").trim()
         }));
+        guardarDadosContador("monografia_final", monografiaFinalRegistos);
         if (!monografiaFinalRegistos || monografiaFinalRegistos.length === 0) {
             document.getElementById("tabelaGestaoGeral").innerHTML =
                 '<p class="sem-dados">Não existe nenhum dado para ser apresentado.</p>';
@@ -2640,6 +2904,14 @@ async function carregarDocumentosParaEmitir() {
     const resultado = document.getElementById("resultadoDocumentosParaEmitir");
     if (!resultado) return;
 
+    if (estadoContadoresMenu.dados.has("emitir_documentos")) {
+        documentosParaEmitirRegistos = estadoContadoresMenu.dados.get("emitir_documentos") || [];
+        paginaAtualDocumentosParaEmitir = 1;
+        if (documentosParaEmitirRegistos.length) renderizarDocumentosParaEmitir(documentosParaEmitirRegistos, paginaAtualDocumentosParaEmitir);
+        else resultado.innerHTML = '<p class="sem-dados">Não existem documentos aprovados pendentes de emissão.</p>';
+        return;
+    }
+
     try {
         const resposta = await fetch(`${WEB_URL}?action=getDocumentosParaEmitir`);
         const retorno = await resposta.json();
@@ -2649,6 +2921,7 @@ async function carregarDocumentosParaEmitir() {
         }
 
         documentosParaEmitirRegistos = Array.isArray(retorno?.documentos) ? retorno.documentos : [];
+        guardarDadosContador("emitir_documentos", documentosParaEmitirRegistos);
         paginaAtualDocumentosParaEmitir = 1;
 
         if (!documentosParaEmitirRegistos.length) {
@@ -2760,7 +3033,9 @@ async function marcarComoEmitido(origem, linha, botaoAcao) {
             return;
         }
 
-        await carregarDocumentosParaEmitir();
+        documentosParaEmitirRegistos = documentosParaEmitirRegistos.filter((documento) => String(documento?.origem || "") !== String(origem || "") || String(documento?.linha || "") !== String(linha || ""));
+        guardarDadosContador("emitir_documentos", documentosParaEmitirRegistos);
+        renderizarDocumentosParaEmitir(documentosParaEmitirRegistos, paginaAtualDocumentosParaEmitir);
     } catch (erro) {
         console.error("Erro ao marcar documento como emitido:", erro);
         alert(erro?.message || "Erro de rede ao marcar documento como emitido.");
@@ -2789,6 +3064,21 @@ async function carregarDefesas() {
     esconderSecaoDefesas();
     mostrarTabelaGestaoGeral();
     mostrarLoadingPainelGestor("A carregar…");
+
+    if (estadoContadoresMenu.dados.has("defesa_monografia")) {
+        defesasCache = (estadoContadoresMenu.dados.get("defesa_monografia") || [])
+            .filter((item) => defesaAindaPendente(item))
+            .map((item) => ({ ...item, curso: obterCursoRegistoDefesa(item), dataAgendada: item.dataAgendada || item.data_agendada || "", enviadoRA: normalizarDataPt(item.enviadoRA || item.enviadoAoRA || "") }));
+        defesasCache = filtrarRegistosPorCursoModulo(defesasCache, "DEFESAS");
+        mostrarSecaoDefesas();
+        esconderTabelaGestaoGeral();
+        paginaAtualDefesas = 1;
+        if (defesasCache.length) renderTabelaDefesa(defesasCache);
+        else mostrarMensagemTabelaDefesa("Nenhum registo de defesa encontrado.");
+        esconderCarregamento();
+        reaplicarRestricoesUI();
+        return;
+    }
 
     const tbody = document.getElementById("listaDefesas");
     if (!tbody) {
@@ -2834,6 +3124,7 @@ async function carregarDefesas() {
         }
 
         defesasCache = defesasAutorizadas;
+        guardarDadosContador("defesa_monografia", defesasCache);
 
         mostrarSecaoDefesas();
         esconderTabelaGestaoGeral();
@@ -2875,6 +3166,17 @@ function obterRowNumericoCredencial(valorRow, fallbackRow) {
 function carregarCredencialPesquisa() {
     if (bloquearFuncionalidadeSemPermissao("CREDENCIAL")) return;
     mostrarCarregamentoAtribuirSupervisor();
+    if (estadoContadoresMenu.dados.has("credencial_pesquisa")) {
+        credencialPesquisaRegistos = filtrarCredenciaisPesquisaPendentes(estadoContadoresMenu.dados.get("credencial_pesquisa") || []).map((item) => ({ ...item, id: String(item.id || "").trim(), parecer: String(item.parecer ?? item.Parecer ?? "").trim(), observacoes: String(item.observacoes ?? item.Observacoes ?? "").trim() }));
+        guardarDadosContador("credencial_pesquisa", credencialPesquisaRegistos);
+        paginaAtualCredencialPesquisa = 1;
+        if (credencialPesquisaRegistos.length) renderTabelaCredencialPesquisa(credencialPesquisaRegistos, paginaAtualCredencialPesquisa);
+        else document.getElementById("tabelaGestaoGeral").innerHTML = '<p class="sem-dados">Não existe nenhum dado para ser apresentado.</p>';
+        document.getElementById("btnGuardar")?.remove();
+        esconderCarregamento();
+        reaplicarRestricoesUI();
+        return;
+    }
 
     fetch(WEB_URL,
     {
@@ -2900,6 +3202,7 @@ function carregarCredencialPesquisa() {
             observacoes: String(item.observacoes ?? item.Observacoes ?? "").trim()
         }));
 
+        guardarDadosContador("credencial_pesquisa", credencialPesquisaRegistos);
         if (!credencialPesquisaRegistos || credencialPesquisaRegistos.length === 0) {
             document.getElementById("tabelaGestaoGeral").innerHTML =
                 '<p class="sem-dados">Não existe nenhum dado para ser apresentado.</p>';
@@ -3134,6 +3437,7 @@ function carregarPlanosAnaliticos() {
             });
 
             planosAnaliticosDados = dados;
+            guardarDadosContador("planos_analiticos", planosAnaliticosDados);
             planosAnaliticosPaginaAtual = 1;
             renderTabelaPlanosAnaliticos(dados, planosAnaliticosPaginaAtual);
         })
@@ -3153,6 +3457,16 @@ function carregarPlanosAnaliticos() {
 async function carregarCredenciaisEstagioGestor() {
     if (bloquearFuncionalidadeSemPermissao("CREDENCIAL")) return;
     mostrarCarregamentoAtribuirSupervisor();
+    if (estadoContadoresMenu.dados.has("credencial_estagio")) {
+        credencialEstagioRegistos = filtrarCredenciaisEstagioPendentes(estadoContadoresMenu.dados.get("credencial_estagio") || []).map((item) => ({ ...item, id: String(item.id || "").trim(), parecer: String(item.parecer || "").trim(), observacoes: String(item.observacoes || "").trim() }));
+        guardarDadosContador("credencial_estagio", credencialEstagioRegistos);
+        paginaAtualCredencialEstagio = 1;
+        renderTabelaCredenciaisEstagio(credencialEstagioRegistos, paginaAtualCredencialEstagio);
+        document.getElementById("btnGuardar")?.remove();
+        esconderCarregamento();
+        reaplicarRestricoesUI();
+        return;
+    }
 
     try {
         const dados = new FormData();
@@ -3184,12 +3498,14 @@ async function carregarCredenciaisEstagioGestor() {
             parecer: String(item.parecer || "").trim(),
             observacoes: String(item.observacoes || "").trim()
         }));
+        guardarDadosContador("credencial_estagio", credencialEstagioRegistos);
         paginaAtualCredencialEstagio = 1;
         renderTabelaCredenciaisEstagio(credencialEstagioRegistos, paginaAtualCredencialEstagio);
         document.getElementById("btnGuardar")?.remove();
     } catch (err) {
         console.error("Erro ao carregar credenciais de estágio:", err);
         credencialEstagioRegistos = [];
+        guardarDadosContador("credencial_estagio", credencialEstagioRegistos);
         paginaAtualCredencialEstagio = 1;
         renderTabelaCredenciaisEstagio([], paginaAtualCredencialEstagio);
         alert(err.message || "Erro ao carregar registos de estágio.");
@@ -3549,6 +3865,7 @@ async function guardarCredencialPesquisa(botaoOrigem = null) {
         }
 
         guardadoComSucesso = true;
+        guardarDadosContador("credencial_pesquisa", credencialPesquisaRegistos);
 
         updates.forEach(item => {
             const botaoAcao = document.querySelector(`.credencial-btn-acao[data-credencial-acao="${item.id}"]`);
@@ -3712,6 +4029,7 @@ async function guardarCredencialEstagioRegistos(botaoOrigem) {
         }
 
         guardadoComSucesso = true;
+        guardarDadosContador("credencial_estagio", credencialEstagioRegistos);
     } catch (err) {
         console.error("Erro ao guardar dados da credencial de estágio:", err);
         alert(err.message || "Erro ao actualizar registos.");
@@ -3918,6 +4236,7 @@ function carregarParecer() {
             const estadoNormalizado = normalizarEstadoTema(estadoRaw);
             return !ESTADOS_OCULTAR_TEMAS.has(estadoNormalizado);
         });
+        guardarDadosContador("temas_monografia", temasParecerRegistos);
         if (temasParecerRegistos.length > 0) {
             const registo = temasParecerRegistos[0];
             console.log("[TemasMonografia][Frontend] Exemplo do primeiro registo normalizado:", registo);

@@ -3986,3 +3986,30 @@ input[type='file'] {
     text-align: justify;
   }
 }
+
+.menu-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menu-counter {
+  display: none;
+  margin-left: auto;
+  min-width: 22px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #f59e0b;
+  color: #111827;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.menu-counter.is-visible {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
