@@ -441,11 +441,7 @@
       const btnLogout = document.getElementById("btnLogout");
       if (btnLogout) {
         btnLogout.addEventListener("click", () => {
-          if (typeof window.logoutGestor === "function") {
-            window.logoutGestor();
-          } else {
-            console.error("Função logoutGestor não encontrada");
-          }
+          window.logoutGestor?.();
         });
       }
     });

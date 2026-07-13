@@ -23,12 +23,14 @@ const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 let analytics = null;
 
-try {
-  if (await isSupported()) {
-    analytics = getAnalytics(app);
+(async () => {
+  try {
+    if (await isSupported()) {
+      analytics = getAnalytics(app);
+    }
+  } catch (erro) {
+    console.warn("Firebase Analytics indisponível:", erro);
   }
-} catch (erro) {
-  console.warn("Firebase Analytics indisponível:", erro);
-}
+})();
 
 export { app, analytics, firebaseConfig };
