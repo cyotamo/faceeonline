@@ -128,7 +128,7 @@
           const email = document.getElementById("emailGestor").value;
           const senha = document.getElementById("senhaGestor").value;
           if (email && senha) {
-            loginGestor(email, senha);
+            window.loginGestor?.(email, senha);
           }
         });
       }
