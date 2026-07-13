@@ -596,6 +596,10 @@ function carregarContadorColectaDados() {
     return carregarContadorMenu("credencial_pesquisa");
 }
 
+function carregarContadorDefesaMonografia() {
+    return carregarContadorMenu("defesa_monografia");
+}
+
 function carregarContadorAtribuirSupervisores() {
     return carregarContadorMenu("atribuir_supervisor");
 }
@@ -610,6 +614,7 @@ function carregarContadorPlanosAnaliticos() {
 
 async function carregarTodosContadoresPendentes() {
     return Promise.allSettled([
+        carregarContadorDefesaMonografia(),
         carregarContadorPedidosEstagio(),
         carregarContadorTemasMonografia(),
         carregarContadorMonografiaFinal(),
@@ -3172,6 +3177,7 @@ async function carregarDefesas() {
 
         if (!defesasAutorizadas.length) {
             defesasCache = [];
+            guardarDadosContador("defesa_monografia", defesasCache);
             mostrarSecaoDefesas();
             esconderTabelaGestaoGeral();
             mostrarMensagemTabelaDefesa("Nenhum registo de defesa encontrado.");
