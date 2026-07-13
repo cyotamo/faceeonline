@@ -736,11 +736,17 @@ function enviarPedidoCredencial() {
     body: dados,
   })
     .then((r) => r.json())
-    .then((res) => {
+    .then((dados) => {
       desativarLoading(botao);
-      limparFormularioAposSucesso(botao);
-      mostrarModal("Os seus dados foram enviados com sucesso. Acompanhe o andamento do processo na aba Consulta.");
-      // Qualquer link de PDF retornado pelo servidor é intencionalmente ignorado.
+
+      if (dados?.sucesso === true) {
+        limparFormularioAposSucesso(botao);
+        mostrarModal("Os seus dados foram enviados com sucesso. Acompanhe o andamento do processo na aba Consulta.");
+        // Qualquer link de PDF retornado pelo servidor é intencionalmente ignorado.
+        return;
+      }
+
+      mostrarModal(dados?.mensagem || "❌ Submissão recusada.");
     })
     .catch((err) => {
       desativarLoading(botao);
