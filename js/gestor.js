@@ -613,16 +613,8 @@ function carregarContadorPlanosAnaliticos() {
 }
 
 async function carregarTodosContadoresPendentes() {
-    return Promise.allSettled([
-        carregarContadorDefesaMonografia(),
-        carregarContadorPedidosEstagio(),
-        carregarContadorTemasMonografia(),
-        carregarContadorMonografiaFinal(),
-        carregarContadorColectaDados(),
-        carregarContadorAtribuirSupervisores(),
-        carregarContadorHomologarListas(),
-        carregarContadorPlanosAnaliticos()
-    ]);
+    const chavesContadores = Object.keys(contadorMenuConfig);
+    return Promise.allSettled(chavesContadores.map((chave) => carregarContadorMenu(chave)));
 }
 
 async function iniciarContadoresMenuGestor() {
