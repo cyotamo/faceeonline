@@ -3017,7 +3017,7 @@ function renderizarDocumentosParaEmitir(documentos = [], pagina = 1) {
     paginaDados.forEach((documento) => {
         const linkFicheiro = String(documento?.ficheiro || "").trim();
         const ficheiroHtml = linkFicheiro
-            ? `<a class="pdf-icon credencial-pdf-link" href="${escaparHTML(linkFicheiro)}" target="_blank" rel="noopener noreferrer">Ver ficheiro</a>`
+            ? `<a class="pdf-icon credencial-pdf-link" href="${escaparHTML(linkFicheiro)}" target="_blank" rel="noopener noreferrer">Baixar</a>`
             : '<span class="sem-dados">Sem ficheiro</span>';
 
         html += `
