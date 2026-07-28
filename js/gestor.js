@@ -573,13 +573,22 @@ function obterNomeSupervisor(registo = {}) {
 }
 
 function obterTotalSupervisionandos(registo = {}) {
-    const total = Number(registo.totalSupervisionandos ?? registo.total_supervisionandos ?? registo.total ?? registo.quantidade ?? registo.activos ?? registo.ativos);
-    console.log("REGISTO:", registo);
-    console.log("supervisionandos:", registo.supervisionandos);
-    console.log("typeof supervisionandos:", typeof registo.supervisionandos);
-    console.log("Number(supervisionandos):", Number(registo.supervisionandos));
+    const total = Number(
+        registo.supervisionandos ??
+        registo.totalSupervisionandos ??
+        registo.total_supervisionandos ??
+        registo.total ??
+        registo.quantidade ??
+        registo.activos ??
+        registo.ativos
+    );
+
+    console.log("VALOR DA VARIÁVEL total:", total);
+    console.log("Number.isFinite(total):", Number.isFinite(total));
+
     const resultado = Number.isFinite(total) ? total : 0;
-    console.log("RETORNO obterTotalSupervisionandos:", resultado);
+    console.log("RETORNO:", resultado);
+
     return resultado;
 }
 
