@@ -2886,7 +2886,13 @@ function renderListaSupervisionandosDocente() {
 async function finalizarSupervisionandoAtribuido(idSupervisionando) {
     const registo = supervisionandosDocenteRegistos.find((item) => obterIdentificadorSupervisionando(item) === idSupervisionando);
     const nome = String(registo?.nome ?? registo?.estudante ?? registo?.nomeEstudante ?? "este supervisionando").trim();
-    const confirmado = window.confirm(`Pretende finalizar ${nome}?`);
+    const confirmado = typeof mostrarModalConfirmacao === "function"
+        ? await mostrarModalConfirmacao(`Pretende finalizar a supervisão de ${nome}?`, {
+            titulo: "Confirmação",
+            textoConfirmar: "Confirmar",
+            textoCancelar: "Cancelar"
+        })
+        : false;
     if (!confirmado) return;
 
     const botao = listaSupervisionandosDocente?.querySelector(`[data-finalizar-supervisionando="${CSS.escape(idSupervisionando)}"]`);
@@ -2924,7 +2930,6 @@ async function finalizarSupervisionandoAtribuido(idSupervisionando) {
     } catch (erro) {
         console.error("Erro ao finalizar supervisionando:", erro);
         if (typeof mostrarModal === "function") mostrarModal(erro.message, "Erro");
-        else alert(erro.message);
     } finally {
         desactivarLoadingGuardar(botao);
     }

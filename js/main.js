@@ -282,6 +282,10 @@ function mostrarModal(mensagem, titulo = "Operação concluída") {
 
   if (!modal || !texto || !okBtn) return;
 
+  const cancelarBtn = document.getElementById("modalCancelarConfirmacao");
+  if (cancelarBtn) cancelarBtn.remove();
+
+  okBtn.innerText = "OK";
   if (tituloModal) {
     tituloModal.innerText = titulo;
   }
@@ -296,6 +300,55 @@ function mostrarModal(mensagem, titulo = "Operação concluída") {
   modal.onclick = (e) => {
     if (e.target === modal) modal.style.display = "none";
   };
+}
+
+function mostrarModalConfirmacao(
+  mensagem,
+  { titulo = "Confirmação", textoConfirmar = "Confirmar", textoCancelar = "Cancelar" } = {}
+) {
+  const modal = document.getElementById("modalSucesso");
+  const tituloModal = document.getElementById("modalTitulo");
+  const texto = document.getElementById("modalMensagem");
+  const okBtn = document.getElementById("modalOk");
+
+  if (!modal || !texto || !okBtn) return Promise.resolve(false);
+
+  const cancelarAnterior = document.getElementById("modalCancelarConfirmacao");
+  if (cancelarAnterior) cancelarAnterior.remove();
+
+  const cancelarBtn = document.createElement("button");
+  cancelarBtn.id = "modalCancelarConfirmacao";
+  cancelarBtn.type = "button";
+  cancelarBtn.className = okBtn.className;
+  cancelarBtn.innerText = textoCancelar;
+
+  if (tituloModal) {
+    tituloModal.innerText = titulo;
+  }
+  texto.innerText = mensagem;
+  okBtn.innerText = textoConfirmar;
+  okBtn.insertAdjacentElement("afterend", cancelarBtn);
+  modal.style.display = "flex";
+
+  return new Promise((resolve) => {
+    const fechar = (confirmado) => {
+      modal.style.display = "none";
+      cancelarBtn.remove();
+      okBtn.innerText = "OK";
+      okBtn.onclick = null;
+      cancelarBtn.onclick = null;
+      modal.onclick = null;
+      resolve(confirmado);
+    };
+
+    okBtn.onclick = () => fechar(true);
+    cancelarBtn.onclick = () => fechar(false);
+
+    // Mantém o comportamento visual do modal existente: clicar fora fecha.
+    modal.onclick = (e) => {
+      if (e.target === modal) fechar(false);
+    };
+  });
 }
 
 
