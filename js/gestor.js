@@ -19,6 +19,7 @@ let modoTabelaGestao = "geral";
 // "geral"
 // "atribuirSupervisor"
 // "homologarSupervisor"
+// "supervisoresAtribuidos"
 
 function obterCursoRegistoDefesa(registo = {}) {
     const camposCurso = [
@@ -384,6 +385,9 @@ const atribuirSupervisorModalLinhaPesquisa = document.getElementById("atribuirSu
 const atribuirSupervisorModalTema = document.getElementById("atribuirSupervisorModalTema");
 const atribuirSupervisorModalSelect = document.getElementById("atribuirSupervisorModalSelect");
 const btnAtribuirSupervisorModal = document.getElementById("btnAtribuirSupervisorModal");
+const modalSupervisionandosDocente = document.getElementById("modalSupervisionandosDocente");
+const listaSupervisionandosDocente = document.getElementById("listaSupervisionandosDocente");
+const supervisionandosDocenteTitulo = document.getElementById("supervisionandosDocenteTitulo");
 
 const SITUACOES_DEFESA = [
     "Em avaliação no RA",
@@ -448,6 +452,10 @@ let paginaAtualMonografiaFinal = 1;
 let paginaAtualDocumentosEmitidos = 1;
 let paginaAtualDocumentosParaEmitir = 1;
 let paginaAtualTemasParecer = 1;
+let paginaAtualSupervisoresAtribuidos = 1;
+let supervisoresAtribuidosRegistos = [];
+let supervisorAtribuidoAtual = null;
+let supervisionandosDocenteRegistos = [];
 
 
 let promessaGestaoGeralContador = null;
@@ -549,6 +557,28 @@ function guardarDadosContador(chave, dados) {
         actualizarContadorMenu(chave, config.contar(lista));
     }
     return lista;
+}
+
+function obterListaRespostaApi(resposta = {}) {
+    if (Array.isArray(resposta)) return resposta;
+    if (Array.isArray(resposta.dados)) return resposta.dados;
+    if (Array.isArray(resposta.supervisores)) return resposta.supervisores;
+    if (Array.isArray(resposta.supervisionandos)) return resposta.supervisionandos;
+    if (Array.isArray(resposta.lista)) return resposta.lista;
+    return [];
+}
+
+function obterNomeSupervisor(registo = {}) {
+    return String(registo.docente ?? registo.supervisor ?? registo.nomeDocente ?? registo.nome ?? registo.Docente ?? "").trim();
+}
+
+function obterTotalSupervisionandos(registo = {}) {
+    const total = Number(registo.totalSupervisionandos ?? registo.total_supervisionandos ?? registo.total ?? registo.quantidade ?? registo.activos ?? registo.ativos);
+    return Number.isFinite(total) ? total : 0;
+}
+
+function obterIdentificadorSupervisionando(registo = {}) {
+    return String(registo.idSupervisionando ?? registo.idSupervisao ?? registo.idTema ?? registo.id ?? registo.numeroEstudante ?? registo.numero ?? registo.row ?? "").trim();
 }
 
 function recalcularContadorMenu(chave) {
@@ -1759,6 +1789,21 @@ configurarEventosModalTema();
 configurarEventosModalMonografiaFinal();
 configurarEventosModalAtribuirSupervisor();
 
+document.getElementById("btnFecharModalSupervisionandos")?.addEventListener("click", fecharModalSupervisionandosDocente);
+modalSupervisionandosDocente?.addEventListener("click", (event) => {
+    if (event.target === modalSupervisionandosDocente) fecharModalSupervisionandosDocente();
+});
+document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && modalSupervisionandosDocente?.style.display === "flex") {
+        fecharModalSupervisionandosDocente();
+    }
+});
+listaSupervisionandosDocente?.addEventListener("click", (event) => {
+    const botao = event.target.closest("[data-finalizar-supervisionando]");
+    if (!botao) return;
+    finalizarSupervisionandoAtribuido(String(botao.dataset.finalizarSupervisionando || "").trim());
+});
+
 function esconderEstatisticas() {
     estatisticasContainer.style.display = "none";
 }
@@ -1925,6 +1970,18 @@ document.getElementById("btnHomologarSuperv").addEventListener("click", function
     }
 });
 
+// Botão Supervisores Atribuídos
+document.getElementById("btnSupervisoresAtribuidos")?.addEventListener("click", () => {
+    esconderEstatisticas();
+    esconderSecaoDefesas();
+    mostrarTabelaGestaoGeral();
+    modoTabelaGestao = "supervisoresAtribuidos";
+    carregarSupervisoresAtribuidos();
+    if (window.aplicarRestricoesUI && window.userEmail) {
+        aplicarRestricoesUI(window.userEmail);
+    }
+});
+
 // Botão Planos Analíticos
 document.getElementById("btnPlanosAnaliticos").addEventListener("click", () => {
     esconderEstatisticas();
@@ -2006,6 +2063,12 @@ document.getElementById("btnEstatisticas").addEventListener("click", () => {
 const tabelaGestaoGeral = document.getElementById("tabelaGestaoGeral");
 if (tabelaGestaoGeral) {
     tabelaGestaoGeral.addEventListener("click", (e) => {
+        const btnVerSupervisionandos = e.target.closest("[data-ver-supervisionandos]");
+        if (btnVerSupervisionandos && modoTabelaGestao === "supervisoresAtribuidos") {
+            abrirModalSupervisionandosDocente(String(btnVerSupervisionandos.dataset.verSupervisionandos || "").trim());
+            return;
+        }
+
         const btnAtribuir = e.target.closest("[data-atribuir-acao]");
         if (btnAtribuir && modoTabelaGestao === "atribuirSupervisor") {
             const idTema = String(btnAtribuir.dataset.atribuirAcao || "").trim();
@@ -2625,6 +2688,214 @@ function mudarPagina(delta) {
 function atualizarTabelaGestaoGeral(pagina = 1) {
     paginaAtual = pagina;
     renderTabelaGestaoGeral(dadosGestaoGeral, paginaAtual);
+}
+
+
+async function carregarSupervisoresAtribuidos() {
+    mostrarLoadingPainelGestor("A carregar…");
+
+    try {
+        const resposta = await fetch(WEB_URL, {
+            method: "POST",
+            body: new URLSearchParams({ action: "getSupervisoresAtribuidos" })
+        });
+        const retorno = await resposta.json();
+        const lista = obterListaRespostaApi(retorno)
+            .map((item) => ({
+                ...item,
+                docente: obterNomeSupervisor(item),
+                totalSupervisionandos: obterTotalSupervisionandos(item)
+            }))
+            .filter((item) => item.docente && item.totalSupervisionandos > 0)
+            .sort((a, b) => b.totalSupervisionandos - a.totalSupervisionandos || a.docente.localeCompare(b.docente));
+
+        supervisoresAtribuidosRegistos = lista;
+        paginaAtualSupervisoresAtribuidos = 1;
+        renderTabelaSupervisoresAtribuidos();
+    } catch (erro) {
+        console.error("Erro ao carregar supervisores atribuídos:", erro);
+        const container = document.getElementById("tabelaGestaoGeral");
+        if (container) container.innerHTML = "<p>Erro ao carregar os supervisores atribuídos.</p>";
+    } finally {
+        esconderCarregamento();
+        reaplicarRestricoesUI();
+    }
+}
+
+function renderTabelaSupervisoresAtribuidos(pagina = paginaAtualSupervisoresAtribuidos) {
+    const container = document.getElementById("tabelaGestaoGeral");
+    if (!container) return;
+    container.classList.add("gestor-card-listagem");
+
+    if (!supervisoresAtribuidosRegistos.length) {
+        container.innerHTML = '<p class="sem-dados">Não existe nenhum dado para ser apresentado.</p>';
+        return;
+    }
+
+    const { estadoPaginacao, paginaDados } = obterDadosPaginados(supervisoresAtribuidosRegistos, pagina, linhasPorPagina);
+    paginaAtualSupervisoresAtribuidos = estadoPaginacao.paginaAtual;
+
+    let html = `
+        <div class="gestor-listagem-bloco">
+            <div class="tabela-scroll">
+                <div class="credencial-lista-head tema-lista-head">
+                    <div>Nº</div>
+                    <div>Docente</div>
+                    <div>Total de supervisionandos</div>
+                    <div>Status</div>
+                    <div>Ver</div>
+                </div>
+                <div class="credencial-lista table-credencial table-tema-parecer">
+    `;
+
+    paginaDados.forEach((supervisor, index) => {
+        const indiceGlobal = estadoPaginacao.inicio + index + 1;
+        html += `
+            <article class="credencial-linha tema-parecer-linha" data-docente="${escaparHTML(supervisor.docente)}">
+                <div class="credencial-data">${indiceGlobal}</div>
+                <div class="credencial-estudante"><p class="credencial-nome">${escaparHTML(supervisor.docente)}</p></div>
+                <div class="credencial-curso">${supervisor.totalSupervisionandos}</div>
+                <div class="credencial-status"><span class="status status-atribuido">ACTIVO</span></div>
+                <div class="credencial-acao">
+                    <button class="credencial-btn-acao" type="button" data-ver-supervisionandos="${escaparHTML(supervisor.docente)}" aria-label="Ver supervisionandos de ${escaparHTML(supervisor.docente)}">
+                        <span aria-hidden="true">👁</span>
+                    </button>
+                </div>
+            </article>
+        `;
+    });
+
+    html += `</div></div>`;
+    if (estadoPaginacao.deveMostrarPaginacao) {
+        html += markupPaginacaoPadrao({
+            paginaAtual: estadoPaginacao.paginaAtual,
+            totalPaginas: estadoPaginacao.totalPaginas,
+            ariaLabel: "Paginação Supervisores Atribuídos"
+        });
+    }
+    html += `</div>`;
+
+    container.innerHTML = html;
+    container.querySelector("[data-pagina='anterior']")?.addEventListener("click", () => renderTabelaSupervisoresAtribuidos(paginaAtualSupervisoresAtribuidos - 1));
+    container.querySelector("[data-pagina='seguinte']")?.addEventListener("click", () => renderTabelaSupervisoresAtribuidos(paginaAtualSupervisoresAtribuidos + 1));
+}
+
+function abrirModalSupervisionandosDocente(docente) {
+    supervisorAtribuidoAtual = supervisoresAtribuidosRegistos.find((item) => item.docente === docente) || { docente };
+    if (supervisionandosDocenteTitulo) supervisionandosDocenteTitulo.textContent = `Supervisionandos - ${docente}`;
+    if (listaSupervisionandosDocente) listaSupervisionandosDocente.innerHTML = criarMarkupLoadingPainel("A carregar…");
+    if (modalSupervisionandosDocente) {
+        modalSupervisionandosDocente.style.display = "flex";
+        modalSupervisionandosDocente.setAttribute("aria-hidden", "false");
+    }
+    carregarSupervisionandosDocente(docente);
+}
+
+function fecharModalSupervisionandosDocente() {
+    if (!modalSupervisionandosDocente) return;
+    modalSupervisionandosDocente.style.display = "none";
+    modalSupervisionandosDocente.setAttribute("aria-hidden", "true");
+}
+
+async function carregarSupervisionandosDocente(docente = supervisorAtribuidoAtual?.docente) {
+    if (!docente || !listaSupervisionandosDocente) return;
+
+    try {
+        listaSupervisionandosDocente.innerHTML = criarMarkupLoadingPainel("A carregar…");
+        const params = new URLSearchParams({ action: "getSupervisionandosDocente", docente, supervisor: docente });
+        const resposta = await fetch(WEB_URL, {
+            method: "POST",
+            body: params
+        });
+        const retorno = await resposta.json();
+        supervisionandosDocenteRegistos = obterListaRespostaApi(retorno);
+        renderListaSupervisionandosDocente();
+    } catch (erro) {
+        console.error("Erro ao carregar supervisionandos:", erro);
+        listaSupervisionandosDocente.innerHTML = "<p>Erro ao carregar supervisionandos do docente.</p>";
+    }
+}
+
+function renderListaSupervisionandosDocente() {
+    if (!listaSupervisionandosDocente) return;
+
+    if (!supervisionandosDocenteRegistos.length) {
+        listaSupervisionandosDocente.innerHTML = '<p class="sem-dados">Não existe nenhum dado para ser apresentado.</p>';
+        return;
+    }
+
+    let html = `
+        <div class="credencial-lista-head tema-lista-head">
+            <div>Nº</div>
+            <div>Nome do estudante</div>
+            <div>Curso</div>
+            <div>Status</div>
+            <div>Finalizar</div>
+        </div>
+        <div class="credencial-lista table-credencial table-tema-parecer">
+    `;
+
+    supervisionandosDocenteRegistos.forEach((item, index) => {
+        const id = obterIdentificadorSupervisionando(item);
+        html += `
+            <article class="credencial-linha tema-parecer-linha" data-id="${escaparHTML(id)}">
+                <div class="credencial-data">${index + 1}</div>
+                <div class="credencial-estudante"><p class="credencial-nome">${escaparHTML(item.nome ?? item.estudante ?? item.nomeEstudante ?? "—")}</p></div>
+                <div class="credencial-curso">${escaparHTML(item.curso ?? item.Curso ?? "—")}</div>
+                <div class="credencial-status"><span class="status status-atribuido">ACTIVO</span></div>
+                <div class="credencial-acao"><button class="credencial-btn-acao" type="button" data-finalizar-supervisionando="${escaparHTML(id)}">Finalizar</button></div>
+            </article>
+        `;
+    });
+
+    listaSupervisionandosDocente.innerHTML = `${html}</div>`;
+}
+
+async function finalizarSupervisionandoAtribuido(idSupervisionando) {
+    const registo = supervisionandosDocenteRegistos.find((item) => obterIdentificadorSupervisionando(item) === idSupervisionando);
+    const nome = String(registo?.nome ?? registo?.estudante ?? registo?.nomeEstudante ?? "este supervisionando").trim();
+    const confirmado = window.confirm(`Pretende finalizar ${nome}?`);
+    if (!confirmado) return;
+
+    const botao = listaSupervisionandosDocente?.querySelector(`[data-finalizar-supervisionando="${CSS.escape(idSupervisionando)}"]`);
+    activarLoadingGuardar(botao, "A finalizar...");
+
+    try {
+        const params = new URLSearchParams({
+            action: "finalizarSupervisionando",
+            idSupervisionando,
+            id: idSupervisionando,
+            docente: supervisorAtribuidoAtual?.docente || "",
+            supervisor: supervisorAtribuidoAtual?.docente || ""
+        });
+        if (registo?.idTema) params.append("idTema", registo.idTema);
+        if (registo?.row) params.append("row", registo.row);
+        if (registo?.numeroEstudante || registo?.numero) params.append("numeroEstudante", registo.numeroEstudante || registo.numero);
+        const resposta = await fetch(WEB_URL, { method: "POST", body: params });
+        const retorno = await resposta.json();
+
+        if (!resposta.ok || retorno?.sucesso === false) {
+            throw new Error(retorno?.mensagem || "Não foi possível finalizar o supervisionando.");
+        }
+
+        await carregarSupervisionandosDocente();
+        const totalAtual = supervisionandosDocenteRegistos.length;
+        const docente = supervisorAtribuidoAtual?.docente || "";
+        const indice = supervisoresAtribuidosRegistos.findIndex((item) => item.docente === docente);
+        if (indice >= 0) {
+            if (totalAtual > 0) supervisoresAtribuidosRegistos[indice].totalSupervisionandos = totalAtual;
+            else supervisoresAtribuidosRegistos.splice(indice, 1);
+        }
+        renderTabelaSupervisoresAtribuidos(paginaAtualSupervisoresAtribuidos);
+        if (totalAtual === 0) fecharModalSupervisionandosDocente();
+        if (typeof mostrarModal === "function") mostrarModal("Supervisionando finalizado com sucesso.");
+    } catch (erro) {
+        console.error("Erro ao finalizar supervisionando:", erro);
+        if (typeof mostrarModal === "function") mostrarModal(erro.message, "Erro");
+        else alert(erro.message);
+    } finally {
+        desactivarLoadingGuardar(botao);
+    }
 }
 
 function carregarMonografiaFinal() {
