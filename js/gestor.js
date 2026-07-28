@@ -578,7 +578,9 @@ function obterTotalSupervisionandos(registo = {}) {
     console.log("supervisionandos:", registo.supervisionandos);
     console.log("typeof supervisionandos:", typeof registo.supervisionandos);
     console.log("Number(supervisionandos):", Number(registo.supervisionandos));
-    return Number.isFinite(total) ? total : 0;
+    const resultado = Number.isFinite(total) ? total : 0;
+    console.log("RETORNO obterTotalSupervisionandos:", resultado);
+    return resultado;
 }
 
 function obterIdentificadorSupervisionando(registo = {}) {
@@ -2709,11 +2711,17 @@ async function carregarSupervisoresAtribuidos() {
         const listaOriginal = obterListaRespostaApi(retorno);
         console.log("Lista original:", listaOriginal);
 
-        const listaMapeada = listaOriginal.map(item => ({
-            ...item,
-            docente: obterNomeSupervisor(item),
-            totalSupervisionandos: obterTotalSupervisionandos(item)
-        }));
+        const listaMapeada = listaOriginal.map(item => {
+            const total = obterTotalSupervisionandos(item);
+
+            console.log("TOTAL RECEBIDO NO MAP:", total);
+
+            return {
+                ...item,
+                docente: obterNomeSupervisor(item),
+                totalSupervisionandos: total
+            };
+        });
 
         console.log("Lista mapeada:", listaMapeada);
 
