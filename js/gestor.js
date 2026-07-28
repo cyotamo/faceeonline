@@ -2700,13 +2700,24 @@ async function carregarSupervisoresAtribuidos() {
             body: new URLSearchParams({ action: "getSupervisoresAtribuidos" })
         });
         const retorno = await resposta.json();
-        const lista = obterListaRespostaApi(retorno)
-            .map((item) => ({
-                ...item,
-                docente: obterNomeSupervisor(item),
-                totalSupervisionandos: obterTotalSupervisionandos(item)
-            }))
-            .filter((item) => item.docente && item.totalSupervisionandos > 0)
+        console.log("Retorno backend:", retorno);
+
+        const listaOriginal = obterListaRespostaApi(retorno);
+        console.log("Lista original:", listaOriginal);
+
+        const listaMapeada = listaOriginal.map(item => ({
+            ...item,
+            docente: obterNomeSupervisor(item),
+            totalSupervisionandos: obterTotalSupervisionandos(item)
+        }));
+
+        console.log("Lista mapeada:", listaMapeada);
+
+        const listaFinal = listaMapeada.filter(item => item.docente && item.totalSupervisionandos > 0);
+
+        console.log("Lista final:", listaFinal);
+
+        const lista = listaFinal
             .sort((a, b) => b.totalSupervisionandos - a.totalSupervisionandos || a.docente.localeCompare(b.docente));
 
         supervisoresAtribuidosRegistos = lista;
