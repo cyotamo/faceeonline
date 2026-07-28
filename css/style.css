@@ -1849,8 +1849,23 @@ footer {
   transition: 0.2s;
 }
 
+.modal-ok-btn + .modal-ok-btn {
+  margin-top: 14px;
+}
+
+.modal-ok-btn.secondary {
+  background: #fff;
+  color: var(--secondary);
+  border: 1px solid var(--border);
+  box-shadow: none;
+}
+
 .modal-ok-btn:hover {
   background: #003b8f;
+}
+
+.modal-ok-btn.secondary:hover {
+  background: #fff;
 }
 
 .defesa-modal-overlay {

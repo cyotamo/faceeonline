@@ -319,7 +319,7 @@ function mostrarModalConfirmacao(
   const cancelarBtn = document.createElement("button");
   cancelarBtn.id = "modalCancelarConfirmacao";
   cancelarBtn.type = "button";
-  cancelarBtn.className = okBtn.className;
+  cancelarBtn.className = `${okBtn.className} secondary`;
   cancelarBtn.innerText = textoCancelar;
 
   if (tituloModal) {
