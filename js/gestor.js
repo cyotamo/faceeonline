@@ -1985,7 +1985,7 @@ document.getElementById("btnHomologarSuperv").addEventListener("click", function
     }
 });
 
-// Botão Supervisores Atribuídos
+// Botão Supervisores Activos
 document.getElementById("btnSupervisoresAtribuidos")?.addEventListener("click", () => {
     esconderEstatisticas();
     esconderSecaoDefesas();
@@ -2745,9 +2745,9 @@ async function carregarSupervisoresAtribuidos() {
         paginaAtualSupervisoresAtribuidos = 1;
         renderTabelaSupervisoresAtribuidos();
     } catch (erro) {
-        console.error("Erro ao carregar supervisores atribuídos:", erro);
+        console.error("Erro ao carregar supervisores activos:", erro);
         const container = document.getElementById("tabelaGestaoGeral");
-        if (container) container.innerHTML = "<p>Erro ao carregar os supervisores atribuídos.</p>";
+        if (container) container.innerHTML = "<p>Erro ao carregar os supervisores activos.</p>";
     } finally {
         esconderCarregamento();
         reaplicarRestricoesUI();
@@ -2802,7 +2802,7 @@ function renderTabelaSupervisoresAtribuidos(pagina = paginaAtualSupervisoresAtri
         html += markupPaginacaoPadrao({
             paginaAtual: estadoPaginacao.paginaAtual,
             totalPaginas: estadoPaginacao.totalPaginas,
-            ariaLabel: "Paginação Supervisores Atribuídos"
+            ariaLabel: "Paginação Supervisores Activos"
         });
     }
     html += `</div>`;
