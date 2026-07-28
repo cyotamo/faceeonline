@@ -23,27 +23,12 @@ const PERFIS = {
     "DEFESAS",
     "PLANOS_ANALITICOS",
   ],
-  "vcumpe@unirovuma.ac.mz": ["DEFESAS", "ESTATISTICAS", "PLANOS_ANALITICOS"],
-  "lpulveira@unirovuma.ac.mz": ["DEFESAS", "ESTATISTICAS", "PLANOS_ANALITICOS"],
-  "ajanuario@unirovuma.ac.mz": ["DEFESAS", "ESTATISTICAS", "PLANOS_ANALITICOS"],
-  "asadate@unirovuma.ac.mz": [
-    "DEFESAS",
-    "ATRIBUIR_SUPERVISOR",
-    "ESTATISTICAS",
-    "PLANOS_ANALITICOS",
-  ],
-  "ineuana@unirovuma.ac.mz": [
-    "DEFESAS",
-    "ATRIBUIR_SUPERVISOR",
-    "ESTATISTICAS",
-    "PLANOS_ANALITICOS",
-  ],
-  "atomas@unirovuma.ac.mz": [
-    "DEFESAS",
-    "ATRIBUIR_SUPERVISOR",
-    "ESTATISTICAS",
-    "PLANOS_ANALITICOS",
-  ],
+  "vcumpe@unirovuma.ac.mz":    ["DEFESAS", "SUPERVISORES_ACTIVOS", "ESTATISTICAS", "PLANOS_ANALITICOS"],
+  "lpulveira@unirovuma.ac.mz": ["DEFESAS", "SUPERVISORES_ACTIVOS", "ESTATISTICAS", "PLANOS_ANALITICOS"],
+  "ajanuario@unirovuma.ac.mz": ["DEFESAS", "SUPERVISORES_ACTIVOS", "ESTATISTICAS", "PLANOS_ANALITICOS"],
+  "asadate@unirovuma.ac.mz":   [ "DEFESAS", "SUPERVISORES_ACTIVOS", "ATRIBUIR_SUPERVISOR", "ESTATISTICAS", "PLANOS_ANALITICOS", ],
+  "ineuana@unirovuma.ac.mz":   ["DEFESAS", "SUPERVISORES_ACTIVOS", "ATRIBUIR_SUPERVISOR", "ESTATISTICAS", "PLANOS_ANALITICOS", ],
+  "atomas@unirovuma.ac.mz":   [ "DEFESAS", "SUPERVISORES_ACTIVOS", "ATRIBUIR_SUPERVISOR", "ESTATISTICAS", "PLANOS_ANALITICOS", ],
 };
 
 const CURSOS_POR_PERFIL = {
