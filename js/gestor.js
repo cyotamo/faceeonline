@@ -286,9 +286,15 @@ function defesaAindaPendente(registo = {}) {
 }
 
 function obterSituacaoDefesaParaTabela(item = {}) {
+    const processo = String(item.processo || "").trim();
+
+    if (processo) {
+        return processo;
+    }
+
     const dataAgendada = String(item.dataAgendada || item.data_agendada || "").trim();
     if (dataAgendada) {
-        return `Agendado: ${normalizarDataPt(dataAgendada)}`;
+        return "Defesa agendada";
     }
 
     if (defesaEstaAgendada(item)) {
@@ -296,7 +302,7 @@ function obterSituacaoDefesaParaTabela(item = {}) {
     }
 
     const situacao = String(item.situacao || "").trim();
-    if (situacao === "Solicitar autorização defesa") {
+    if (situacao) {
         return situacao;
     }
 
@@ -309,10 +315,6 @@ function obterSituacaoDefesaParaTabela(item = {}) {
     const enviadoRATexto = String(enviadoRA).trim();
     if (enviadoRATexto) {
         return `Enviado ao RA em ${normalizarDataPt(enviadoRA)}`;
-    }
-
-    if (situacao) {
-        return situacao;
     }
 
     return "Aguardando actualização";
@@ -1204,9 +1206,11 @@ function preencherSelectSituacaoDefesa(registo = {}, valorSelecionado = "") {
     }
 
     const temValor = (valor) => String(valor ?? "").trim() !== "";
+    const situacaoPersistida = normalizarCampo(registo.processo || registo.situacao || "");
     const situacaoEstaBloqueada = (situacao) => {
         const campos = MAPA_CAMPOS_SITUACAO_DEFESA[situacao] || [];
-        return campos.some((campo) => temValor(registo[campo]));
+        return normalizarCampo(situacao) === situacaoPersistida
+            || campos.some((campo) => temValor(registo[campo]));
     };
 
     const valorActual = String(valorSelecionado ?? "").trim();
@@ -1297,8 +1301,8 @@ function renderTabelaDefesa(lista = []) {
                     <p class="credencial-nome">${escaparHTML(itemSeguro.nome || "—")}</p>
                 </div>
                 <div class="credencial-curso defesa-campo defesa-curso" data-label="Curso">${escaparHTML(itemSeguro.curso || "—")}</div>
+                <div class="credencial-arquivo defesa-campo defesa-arquivo" data-label="Autorização">${linkPdfHtml}</div>
                 <div class="credencial-status defesa-campo defesa-status" data-label="Status">${situacaoHtml}</div>
-                <div class="credencial-arquivo defesa-campo defesa-arquivo" data-label="Arquivo">${linkPdfHtml}</div>
                 <div class="credencial-acao defesa-campo defesa-acao" data-label="Acção">
                     <button
                         type="button"
