@@ -289,7 +289,8 @@ function obterSituacaoDefesaParaTabela(item = {}) {
     const processo = String(item.processo || "").trim();
 
     if (processo) {
-        return processo;
+        // A coluna "processo" guarda a data de registo deste pedido, não o texto do estado.
+        return "Solicitar autorização defesa";
     }
 
     const dataAgendada = String(item.dataAgendada || item.data_agendada || "").trim();
