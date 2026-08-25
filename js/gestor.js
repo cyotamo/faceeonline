@@ -286,14 +286,23 @@ function defesaAindaPendente(registo = {}) {
 }
 
 function obterSituacaoDefesaParaTabela(item = {}) {
-    const banca = String(item.banca || item.avaliacaoBanca || "").trim();
-    if (banca) {
-        return `Em avaliação pela Banca em ${obterDataSemHoraDefesa(banca)}`;
-    }
-
     const dataAgendada = String(item.dataAgendada || item.data_agendada || "").trim();
     if (dataAgendada) {
         return `Agendado: ${normalizarDataPt(dataAgendada)}`;
+    }
+
+    if (defesaEstaAgendada(item)) {
+        return "Defesa agendada";
+    }
+
+    const situacao = String(item.situacao || "").trim();
+    if (situacao === "Solicitar autorização defesa") {
+        return situacao;
+    }
+
+    const banca = String(item.banca || item.avaliacaoBanca || "").trim();
+    if (banca) {
+        return `Em avaliação pela Banca em ${obterDataSemHoraDefesa(banca)}`;
     }
 
     const enviadoRA = item.enviadoRA ?? item.enviadoAoRA ?? "";
@@ -302,7 +311,6 @@ function obterSituacaoDefesaParaTabela(item = {}) {
         return `Enviado ao RA em ${normalizarDataPt(enviadoRA)}`;
     }
 
-    const situacao = String(item.situacao || "").trim();
     if (situacao) {
         return situacao;
     }
@@ -392,12 +400,14 @@ const supervisionandosDocenteTitulo = document.getElementById("supervisionandosD
 const SITUACOES_DEFESA = [
     "Em avaliação no RA",
     "Em avaliação pela banca",
+    "Solicitar autorização defesa",
     "Defendida"
 ];
 
 const MAPA_CAMPOS_SITUACAO_DEFESA = {
     "Em avaliação no RA": ["enviadoRA", "enviadoAoRA", "avaliacaoRA"],
     "Em avaliação pela banca": ["banca", "avaliacaoBanca"],
+    "Solicitar autorização defesa": ["pedidoAutorizacaoDefesa"],
     Defendida: ["defendido"]
 };
 
@@ -1465,6 +1475,9 @@ async function guardarSituacaoDefesa() {
 
         actualizarSituacaoNaTabela(situacao);
         guardarDadosContador("defesa_monografia", defesasCache);
+        if (situacao === "Solicitar autorização defesa") {
+            alert("O pedido de autorização de defesa foi solicitado.");
+        }
         preencherSelectSituacaoDefesa(registoDefesaEmEdicao, "");
         actualizarEstadoBotaoSituacaoDefesa();
     } catch (erro) {
@@ -1535,14 +1548,18 @@ async function guardarEdicaoDefesa() {
             return;
         }
 
+        const dadosDefesaAgendada = {
+            ...dadosEditados,
+            situacao: "Defesa agendada"
+        };
         registoDefesaEmEdicao = {
             ...registoDefesaEmEdicao,
-            ...dadosEditados
+            ...dadosDefesaAgendada
         };
         if (Number.isInteger(indiceDefesaEmEdicao) && defesasCache[indiceDefesaEmEdicao]) {
             defesasCache[indiceDefesaEmEdicao] = {
                 ...defesasCache[indiceDefesaEmEdicao],
-                ...dadosEditados
+                ...dadosDefesaAgendada
             };
         }
         renderTabelaDefesa(defesasCache);
