@@ -364,6 +364,7 @@ function opcoesSupervisoresHTML(valorSelecionado, opcoes) {
 
 const estatisticasContainer = document.getElementById("estatisticasContainer");
 const secaoDefesas = document.getElementById("secaoDefesas");
+const btnGerarCalendarioDefesas = document.getElementById("btnGerarCalendarioDefesas");
 const modalEdicaoDefesa = document.getElementById("modalEdicaoDefesa");
 const selectSituacaoDefesa = document.getElementById("defesaSituacao");
 const selectPresidenteDefesa = document.getElementById("defesaPresidente");
@@ -1162,6 +1163,52 @@ function defesaEstaAgendada(registo = {}) {
     return Boolean(presidente && arguente && hora && sala);
 }
 
+// Só é agendada quando a marcação está completa (presidente, oponente, sala, data e hora);
+// o simples pedido de "Solicitar autorização defesa" não chega.
+function defesaComMarcacaoCompleta(registo = {}) {
+    const presidente = String(registo.presidente || "").trim();
+    const oponente = String(registo.oponente || registo.arguente || "").trim();
+    const sala = String(registo.sala || registo.Sala || "").trim();
+    const dataAgendada = String(registo.dataAgendada || registo.data_agendada || "").trim();
+    const hora = String(registo.hora || registo.Hora || "").trim();
+
+    return Boolean(presidente && oponente && sala && dataAgendada && hora);
+}
+
+function obterDefesasAgendadasParaCalendario() {
+    const registos = (Array.isArray(defesasCache) && defesasCache.length)
+        ? defesasCache
+        : (estadoContadoresMenu.dados.get("defesa_monografia") || []);
+
+    return filtrarRegistosPorCursoModulo(registos, "DEFESAS")
+        .filter((registo) => defesaComMarcacaoCompleta(registo))
+        .map((registo) => ({
+            nome: registo.nome || "",
+            numero: registo.numero || "",
+            curso: obterCursoRegistoDefesa(registo),
+            tema: registo.tema || registo.temaMonografia || "",
+            supervisor: registo.supervisor || "",
+            presidente: registo.presidente || "",
+            oponente: registo.oponente || registo.arguente || "",
+            sala: registo.sala || registo.Sala || "",
+            dataAgendada: registo.dataAgendada || registo.data_agendada || "",
+            hora: registo.hora || registo.Hora || ""
+        }));
+}
+
+function gerarCalendarioDefesas() {
+    const defesasAgendadas = obterDefesasAgendadasParaCalendario();
+
+    if (!defesasAgendadas.length) {
+        alert("Não existem defesas agendadas para gerar o calendário.");
+        return;
+    }
+
+    // A chamada ao back-end (GS) e a geração do PDF serão ligadas numa etapa posterior.
+    console.log("[DefesaMonografia][Calendario] Defesas preparadas para o calendário:", defesasAgendadas);
+    alert(`Foram encontradas ${defesasAgendadas.length} defesas agendadas.`);
+}
+
 function actualizarEstadoBotaoSituacaoDefesa() {
     if (!btnGuardarSituacaoDefesa || !selectSituacaoDefesa) {
         return;
@@ -1820,6 +1867,7 @@ window.fecharModalEdicaoDefesa = fecharModalEdicaoDefesa;
 window.guardarSituacaoDefesa = guardarSituacaoDefesa;
 window.guardarEdicaoDefesa = guardarEdicaoDefesa;
 window.renderTabelaDefesa = renderTabelaDefesa;
+btnGerarCalendarioDefesas?.addEventListener("click", gerarCalendarioDefesas);
 configurarEventosModalDefesa();
 configurarEventosModalCredencial();
 configurarEventosModalTema();

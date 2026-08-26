@@ -3380,6 +3380,13 @@ input[type='file'] {
   padding: 12px;
 }
 
+#secaoDefesas .defesas-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin-bottom: 8px;
+}
+
 #secaoDefesas .tabela-scroll-defesas {
   max-height: calc(100vh - 185px);
   overflow-x: auto;
