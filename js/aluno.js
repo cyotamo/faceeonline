@@ -716,10 +716,16 @@ async function converterRespostaParaDiagnostico(resposta) {
 }
 
 function enviarPedidoCredencial() {
+  const email = document.getElementById('email');
+  if (!email || !email.checkValidity()) {
+    email?.reportValidity();
+    return;
+  }
+
   const dados = new FormData();
   dados.append('action', 'submeterCredencial');
 
-  const campos = ['nome', 'numeroEstudante', 'curso', 'titulo', 'ano', 'organizacao', 'supervisor'];
+  const campos = ['nome', 'email', 'numeroEstudante', 'curso', 'titulo', 'ano', 'organizacao', 'supervisor'];
 
   campos.forEach((campo) => {
     const elemento = document.getElementById(campo);
