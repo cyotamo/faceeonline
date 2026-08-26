@@ -3383,8 +3383,15 @@ input[type='file'] {
 #secaoDefesas .defesas-acoes {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
   justify-content: flex-start;
   margin-bottom: 8px;
+}
+
+#secaoDefesas .defesas-acoes-link {
+  font-size: 14px;
+  font-weight: 600;
 }
 
 #secaoDefesas .tabela-scroll-defesas {

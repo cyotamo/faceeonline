@@ -365,6 +365,7 @@ function opcoesSupervisoresHTML(valorSelecionado, opcoes) {
 const estatisticasContainer = document.getElementById("estatisticasContainer");
 const secaoDefesas = document.getElementById("secaoDefesas");
 const btnGerarCalendarioDefesas = document.getElementById("btnGerarCalendarioDefesas");
+const linkAbrirCalendarioDefesas = document.getElementById("linkAbrirCalendarioDefesas");
 const modalEdicaoDefesa = document.getElementById("modalEdicaoDefesa");
 const selectSituacaoDefesa = document.getElementById("defesaSituacao");
 const selectPresidenteDefesa = document.getElementById("defesaPresidente");
@@ -1196,7 +1197,7 @@ function obterDefesasAgendadasParaCalendario() {
         }));
 }
 
-function gerarCalendarioDefesas() {
+async function gerarCalendarioDefesas() {
     const defesasAgendadas = obterDefesasAgendadasParaCalendario();
 
     if (!defesasAgendadas.length) {
@@ -1204,9 +1205,46 @@ function gerarCalendarioDefesas() {
         return;
     }
 
-    // A chamada ao back-end (GS) e a geração do PDF serão ligadas numa etapa posterior.
-    console.log("[DefesaMonografia][Calendario] Defesas preparadas para o calendário:", defesasAgendadas);
-    alert(`Foram encontradas ${defesasAgendadas.length} defesas agendadas.`);
+    const payload = new URLSearchParams({
+        action: "gerarCalendarioDefesas",
+        defesas: JSON.stringify(defesasAgendadas)
+    });
+
+    console.log("[DefesaMonografia][Calendario] Defesas enviadas ao GS:", defesasAgendadas);
+    activarLoadingGuardar(btnGerarCalendarioDefesas, "A gerar...");
+    if (linkAbrirCalendarioDefesas) {
+        linkAbrirCalendarioDefesas.style.display = "none";
+        linkAbrirCalendarioDefesas.removeAttribute("href");
+    }
+
+    try {
+        const resposta = await fetch(WEB_URL, {
+            method: "POST",
+            body: payload
+        });
+
+        const resultado = await resposta.json();
+        console.log("[DefesaMonografia][Calendario] Resposta do GS:", resultado);
+
+        if (!(resultado.sucesso === true || resultado.sucesso === "true")) {
+            alert(resultado.mensagem || "Não foi possível gerar o calendário de defesas.");
+            return;
+        }
+
+        const fileUrl = String(resultado.fileUrl || "").trim();
+        if (fileUrl && linkAbrirCalendarioDefesas) {
+            linkAbrirCalendarioDefesas.href = fileUrl;
+            linkAbrirCalendarioDefesas.style.display = "";
+        }
+        if (resultado.mensagem) {
+            alert(resultado.mensagem);
+        }
+    } catch (erro) {
+        console.error("[DefesaMonografia][Calendario] Erro ao gerar o calendário:", erro);
+        alert("Erro de comunicação com o servidor ao gerar o calendário de defesas.");
+    } finally {
+        desactivarLoadingGuardar(btnGerarCalendarioDefesas);
+    }
 }
 
 function actualizarEstadoBotaoSituacaoDefesa() {
