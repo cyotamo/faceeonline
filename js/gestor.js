@@ -1187,6 +1187,9 @@ function obterDefesasAgendadasParaCalendario() {
         : (estadoContadoresMenu.dados.get("defesa_monografia") || []);
 
     return filtrarRegistosPorCursoModulo(registos, "DEFESAS")
+        // Exclui defesas já incluídas num calendário (coluna Y = "OK") e já defendidas (coluna P).
+        .filter((registo) => String(registo.calendarioGerado || "").trim() !== "OK")
+        .filter((registo) => defesaAindaPendente(registo))
         .filter((registo) => defesaComMarcacaoCompleta(registo))
         .map((registo) => ({
             nome: registo.nome || "",
