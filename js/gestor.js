@@ -286,11 +286,16 @@ function defesaAindaPendente(registo = {}) {
 }
 
 function obterSituacaoDefesaParaTabela(item = {}) {
+    if (defesaComMarcacaoCompleta(item)) {
+        const dataAgendada = formatarDataDiaMesAno(item.dataAgendada || item.data_agendada || "");
+        return dataAgendada ? `Defesa agendada para: ${dataAgendada}` : "Defesa agendada";
+    }
+
     const processo = String(item.processo || "").trim();
 
     if (processo) {
         // A coluna "processo" guarda a data de registo deste pedido, não o texto do estado.
-        return "Solicitar autorização defesa";
+        return "Solicitado a autorização para defesa";
     }
 
     const dataAgendada = String(item.dataAgendada || item.data_agendada || "").trim();
@@ -1187,7 +1192,7 @@ function obterDefesasAgendadasParaCalendario() {
             nome: registo.nome || "",
             numero: registo.numero || "",
             curso: obterCursoRegistoDefesa(registo),
-            tema: registo.tema || registo.temaMonografia || "",
+            tema: registo.tema || "",
             supervisor: registo.supervisor || "",
             presidente: registo.presidente || "",
             oponente: registo.oponente || registo.arguente || "",
@@ -1211,7 +1216,18 @@ async function gerarCalendarioDefesas() {
     });
 
     console.log("[DefesaMonografia][Calendario] Defesas enviadas ao GS:", defesasAgendadas);
-    activarLoadingGuardar(btnGerarCalendarioDefesas, "A gerar...");
+    console.log(
+        "[DefesaMonografia][Calendario] Verificação (nome | tema | curso | dataAgendada | sala | hora):",
+        defesasAgendadas.map((d) => ({
+            nome: d.nome,
+            tema: d.tema,
+            curso: d.curso,
+            dataAgendada: d.dataAgendada,
+            sala: d.sala,
+            hora: d.hora
+        }))
+    );
+    activarLoadingGuardar(btnGerarCalendarioDefesas, "A gerar calendário...");
     if (linkAbrirCalendarioDefesas) {
         linkAbrirCalendarioDefesas.style.display = "none";
         linkAbrirCalendarioDefesas.removeAttribute("href");
@@ -1232,9 +1248,15 @@ async function gerarCalendarioDefesas() {
         }
 
         const fileUrl = String(resultado.fileUrl || "").trim();
-        if (fileUrl && linkAbrirCalendarioDefesas) {
-            linkAbrirCalendarioDefesas.href = fileUrl;
-            linkAbrirCalendarioDefesas.style.display = "";
+        if (fileUrl) {
+            if (linkAbrirCalendarioDefesas) {
+                linkAbrirCalendarioDefesas.href = fileUrl;
+                linkAbrirCalendarioDefesas.style.display = "";
+            }
+            if (btnGerarCalendarioDefesas) {
+                btnGerarCalendarioDefesas.textContent = "Baixar Calendário";
+                btnGerarCalendarioDefesas.dataset.fileUrl = fileUrl;
+            }
         }
         if (resultado.mensagem) {
             alert(resultado.mensagem);
@@ -1369,7 +1391,9 @@ function renderTabelaDefesa(lista = []) {
         const situacaoNormalizada = situacaoTexto.toLowerCase();
         let situacaoClasse = "status-pendente";
 
-        if (situacaoNormalizada.includes("agendado") || situacaoNormalizada.includes("aprov")) {
+        if (situacaoNormalizada.includes("agendada para")) {
+            situacaoClasse = "status-atribuido";
+        } else if (situacaoNormalizada.includes("agendado") || situacaoNormalizada.includes("aprov")) {
             situacaoClasse = "status-aprovado";
         } else if (situacaoNormalizada.includes("recus") || situacaoNormalizada.includes("reprov")) {
             situacaoClasse = "status-recusado";
@@ -1905,7 +1929,15 @@ window.fecharModalEdicaoDefesa = fecharModalEdicaoDefesa;
 window.guardarSituacaoDefesa = guardarSituacaoDefesa;
 window.guardarEdicaoDefesa = guardarEdicaoDefesa;
 window.renderTabelaDefesa = renderTabelaDefesa;
-btnGerarCalendarioDefesas?.addEventListener("click", gerarCalendarioDefesas);
+btnGerarCalendarioDefesas?.addEventListener("click", () => {
+    const fileUrl = String(btnGerarCalendarioDefesas.dataset.fileUrl || "").trim();
+    if (fileUrl) {
+        window.open(fileUrl, "_blank", "noopener,noreferrer");
+        return;
+    }
+
+    gerarCalendarioDefesas();
+});
 configurarEventosModalDefesa();
 configurarEventosModalCredencial();
 configurarEventosModalTema();
