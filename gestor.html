@@ -33,6 +33,9 @@
             <button class="gestor-menu-item" type="button" data-target-button="btnGestaoGeral" data-permissao="ALL">
               <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4.5 13.5h6v6h-6zM13.5 4.5h6v6h-6zM13.5 13.5h6v6h-6zM4.5 4.5h6v6h-6z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="menu-label">Gestão Geral</span><span class="menu-counter" aria-hidden="true"></span>
             </button>
+            <button class="gestor-menu-item" type="button" data-target-button="btnDenuncias" data-permissao="DENUNCIAS">
+              <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5 3.75 18a1.5 1.5 0 0 0 1.3 2.25h13.9A1.5 1.5 0 0 0 20.25 18L12 3.5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v4.25M12 16.5h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><span class="menu-label">Denúncias Recebidas</span><span class="menu-counter" aria-hidden="true"></span>
+            </button>
             <button class="gestor-menu-item" type="button" data-target-button="btnDefesa" data-counter-key="defesa_monografia" data-permissao="DEFESAS">
               <span class="menu-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3l7 3v6c0 4.5-2.9 7.9-7 9-4.1-1.1-7-4.5-7-9V6l7-3z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="menu-label">Defesa Monografia</span><span class="menu-counter" aria-hidden="true"></span>
             </button>
@@ -105,6 +108,7 @@
         <div class="actions-gestor navegacao-antiga-oculta" aria-hidden="true">
           <button class="button btn-navegacao btn-padrao-portal" id="btnInicio">Início</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnGestaoGeral" data-permissao="ALL">Gestão Geral</button>
+          <button class="button btn-navegacao btn-padrao-portal" id="btnDenuncias" data-permissao="DENUNCIAS">Denúncias Recebidas</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnDefesa" data-permissao="DEFESAS">Defesa Monografia</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnMonografiaFinal" data-permissao="ALL">Monografia Final</button>
           <button class="button btn-navegacao btn-padrao-portal" id="btnCredencialPesquisa" data-permissao="CREDENCIAL">Colecta de Dados</button>
@@ -432,6 +436,12 @@
         </div>
 
         <!-- TABELA GERAL DAS GESTÕES (NÃO ALTERAR) -->
+        <section id="secaoDenuncias" class="gestor-card" style="display:none;" aria-labelledby="tituloDenuncias">
+          <h2 id="tituloDenuncias">Denúncias Recebidas</h2>
+          <div id="denunciaLista" class="tabela-scroll" aria-live="polite"></div>
+          <div id="denunciaPaginacao"></div>
+        </section>
+
         <div id="tabelaGestaoGeral" class="gestor-card"></div>
 
         </section>
@@ -440,6 +450,7 @@
   </div>
 
   <script src="./js/main.js"></script>
+  <script src="./js/denuncias-gestor.js"></script>
   <!-- HEADER -->
   <script type="module">
     import { renderHeader } from './componentes/header.js';
