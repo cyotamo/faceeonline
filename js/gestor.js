@@ -2046,6 +2046,11 @@ function carregarInicioGestor() {
     reaplicarRestricoesUI();
 }
 
+// Disponibiliza a infraestrutura de permissões aos módulos isolados do gestor.
+window.utilizadorTemPermissao = utilizadorTemPermissao;
+window.bloquearFuncionalidadeSemPermissao = bloquearFuncionalidadeSemPermissao;
+window.reaplicarRestricoesUI = reaplicarRestricoesUI;
+
 // Tema Monografia
 document.getElementById("btnInicio")?.addEventListener("click", () => {
     carregarInicioGestor();
